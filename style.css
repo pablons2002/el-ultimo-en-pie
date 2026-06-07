@@ -2,10 +2,13 @@ body {
   font-family: Arial, sans-serif;
   text-align: center;
   margin: 0;
+  padding: 0;
+  height: 100%;
 }
 
 h1 {
   margin: 10px;
+  color:blue;
 }
 
 .panel {
@@ -28,3 +31,34 @@ button {
   cursor: pointer;
 }
 
+/* WorldGuessr en iframe a pantalla completa */
+#screenWorldGuessr {
+  display: none;
+  width: 100%;
+  height: 100vh;
+}
+
+#screenWorldGuessr iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+/* Header para mostrar el nombre del usuario */
+#userHeader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 10px;
+  background: black;
+  color: white;
+  font-weight: bold;
+  z-index: 9999;
+}
+
+.userNameHeader {
+  margin-left: 10px;
+  color:aqua;
+}

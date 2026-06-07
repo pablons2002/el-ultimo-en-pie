@@ -2,7 +2,10 @@ import {
   collection, 
   query, 
   orderBy, 
-  onSnapshot 
+  onSnapshot,
+  getDocs,
+  updateDoc,
+  doc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 // Escuchar la colección "players" ordenada por "score" de mayor a menor de forma masiva
@@ -26,4 +29,57 @@ onSnapshot(q, (snapshot) => {
 });
 
 
+// ======================
+// Función para que la TV cambie de pantalla y juego 
+// ======================
+const ref = doc(window.db, "game", "state");
+async function setScreen(screen, game = null) {
+  await updateDoc(ref, {
+    screen,
+    game
+  });
+}
 
+// =====================
+// Botón para empezar el juego desde la TV. Pasa a la ruleta (falta), que lleva al Worldguessr. Aquí hay que ver cómo hacer la ruleta si meterla en cada juego o ponerla en screenGame.
+// =====================
+document.getElementById("startBtn").onclick = () => {
+  setScreen("screenGame", "worldguessr");
+  
+};
+
+
+
+
+
+
+
+
+// =====================
+// Reseteo llamado autodestrucción. Puede ser que vaya aumentado las colecciones en Firebase y no se suficiente
+// =====================
+// Función para resetear el estado del juego a los valores iniciales
+async function resetGame() {
+  const ok = confirm("⚠️ Esto borrará puntuaciones y reiniciará el juego. ¿Continuar?");
+  if (!ok) return;
+
+  // 1. Reset estado global
+  await updateDoc(ref, {
+    screen: "screenSelect",
+    game: null
+  });
+
+  // 2. Reset TODOS los jugadores
+  const snap = await getDocs(collection(window.db, "players"));
+  snap.forEach(async (playerDoc) => {
+    await updateDoc(doc(window.db, "players", playerDoc.id), {
+      score: 0,
+      active: false
+    });
+  });
+  await Promise.all(promises); // Esperar a que se completen todos los updates
+}
+// Funcionalidad al botón autodestrucción para resetear el juego
+document.getElementById("selfDestruct").onclick = () => {
+  resetGame();
+};

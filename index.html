@@ -5,50 +5,12 @@
   <meta charset="utf-8">
   <title>El último en πe</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/svg+xml" href="images/iconoWeb.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1, , viewport-fit=cover">
 </head>
 
 <body>
-  <!-- Inicio del programa, pantalla inicial, intro (falta)-->
-  <div id="screenIntro" class="screen">
-    <h1 style="font-size: 50px; color: #00e676;">
-      📺 El último en π(e) 📺
-    </h1>
-  </div>
-
-  <!-- QR para que entren desde el móvil, crear QR (falta)-->
-  <div id="screenJoin" class="screen">
-  <img src="img/qr-movil.png" alt="QR versión móvil" width="250">
-    <p style="font-size: 18px; margin-top: 20px;">Escanea el código QR para unirte desde tu móvil y elije un personaje.</p>
-  </div>
-
-
-  <!-- LOBBY (jugadores) -->
-  <div id="screenLobby" class="screen">
-    <h2>👥 Concursantes</h2>
-    <div id="playersList"></div>
-
-    <button id="startBtn">🚀 Empezar juego</button>
-  </div>
-
-  <!-- GAME -->
-  <div id="screenGame" class="screen">
-    <h2>🎮 Juego en curso</h2>
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
+  
     <!-- Conexión a Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -69,5 +31,51 @@
   </script>
 
   <script type="module" src="tv.js"></script>
+
+  <!-- Header TV-->
+  <header id="userHeader">
+    <img src="images/iconoWeb.svg" width="40">
+  </header>
+
+
+  <!-- Inicio del programa, pantalla inicial, intro (falta)-->
+  <div id="screenIntro" class="screen">
+    <h1 style="font-size: 50px; color: #00e676;">
+       El último en π(e) 
+    </h1>
+  </div>
+
+  <!-- QR para que entren desde el móvil, crear QR (falta)-->
+  <div id="screenJoin" class="screen">
+  <img src="img/qr-movil.png" alt="QR versión móvil" width="250">
+    <p style="font-size: 18px; margin-top: 20px;">Escanea el código QR para unirte desde tu móvil y elije un personaje.</p>
+  </div>
+
+
+  <!-- LOBBY (jugadores) -->
+  <div id="screenLobby" class="screen">
+    <h2> Concursantes</h2>
+    <div id="playersList"></div>
+
+    <button id="startBtn"> Empezar juego</button>
+  </div>
+
+  <!-- GAME -->
+  <div id="screenGame" class="screen">
+    <h2> Juego en curso</h2>
+
+
+
+
+
+
+
+  <!-- Botón de reset en el footer -->
+<footer>
+  <button id="selfDestruct">💣 Autodestrucción</button>
+</footer>
+
+    
+
 </body>
 </html>
