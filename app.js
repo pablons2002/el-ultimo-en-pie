@@ -4,7 +4,8 @@ import {
   addDoc, 
   query,
   orderBy,
-  onSnapshot 
+  onSnapshot,
+  updateDoc,
   doc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
@@ -14,13 +15,13 @@ import {
 function showScreen(screen) {
   document.getElementById("screenSelect").style.display = "none";
   document.getElementById("screenGame").style.display = "none";
-  document.getElementById("screenMap").style.display = "none";
+  document.getElementById("screenRanking").style.display = "none";
 
   document.getElementById(screen).style.display = "block";
 }
 
 // =====================
-// CARGAR JUGADORES (clickar un jugador)
+// CARGAR JUGADORES
 // =====================
 async function loadPlayers() {
   const snapshot = await getDocs(collection(window.db, "players"));
@@ -47,22 +48,29 @@ async function loadPlayers() {
   });
 }
 
+loadPlayers();
 // =====================
 // SELECCIONAR JUGADOR
 // =====================
+async function selectPlayer(id, name) {
+  // Actualizar Firebase para poner inGame en true. (Acordarse de ponerlo en false al salir o al iniciar el juego)
+  const playerRef = doc(window.db, "players", id);
+  await updateDoc(playerRef, {
+    active: true
+  });
+
 function selectPlayer(id, name) {
   localStorage.setItem("playerId", id);
   localStorage.setItem("playerName", name); 
 
   document.getElementById("playerName").innerText = name;
-  document.querySelector(".solo-ordenador").style.display = "none";
-  showScreen("screenGame");
+  showScreen("screenWaiting");
   
   listenToRankingAndScore(); 
 }
 
 // =====================
-// SCORE Y CLASIFICACIÓN EN TIEMPO REAL
+// SCORE Y CLASIFICACIÓN EN TIEMPO REAL falta poner que solo aparezcan los que tienen inGame true
 // =====================
 function listenToRankingAndScore() {
   let playerId = localStorage.getItem("playerId");
@@ -127,85 +135,59 @@ function listenToRankingAndScore() {
 }
 
 // =====================
-// MAPA
+// Para que los móviles escuchen el cambio de pantalla que se hace desde la TV
 // =====================
-let map = L.map('map').setView([20, 0], 2);
+onSnapshot(ref, (doc) => {
+  const state = doc.data();
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  maxZoom: 18,
-}).addTo(map);
-
-let selectedPoint = null;
-
-map.on('click', function(e) {
-  selectedPoint = e.latlng;
-
-  map.eachLayer(layer => {
-    if (layer instanceof L.Marker) {
-      map.removeLayer(layer);
-    }
-  });
-
-  L.marker(selectedPoint).addTo(map);
+  handleState(state); 
 });
+// Función usada antes para manejar el cambio de pantalla, ahora se hace directamente con el onSnapshot pero la dejo por si quieres hacer algo más complejo al cambiar de pantalla
+function handleState(state) {
 
-// =====================
-// IR AL MAPA
-// =====================
-function goToMap() {
-  showScreen("screenMap");
-  setTimeout(() => { map.invalidateSize(); }, 100);
-}
-
-// =====================
-// ENVIAR RESPUESTA 
-// =====================
-async function sendGuess() {
-  let playerId = localStorage.getItem("playerId");
-
-  if (!playerId) {
-    alert("Selecciona un jugador primero");
-    return;
+  if (state.screen === "lobby") {
+    showScreen("screenSelect"); //pantalla de selección de personaje, una vez elegido se pasa a screenWaiting hasta que se pulse el botón de empezar en la TV
   }
 
-  if (!selectedPoint) {
-    alert("Selecciona un punto en el mapa");
-    return;
-  }
-
-  await addDoc(collection(window.db, "responses"), {
-    playerId: playerId,
-    lat: selectedPoint.lat,
-    lng: selectedPoint.lng,
-    createdAt: Date.now()
-  });
-
-  document.getElementById("status").innerText = "Respuesta enviada ✔";
-
-  showScreen("screenGame");
-}
-
-// =====================
-// INIT
-// =====================
-window.onload = () => {
-  loadPlayers();
-  showScreen("screenSelect");
-
-  // Escuchar si la TV ordena abrir el mapa
-const estadoRef = doc(window.db, "estadoJuego", "actual");
-onSnapshot(estadoRef, (snap) => {
-  if (snap.exists() && snap.data().fase === "mapa") {
-    const playerId = localStorage.getItem("playerId");
-    if (playerId) {
-      showScreen("screenMap");
-      setTimeout(() => { map.invalidateSize(); }, 150); // Evita bug de Leaflet en gris
+  if (state.screen === "game") {
+    showScreen("screenGame"); //Intro juegos + ruleta para elegir juego
+    //1º Juego GeoGuessr personalizado. Falta poner el mapa o enlace a WorldGuessr
+    if (state.game === "geoguessr") { 
+      startGame(geoguessr);
     }
+    //2º Juego Adivinar quién escucha la canción
+    else if (state.game === "guessSong") {
+      startGame(guessSong);
+    }
+    //3º Juego Torre de Cristal 
+    else if (state.game === "glassTower") {
+      startGame(glassTower);
+    }
+    //4º Juego El precio Irracional, el de las unidades de lentejas
+    else if (state.game === "irrationalPrice") {
+      startGame(irrationalPrice);
+    }
+    //5º Juego Cifras y letras juego de operaciones
+    else if (state.game === "numbersAndLetters") {
+      startGame(numbersAndLetters);
+    }
+    //6º Juego: Verdad o invent, presentadores cuentan 3 historias, 1 de verdad.
+    else if (state.game === "truthOrLie") {
+      startGame(truthOrLie);
+    }
+    //7º Juego: El mentiroso con material audiovisual
+    else if (state.game === "theLiar") {
+      startGame(theLiar);
+    }
+    //8º Juego: El último teorema. Ya solo juegan 5 jugadores.
+    else {
+      startGame(lastTheorem);
+    }
+
   }
-});
+  if (state.screen === "ranking") {
+    showScreen("screenRanking");
+  }
 };
 
 window.selectPlayer = selectPlayer;
-window.goToMap = goToMap;
-window.sendGuess = sendGuess;
-
