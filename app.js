@@ -26,13 +26,23 @@ document.addEventListener("DOMContentLoaded", () => {
 // =====================
 // PANTALLAS   oculta todas las pantallas menos la que pongas en screen
 // =====================
+const screenMapMobile = {
+  screenRoulette: "screenRanking",
+  screenGame: "screenWaiting"
+  };
+
 function showScreen(screen) {
+  // traducir solo en móvil
+  if (screenMapMobile[screen]) {
+    screen = screenMapMobile[screen];
+  }
   ///////////////console.log("Cambiando a pantalla:", screen);
   document.getElementById("screenSelect").style.display = "none";
   document.getElementById("screenGame").style.display = "none";
   document.getElementById("screenRanking").style.display = "none";
   document.getElementById("screenWaiting").style.display = "none";
   document.getElementById("screenWorldGuessr").style.display = "none";
+  document.getElementById("screenRoulette").style.display = "none";
   console.log("Estoy aquí", screen);
   document.getElementById(screen).style.display = "block";
 }
@@ -181,14 +191,14 @@ if (ref) {
 
 // Diccionario de los juegos, al leer el estado desde Firebase se ejecuta la función que corresponda al juego que toque
 const games = {
-  worldguessr: worldguessr, //1º Juego WorldGuessr personalizado. Falta poner el mapa o enlace a WorldGuessr
-  guessSong: guessSong, //2º Juego Adivinar quién escucha la canción
-  glassTower: glassTower, //3º Juego Torre de Cristal 
-  irrationalPrice: irrationalPrice, //4º Juego El precio Irracional, el de las unidades de lentejas
-  numbersAndLetters: numbersAndLetters, //5º Juego Cifras y letras juego de operaciones
-  truthOrLie: truthOrLie, //6º Juego: Verdad o invent, presentadores cuentan 3 historias, 1 de verdad.
-  theLiar: theLiar, //7º Juego: El mentiroso con material audiovisual
-  lastTheorem: lastTheorem //8º Juego: El último teorema. Ya solo juegan 5 jugadores.
+  WorldGuessr: WorldGuessr, //1º Juego WorldGuessr personalizado. Falta poner el mapa o enlace a WorldGuessr
+  GuessSong: GuessSong, //2º Juego Adivinar quién escucha la canción
+  GlassTower: GlassTower, //3º Juego Torre de Cristal 
+  IrrationalPrice: IrrationalPrice, //4º Juego El precio Irracional, el de las unidades de lentejas
+  NumbersAndLetters: NumbersAndLetters, //5º Juego Cifras y letras juego de operaciones
+  TruthOrLie: TruthOrLie, //6º Juego: Verdad o invent, presentadores cuentan 3 historias, 1 de verdad.
+  TheLiar: TheLiar, //7º Juego: El mentiroso con material audiovisual
+  LastTheorem: LastTheorem //8º Juego: El último teorema. Ya solo juegan 5 jugadores.
 };
 
 // Función usada antes para manejar el cambio de pantalla, ahora se hace directamente con el onSnapshot pero la dejo por si quieres hacer algo más complejo al cambiar de pantalla

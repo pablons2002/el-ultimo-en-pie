@@ -33,7 +33,6 @@ button {
 
 /* WorldGuessr en iframe a pantalla completa */
 #screenWorldGuessr {
-  display: none;
   width: 100%;
   height: 100vh;
 }
@@ -47,10 +46,6 @@ button {
 
 /* Header para mostrar el nombre del usuario */
 #userHeader {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
   padding: 10px;
   background: black;
   color: white;
