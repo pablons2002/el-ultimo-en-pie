@@ -1,0 +1,14 @@
+R	Roma (Fontana di Trevi) 
+C	La playa de las Catedrales
+M	Madeira (encima de las nubes)
+U	Facultad Matemáticas (UCM)
+G	Aldea
+X	Xmadrid
+A	Alghero
+J	Marrakech (Jardines)
+P	Punta Galera
+N	El naranjo
+E	Escorial (Silla de Felipe)
+S	Segovia
+I	Argüelles
+Z	Azores (As Furnas)
