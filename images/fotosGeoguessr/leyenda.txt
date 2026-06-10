@@ -11,4 +11,4 @@ N	El naranjo
 E	Escorial (Silla de Felipe)
 S	Segovia
 I	Argüelles
-F	Azores (As Furnas)
+Z	Azores (As Furnas)
