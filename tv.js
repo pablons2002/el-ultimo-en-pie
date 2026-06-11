@@ -5,7 +5,9 @@ import {
   onSnapshot,
   getDocs,
   updateDoc,
+  where,
   getDoc,
+  setDoc,
   doc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
@@ -49,8 +51,8 @@ function showScreenTV(screen) {
   document.getElementById("screenSelect").style.display = "none";
   document.getElementById("screenWorldGuessr").style.display = "none";
   document.getElementById("screenRoulette").style.display = "none";
-  console.log("screenG:", screen);
-  console.log("type:", typeof screen);
+  document.getElementById("screenRanking").style.display = "none";
+
   document.getElementById(screen).style.display = "block"
 }
 
@@ -67,52 +69,45 @@ document.getElementById("startBtn").onclick = () => {
 // =====================
 // Botón para girar la ruleta y elegir juego (valor de game en firestore, previamente elegido). Falta implementar la ruleta visualmente
 // =====================
+let currentGame = null;
+let currentScreen = null;
+
 document.getElementById("spinBtn").onclick = async () => {
   //  girarRuleta(); // falta implementar esta función para mostrar la ruleta y animarla
   await sleep(5000); // tiempo de duración de la animación de la ruleta, ((ajustar))
   const snap = await getDoc(ref);
   const data = snap.data();
   const gameSelected = data.game;
-  setScreen("screenGame", gameSelected);
+  setScreen("screen" + gameSelected, gameSelected);
   showScreenTV("screen" + gameSelected)
+  onSnapshot(ref, (snap) => {
+    const data = snap.data();
+    currentScreen = data.screen;
+    currentGame = data.game;
+    console.log(currentGame)
+  });
 };
 
 // =====================
 // Juego WorldGuessr, que aparezca la imagen por cada tecla pulsada.
 // =====================
 const imagenesPorTecla = {
-  "n": "images/WorldGuessr/elNaranjo.jpg",
-  "g": "images/WorldGuessr/puntaGalera.jpg",
-  "3": "images/WorldGuessr/elPlatano.jpg",
-  "4": "images/WorldGuessr/laSandia.jpg",
-  "5": "images/WorldGuessr/elMelon.jpg",
-  "6": "images/WorldGuessr/laUva.jpg",
-  "7": "images/WorldGuessr/laPera.jpg",
-  "8": "images/WorldGuessr/laCereza.jpg",
-  "9": "images/WorldGuessr/laDurazno.jpg",
-  "0": "images/WorldGuessr/laFresa.jpg",
-  "q": "images/WorldGuessr/laPiña.jpg",
-  "w": "images/WorldGuessr/laMango.jpg",
-  "e": "images/WorldGuessr/laPapaya.jpg",
-  "r": "images/WorldGuessr/laSandia.jpg"
+  "n": "images/cartasPersonajes/Alba.png",// faltan teclas
 };
-/*
-let currentGame = null;
-let currentScreen = null;
 
-onSnapshot(ref, (snap) => {
-    const data = snap.data();
-    currentScreen = data.screen;
-    currentGame = data.game;
-    showScreenTV(data.screen);
-});
-*/
+
+
+
+
+
 document.addEventListener("keydown", (e) => { // enseña las imágenes pulsando teclas
-
+  console.log("estoy aquí")
+  console.log(currentGame)
   if (currentGame !== "WorldGuessr") return;
   const key = e.key.toLowerCase();
 
   const img = imagenesPorTecla[key];
+  console.log(img)
 
   if (!img) return; // si no existe esa tecla, ignorar
 
@@ -133,19 +128,50 @@ document.addEventListener("keydown", (e) => { // cerrar la imagen al pulsar Esca
 // Suma de puntos 1º WorldGuessr
 // =====================
 let finalizeMode = false;
+let players = [];
+let selectedRanking = [];
 
-document.getElementById("endGameBtn").onclick = () => {
+// =====================
+// Botón de terminar el juego
+// =====================
+
+document.getElementById("endGameBtn").onclick = async () => {
   // mostrar panel
+  try {
+    const q = query(collection(window.db, "players"), where("active", "==", true));
+    const querySnapshot = await getDocs(q);
+
+    // Limpiamos el array y metemos los nombres reales de la base de datos
+    players = [];
+    querySnapshot.forEach((docSnap) => {
+      const playerData = docSnap.data();
+      // Usamos el campo "name" del documento (o el id del documento si no tuvieras campo name)
+      if (playerData.name) {
+        players.push({
+          name: playerData.name,
+          img: playerData.img
+        })
+      }
+    });
+
+    console.log("👥 Jugadores activos recuperados de Firebase:", players);
+
+    if (players.length === 0) {
+      alert("⚠️ No hay ningún jugador activo (active: true) en Firebase ahora mismo.");
+    }
+
+  } catch (error) {
+    console.error("❌ Error al recuperar jugadores activos:", error);
+  }
   finalizeMode = true;
   document.getElementById("finalizePanel").style.display = "block";
   // render jugadores
   renderPlayers();
 };
 
-const players = ["Ana", "Luis", "Carlos", "Marta"];
-
-let selectedRanking = [];
-
+// ====================
+// Renderizar players con foto
+// ====================
 function renderPlayers() {
 
   const container = document.getElementById("playersContainer");
@@ -153,14 +179,12 @@ function renderPlayers() {
 
   players.forEach(p => {
 
-    const position = selectedRanking.indexOf(p);
+    const position = selectedRanking.indexOf(p.name);
 
     container.innerHTML += `
-            <div class="player ${position !== -1 ? "selected" : ""}" 
-                 data-player="${p}">
-                 
-                <div class="avatar">👤</div>
-                <div>${p}</div>
+            <div class="player ${position !== -1 ? "selected" : ""}" data-player="${p.name}">
+                <div class="avatar"><img src="${p.img}" alt="${p.name}" style="width: 10%; height: 10%; object-fit: cover; border-radius: 50%;"></div>
+                <div>${p.name}</div>
                 <div class="pos">
                     ${position !== -1 ? position + 1 : ""}
                 </div>
@@ -174,13 +198,10 @@ function renderPlayers() {
 
 
 function addClickEvents() {
-
   document.querySelectorAll(".player").forEach(el => {
-
     el.onclick = () => {
       if (!finalizeMode) return;
       const name = el.dataset.player;
-
       const index = selectedRanking.indexOf(name);
 
       if (index === -1) {
@@ -196,24 +217,46 @@ function addClickEvents() {
   });
 }
 
+// ========================
+// Botón de confirmar ranking y sumar puntuaciones
+// ========================
 document.getElementById("confirmRanking").onclick = async () => {
 
-  const pointsTable = [5000, 3000, 2000, 1000, 500];
-
+  const pointsTable = [10, 8, 6, 5, 4, 3, 2, 1];
   const scores = {};
 
   selectedRanking.forEach((player, index) => {
     scores[player] = pointsTable[index] || 0;
   });
+  try {
+    const querySnapshot = await getDocs(collection(window.db, "players"));
 
-  await setDoc(doc(window.db, "game", "results"), {
-    ranking: selectedRanking,
-    scores
-  });
+    // Recorremos los documentos que hay en Firebase (p1, p2, p3...)
+    querySnapshot.forEach(async (playerDoc) => {
+      const playerData = playerDoc.data();
+      const docId = playerDoc.id; // Aquí saca el "p1", "p2", etc.
 
-  await updateDoc(doc(window.db, "game", "state"), {
-    screen: "screenRanking"
-  });
+      // Si el nombre de este documento está en nuestro ranking de la ronda...
+      if (scores[playerData.name] !== undefined) {
+        const puntosNuevos = scores[playerData.name];
+        const puntosActuales = playerData.score || 0; // Si no tiene score, empieza en 0
+        const puntuacionTotal = puntosActuales + puntosNuevos;
+
+        // Actualizamos SU documento exacto (por ejemplo "players/p1") con el nuevo total
+        await updateDoc(doc(window.db, "players", docId), {
+          score: puntuacionTotal
+        });
+
+        console.log(`✨ ¡Puntos sumados a ${playerData.name} en ${docId}! (${puntosActuales} + ${puntosNuevos} = ${puntuacionTotal})`);
+      }
+    });
+  } catch (error) {
+    console.error("❌ Error al actualizar los scores en la colección players:", error);
+  }
+
+  // Cambiamos el estado de la pantalla para la TV
+  setScreen("screenRanking", null)
+  showScreenTV("screenRanking")
 };
 
 

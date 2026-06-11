@@ -42,7 +42,7 @@ function showScreen(screen) {
   document.getElementById("screenRanking").style.display = "none";
   document.getElementById("screenWaiting").style.display = "none";
   document.getElementById("screenWorldGuessr").style.display = "none";
-  document.getElementById("screenRoulette").style.display = "none";
+  //document.getElementById("screenRoulette").style.display = "none";
   console.log("Estoy aquí", screen);
   document.getElementById(screen).style.display = "block";
 }
@@ -191,14 +191,14 @@ if (ref) {
 
 // Diccionario de los juegos, al leer el estado desde Firebase se ejecuta la función que corresponda al juego que toque
 const games = {
-  WorldGuessr: WorldGuessr, //1º Juego WorldGuessr personalizado. Falta poner el mapa o enlace a WorldGuessr
-  GuessSong: GuessSong, //2º Juego Adivinar quién escucha la canción
-  GlassTower: GlassTower, //3º Juego Torre de Cristal 
-  IrrationalPrice: IrrationalPrice, //4º Juego El precio Irracional, el de las unidades de lentejas
-  NumbersAndLetters: NumbersAndLetters, //5º Juego Cifras y letras juego de operaciones
-  TruthOrLie: TruthOrLie, //6º Juego: Verdad o invent, presentadores cuentan 3 historias, 1 de verdad.
-  TheLiar: TheLiar, //7º Juego: El mentiroso con material audiovisual
-  LastTheorem: LastTheorem //8º Juego: El último teorema. Ya solo juegan 5 jugadores.
+  WorldGuessr: worldGuessr, //1º Juego WorldGuessr personalizado. Falta poner el mapa o enlace a WorldGuessr
+  GuessSong: guessSong, //2º Juego Adivinar quién escucha la canción
+  GlassTower: glassTower, //3º Juego Torre de Cristal 
+  IrrationalPrice: irrationalPrice, //4º Juego El precio Irracional, el de las unidades de lentejas
+  NumbersAndLetters: numbersAndLetters, //5º Juego Cifras y letras juego de operaciones
+  TruthOrLie: truthOrLie, //6º Juego: Verdad o invent, presentadores cuentan 3 historias, 1 de verdad.
+  TheLiar: theLiar, //7º Juego: El mentiroso con material audiovisual
+  LastTheorem: lastTheorem //8º Juego: El último teorema. Ya solo juegan 5 jugadores.
 };
 
 // Función usada antes para manejar el cambio de pantalla, ahora se hace directamente con el onSnapshot pero la dejo por si quieres hacer algo más complejo al cambiar de pantalla
@@ -216,7 +216,7 @@ function handleState(state) {
 // =====================
 // Juegos
 // =====================
-function worldguessr() {
+function worldGuessr() {
   // Lógica para el juego worldGuessr
   console.log("He llegado al WorldGuessr");
   showScreen("screenWorldGuessr");
