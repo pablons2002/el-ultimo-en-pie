@@ -8,6 +8,7 @@ import {
   where,
   getDoc,
   setDoc,
+  deleteField,
   doc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
@@ -33,15 +34,32 @@ onSnapshot(q, (snapshot) => {
 });
 */
 
+// El orden en el que se jugarán los juegos del concurso
+const games = ["WorldGuessr", "GuessSong", "GlassTower", "IrrationalPrice", "NumbersAndLetters", "TruthOrLie", "TheLiar", "LastTheorem"];
+
 // ======================
 // Función para que la TV cambie de pantalla y juego 
 // ======================
 const ref = doc(window.db, "game", "state");
-async function setScreen(screen, game = null) {
-  await updateDoc(ref, {
-    screen,
-    game
-  });
+async function setScreen(screen, game) {
+  if (game === undefined) {
+    await updateDoc(ref, { screen });
+    console.log(`📺 Firebase: Pantalla cambiada a "${screen}". El juego NO se ha tocado.`);
+  }
+  else if (game === null) {
+    await updateDoc(ref, {
+      screen: screen,
+      game: null
+    });
+    console.log(`📺 Firebase: Pantalla cambiada a "${screen}" y juego BORRADO (null).`);
+  }
+  else {
+    await updateDoc(ref, {
+      screen: screen,
+      game: game
+    });
+    console.log(`📺 Firebase: Pantalla cambiada a "${screen}" y juego cambiado a "${game}".`);
+  }
 }
 
 // =====================
@@ -132,7 +150,7 @@ let players = [];
 let selectedRanking = [];
 
 // =====================
-// Botón de terminar el juego
+// Botón de terminar el juego para pasar a sumar los puntos
 // =====================
 
 document.getElementById("endGameBtn").onclick = async () => {
@@ -255,43 +273,200 @@ document.getElementById("confirmRanking").onclick = async () => {
   }
 
   // Cambiamos el estado de la pantalla para la TV
-  setScreen("screenRanking", null)
+  setScreen("screenRanking",)
   showScreenTV("screenRanking")
 };
+
+// =========================================================================
+// RANKING EN TIEMPO REAL: JUGADORES ACTIVOS FILTRADOS EN JAVASCRIPT
+// =========================================================================
+function listenToRankingAndScore() {
+  const tablaContenedor = document.getElementById("listaRankingActivos");
+
+  // Si la tabla no existe en el HTML todavía, esperamos un poco y reintentamos
+  if (!tablaContenedor) {
+    setTimeout(listenToRankingAndScore, 50);
+    return;
+  }
+
+  // Si Firebase aún no ha cargado en window.db, esperamos un poco y reintentamos
+  if (!window.db) {
+    setTimeout(listenToRankingAndScore, 50);
+    return;
+  }
+  console.log("¡Conectando con Firebase para el ranking activo!");
+
+  const q = query(
+    collection(window.db, "players"),
+    where("active", "==", true),
+    orderBy("score", "desc")
+  );
+
+  onSnapshot(q, (snapshot) => {
+    tablaContenedor.innerHTML = "";
+
+    let posicion = 1;
+
+    snapshot.forEach((docSnap) => {
+      const jugador = docSnap.data();
+      const fila = document.createElement("tr");
+
+      fila.innerHTML = `
+        <td>#${posicion}</td>
+        <td>${jugador.name || "Sin nombre"}</td>
+        <td>${jugador.score ?? 0} pts</td>
+      `;
+
+      tablaContenedor.appendChild(fila);
+      posicion++;
+    });
+  });
+}
+// LLAMADA DIRECTA AL FINAL DEL ARCHIVO:
+listenToRankingAndScore();
+
+// =========================
+// Botón desde Ranking para pasar a la ruleta del siguiente juego
+// =========================
+document.getElementById("nextGameBtn").onclick = async () => {
+  // 1. Buscamos en qué posición de la lista está el juego actual
+  console.log(currentGame);
+  let currentIndex = games.indexOf(currentGame);
+  let nextGame = null;
+
+  // 2. Calculamos cuál es el siguiente
+  if (currentIndex !== -1 && currentIndex < games.length - 1) {
+    // Si encuentra el juego y no es el último, pasa al siguiente de la lista
+    nextGame = games[currentIndex + 1];
+  } else {
+    // Si no encuentra el juego actual o ya era el último, vuelve al primero
+    nextGame = games[0];
+  }
+
+  console.log(`⏩ Avanzando de ${currentGame} al siguiente juego: ${nextGame}`);
+
+  // 3. Mandamos a la TV a la pantalla de la Ruleta y configuramos el nuevo juego en Firebase
+  await setScreen("screenRoulette", nextGame);
+  showScreenTV("screenRoulette")
+};
+
+
+// ========================
+// 2º Juego GuessSong
+// ========================
+
+async function renderTvGuessSong() {
+  try {
+
+    const songSnap = await getDoc(doc(window.db, "game", "currentSong")); //añadido documento currentSong en firebase
+    if (!songSnap.exists()) return;
+    const songData = songSnap.data();
+
+    const audioPlayer = document.getElementById("tvAudioPlayer"); //mira firebase el url del audio y cambia el audio
+    if (audioPlayer.src !== songData.audioUrl) {
+      audioPlayer.src = songData.audioUrl;
+      audioPlayer.load();
+    }
+    //si se ha dado al botón de revelar resultado (revealed true) sale el nombre del título guardado en firebase, si no sale la pregunta.
+    const titleElement = document.getElementById("tvSongTitle");
+    titleElement.innerText = songData.revealed ? songData.title : "🎵 ¿De quién es esta canción? 🎵";
+
+    const container = document.getElementById("guessSongPlayersContainer");
+    container.innerHTML = "";
+
+    const playersSnap = await getDocs(query(collection(window.db, "players"), where("active", "==", true)));
+
+    playersSnap.forEach((playerDoc) => {
+      const p = playerDoc.data();
+      const docId = playerDoc.id;
+
+      // Pillamos el mapa 'attemptsSong'. Si no existe aún, se queda como objeto vacío {}
+      const att = p.attemptsSong || {};
+
+      const respuestaWho = songData.revealed ? (att.guessWho || "❌") : "❓ Sentenciado";
+      const respuestaSong = songData.revealed ? (att.guessSong || "❌ No sabe") : "✍️ Escribiendo...";
+
+      container.innerHTML += `
+        <div class="player-card" data-id="${docId}" data-name="${p.name}" data-score="${p.score || 0}">
+          <img src="${p.img}" class="avatar-img" style="width:50px; height:50px; border-radius:50%;">
+          <h3>${p.name}</h3>
+          <div class="answers-box">
+            <p><strong>Sospecha de:</strong> ${respuestaWho}</p>
+            <p><strong>Canción:</strong> "${respuestaSong}"</p>
+          </div>
+          
+          <div class="presenter-controls" style="display: ${songData.revealed ? 'block' : 'none'}">
+            <button onclick="sumarPuntosGuessSong('${docId}', 3)">🎯 Ambos (+3)</button>
+            <button onclick="sumarPuntosGuessSong('${docId}', 2)">👤 Solo Quién (+2)</button>
+            <button onclick="sumarPuntosGuessSong('${docId}', 1)">🎵 Solo Canción (+1)</button>
+          </div>
+        </div>
+      `;
+    });
+  } catch (err) {
+    console.error(err);
+  }
+}
+
 
 
 // =====================
 // Reseteo llamado autodestrucción. Puede ser que vaya aumentado las colecciones en Firebase y no se suficiente
 // =====================
 // Función para resetear el estado del juego a los valores iniciales
+// Función para resetear el estado del juego a los valores iniciales
 async function resetGame() {
   const ok = confirm("⚠️ Esto borrará puntuaciones y reiniciará el juego. ¿Continuar?");
   if (!ok) return;
 
-  // 1. Reset estado global
-  setScreen("screenSelect", null);
-  showScreenTV("screenSelect");
+  try {
+    // 1. Reset estado global
+    await setScreen("screenSelect", null);
+    showScreenTV("screenSelect");
 
-  // 2. Reset TODOS los jugadores
-  const snap = await getDocs(collection(window.db, "players"));
-  const promises = [];
-  snap.forEach(async (playerDoc) => {
-    promises.push(
-      await updateDoc(doc(window.db, "players", playerDoc.id), {
+    // 2. Reset TODOS los jugadores
+    const snap = await getDocs(collection(window.db, "players"));
+    const promises = [];
+    
+    snap.forEach((playerDoc) => {
+      const playerData = playerDoc.data(); // 🟢 CORREGIDO: Declaramos playerData para poder leer los campos
+      
+      const datosUpdate = {
         score: 0,
         active: false
-      }));
-  });
-  await Promise.all(promises); // Esperar a que se completen todos los updates
+      };
+      
+      if (playerData.attemptsSong !== undefined) {
+        datosUpdate.attemptsSong = deleteField();
+      }
+      
+      const playerRef = doc(window.db, "players", playerDoc.id);
+      promises.push(updateDoc(playerRef, datosUpdate));
+    });
+
+    await Promise.all(promises); // Esperar a que se completen todos los updates
+    
+    // 3. Reset de la canción activa
+    await updateDoc(doc(window.db, "game", "currentSong"), {
+      title: "Ninguna",
+      audioUrl: "",
+      revealed: false
+    });
+    console.log("🎵 ¡Documento currentSong inicializado!");
+
+  } catch (error) {
+    console.error("❌ Error durante el reset total del juego:", error);
+  }
 }
+
 // Funcionalidad al botón autodestrucción para resetear el juego
 document.getElementById("selfDestruct").onclick = () => {
   resetGame();
 };
-
-
-
-
+// Funcionalidad al botón autodestrucción para resetear el juego
+document.getElementById("selfDestruct").onclick = () => {
+  resetGame();
+};
 // =====================
 // Función para esperar milisegundos
 // =====================

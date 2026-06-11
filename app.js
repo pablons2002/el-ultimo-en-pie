@@ -220,6 +220,25 @@ function worldGuessr() {
 }
 
 function guessSong() {
+  window.enviarSospechoso = async (nombreSospechoso) => {
+  const miPlayerId = localStorage.getItem("myPlayerDocId"); // ej: "p1"
+  
+  // Firebase crea el objeto 'attempts' y la propiedad 'guessWho' automáticamente si no existen
+  await updateDoc(doc(window.db, "players", miPlayerId), {
+    "attemptsSong.guessWho": nombreSospechoso
+  });
+};
+
+document.getElementById("sendSongBtn").onclick = async () => {
+  const miPlayerId = localStorage.getItem("myPlayerDocId");
+  const textoCancion = document.getElementById("mobileSongInput").value.trim();
+  if(!textoCancion) return;
+
+  // Firebase mete 'guessSong' dentro de 'attempts' sin tocar 'guessWho'
+  await updateDoc(doc(window.db, "players", miPlayerId), {
+    "attemptsSong.guessSong": textoCancion
+  });
+};
   // Lógica para el juego Adivinar quién escucha la canción
 }
 
