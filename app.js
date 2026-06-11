@@ -6,6 +6,7 @@ import {
   orderBy,
   onSnapshot,
   updateDoc,
+  where,
   doc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
@@ -42,7 +43,7 @@ function showScreen(screen) {
   document.getElementById("screenRanking").style.display = "none";
   document.getElementById("screenWaiting").style.display = "none";
   document.getElementById("screenWorldGuessr").style.display = "none";
-  document.getElementById("screenRoulette").style.display = "none";
+ // document.getElementById("screenRoulette").style.display = "none";
   console.log("Estoy aquí", screen);
   document.getElementById(screen).style.display = "block";
 }
@@ -107,70 +108,66 @@ async function selectPlayer(id, name) {
   listenToRankingAndScore();
 }
 
-// =====================
-// SCORE Y CLASIFICACIÓN EN TIEMPO REAL falta poner que solo aparezcan los que tienen active true  (falta revisar)
-// =====================
+
+
+
+
+// =========================================================================
+// RANKING EN TIEMPO REAL: JUGADORES ACTIVOS FILTRADOS EN JAVASCRIPT
+// =========================================================================
 function listenToRankingAndScore() {
-  let playerId = localStorage.getItem("playerId");
+  // CORRECCIÓN 1: Apuntamos al <tbody> (listaRankingActivos) para meter ahí las filas
+  const tablaContenedor = document.getElementById("listaRankingActivos");
   
-  const q = query(collection(window.db, "players"), orderBy("score", "desc"));
+  // Si la tabla no existe en el HTML todavía, esperamos un poco y reintentamos
+  if (!tablaContenedor) {
+    setTimeout(listenToRankingAndScore, 50);
+    return;
+  } 
+
+  // Si Firebase aún no ha cargado en window.db, esperamos un poco y reintentamos
+  if (!window.db) {
+    setTimeout(listenToRankingAndScore, 50);
+    return;
+  }
+
+  console.log("¡Conectando con Firebase para el ranking activo!");
+
+  const q = query(
+    collection(window.db, "players"), 
+    where("active", "==", true), 
+    orderBy("score", "desc")
+  );
 
   onSnapshot(q, (snapshot) => {
-    let listaJugadores = [];
+    // CORRECCIÓN 2: Ahora esto solo limpia las filas de los jugadores, 
+    // respetando el título y las cabeceras del HTML.
+    tablaContenedor.innerHTML = ""; 
+
+    let posicion = 1;
+
     snapshot.forEach((docSnap) => {
-      listaJugadores.push({ id: docSnap.id, ...docSnap.data() });
-    });
-
-    // NUEVO ELEMENTO: Buscamos el contenedor de la tabla en el HTML
-    const tablaContenedor = document.getElementById("listaRankingCompleta");
-    
-    // Si la tabla existe en tu HTML actual, la limpiamos y la rellenamos
-    if (tablaContenedor) {
-      tablaContenedor.innerHTML = ""; // Borramos el contenido viejo para actualizarlo
-
-      listaJugadores.forEach((jugador, index) => {
-        const fila = document.createElement("tr");
-        
-        fila.innerHTML = `
-          <td>#${index + 1}</td>
-          <td>${jugador.name}</td>
-          <td>${jugador.score} pts</td>
-        `;
-
-        // Pequeño detalle: si la fila corresponde a mi usuario, la destacamos un poco
-        if (jugador.id === playerId) {
-          fila.style.backgroundColor = "#e0f7fa";
-          fila.style.fontWeight = "bold";
-        }
-
-        tablaContenedor.appendChild(fila);
-      });
-    }
-
-    // Encontrar qué índice ocupa el jugador actual en el array ordenado
-    const miIndex = listaJugadores.findIndex(j => j.id === playerId);
-
-    if (miIndex !== -1) {
-      const misDatos = listaJugadores[miIndex];
-
-      // 1. Mostrar puntos actuales
-      document.getElementById("score").innerText = misDatos.score;
+      const jugador = docSnap.data();
+      const fila = document.createElement("tr");
       
-      // 2. Mostrar indicador numérico de posición
-      document.getElementById("rankingPosition").innerText = `#${miIndex + 1}`;
+      fila.innerHTML = `
+        <td>#${posicion}</td>
+        <td>${jugador.name || "Sin nombre"}</td>
+        <td>${jugador.score ?? 0} pts</td>
+      `;
 
-      // 3. Calcular cantidad de puntos respecto al siguiente
-      const infoSiguiente = document.getElementById("nextPlayerInfo");
-      if (miIndex > 0) {
-        const rivalArriba = listaJugadores[miIndex - 1];
-        const diferencia = rivalArriba.score - misDatos.score;
-        infoSiguiente.innerText = `Te faltan ${diferencia} pts para adelantar a ${rivalArriba.name} 🚀`;
-      } else {
-        infoSiguiente.innerText = "¡Vas en 1ª posición! Conserva el liderato 👑";
-      }
-    }
+      tablaContenedor.appendChild(fila);
+      posicion++;
+    });
   });
 }
+
+// LLAMADA DIRECTA AL FINAL DEL ARCHIVO:
+listenToRankingAndScore();
+
+
+
+
 
 // =====================
 // Para que los móviles escuchen el cambio de pantalla que se hace desde la TV
@@ -191,14 +188,14 @@ if (ref) {
 
 // Diccionario de los juegos, al leer el estado desde Firebase se ejecuta la función que corresponda al juego que toque
 const games = {
-  WorldGuessr: WorldGuessr, //1º Juego WorldGuessr personalizado. Falta poner el mapa o enlace a WorldGuessr
-  GuessSong: GuessSong, //2º Juego Adivinar quién escucha la canción
-  GlassTower: GlassTower, //3º Juego Torre de Cristal 
-  IrrationalPrice: IrrationalPrice, //4º Juego El precio Irracional, el de las unidades de lentejas
-  NumbersAndLetters: NumbersAndLetters, //5º Juego Cifras y letras juego de operaciones
-  TruthOrLie: TruthOrLie, //6º Juego: Verdad o invent, presentadores cuentan 3 historias, 1 de verdad.
-  TheLiar: TheLiar, //7º Juego: El mentiroso con material audiovisual
-  LastTheorem: LastTheorem //8º Juego: El último teorema. Ya solo juegan 5 jugadores.
+  WorldGuessr: worldGuessr, //1º Juego WorldGuessr personalizado. Falta poner el mapa o enlace a WorldGuessr
+  GuessSong: guessSong, //2º Juego Adivinar quién escucha la canción
+  GlassTower: glassTower, //3º Juego Torre de Cristal 
+  IrrationalPrice: irrationalPrice, //4º Juego El precio Irracional, el de las unidades de lentejas
+  NumbersAndLetters: numbersAndLetters, //5º Juego Cifras y letras juego de operaciones
+  TruthOrLie: truthOrLie, //6º Juego: Verdad o invent, presentadores cuentan 3 historias, 1 de verdad.
+  TheLiar: theLiar, //7º Juego: El mentiroso con material audiovisual
+  LastTheorem: lastTheorem //8º Juego: El último teorema. Ya solo juegan 5 jugadores.
 };
 
 // Función usada antes para manejar el cambio de pantalla, ahora se hace directamente con el onSnapshot pero la dejo por si quieres hacer algo más complejo al cambiar de pantalla
@@ -216,7 +213,7 @@ function handleState(state) {
 // =====================
 // Juegos
 // =====================
-function worldguessr() {
+function worldGuessr() {
   // Lógica para el juego worldGuessr
   console.log("He llegado al WorldGuessr");
   showScreen("screenWorldGuessr");

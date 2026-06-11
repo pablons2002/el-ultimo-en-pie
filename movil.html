@@ -45,13 +45,11 @@
   </div>
 
 
-  <!-- Pantalla de ranking -->
-  <div id="screenRanking" style="display:none;">
-    <strong>Status.</strong> En la clasificación actual, tu puntuación acumulada es \(S = \) <span id="score"
-      style="font-weight: bold;">0</span> pts,
-    lo que te sitúa en la posición <span id="rankingPosition" style="font-weight: bold;">#--</span> del grupo.
-    <p id="nextPlayerInfo" style="margin: 8px 0 0 0; color: #333;"></p>
-    <h3 style="margin-top: 30px; text-align: center; letter-spacing: 0.5px;">Clasificación General</h3>
+
+
+<!--Pantalla Ranking-->
+<div id="listaRankingCompleta" style="display:none;">
+    <h3 style="text-align: center;">Ranking</h3>
     <table>
       <thead>
         <tr>
@@ -60,8 +58,7 @@
           <th>Puntuación</th>
         </tr>
       </thead>
-      <tbody id="listaRankingCompleta">
-      </tbody>
+      <tbody id="listaRankingActivos"></tbody>
     </table>
   </div>
 
@@ -77,9 +74,7 @@
     <iframe src="https://www.worldguessr.com/"></iframe>
   </div>
 
-  <div id="screenRanking">
-    <p id="listaRankingCompleta"></p>
-  </div>
+  
 </body>
 
 </html>
