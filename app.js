@@ -43,7 +43,7 @@ function showScreen(screen) {
   document.getElementById("screenRanking").style.display = "none";
   document.getElementById("screenWaiting").style.display = "none";
   document.getElementById("screenWorldGuessr").style.display = "none";
- // document.getElementById("screenRoulette").style.display = "none";
+ // //document.getElementById("screenRoulette").style.display = "none";
   console.log("Estoy aquí", screen);
   document.getElementById(screen).style.display = "block";
 }

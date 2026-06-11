@@ -57,3 +57,26 @@ button {
   margin-left: 10px;
   color:aqua;
 }
+
+/* Imágenes por encima del iframe*/
+#overlayImg {
+    display: none; /* Empieza oculto */
+    position: fixed; /* Se fija a la pantalla completa */
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.85); /* Fondo oscuro semitransparente */
+    justify-content: center;
+    align-items: center;
+    z-index: 99999; 
+    pointer-events: auto; 
+}
+
+#imgShow {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+    /* Por si acaso, asegúrate de que la imagen también herede un z-index alto */
+    z-index: 100000; 
+}
