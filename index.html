@@ -86,18 +86,46 @@
       <button id="confirmRanking">Confirmar ranking</button>
     </div>
   </div>
-  <div id="screenRanking"></div>
+
+  <!--Pantalla Ranking-->
+  <div id="screenRanking" style="display:none;">
+    <h3 style="text-align: center;">Ranking</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Pos</th>
+          <th>Participante</th>
+          <th>Puntuación</th>
+        </tr>
+      </thead>
+      <tbody id="listaRankingActivos"></tbody>
+    </table>
+    <button id="nextGameBtn">Siguiente juego</button> <!-- Aquí va a la ruleta cambiando el game al siguiente-->
+  </div>
 
 
+  <!-- Juego 2º GuessSong-->
+  <div id="screenGuessSong" class="screen" style="display: none;">
 
+    <div class="game-header">
+      <h1 class="game-title">🎵 GUESS THE SONG 🎵</h1>
+      <h2 id="tvSongTitle" class="song-status">🎵 ¿De quién es esta canción? 🎵</h2>
+    </div>
 
+    <div class="audio-zone">
+      <audio id="tvAudioPlayer" controls class="tv-player"></audio>
+    </div>
 
+    <div class="tv-controls">
+      <button id="revealAttemptsBtn" class="btn-reveal">👁️ Revelar Respuestas</button>
+    </div>
 
+    <hr class="separator">
 
-  
+    <div id="guessSongPlayersContainer" class="players-grid">
+    </div>
 
-
-
+  </div>
 </body>
 
 </html>

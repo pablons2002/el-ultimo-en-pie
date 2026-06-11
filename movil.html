@@ -13,7 +13,7 @@
 <body>
   <header id="userHeader">
     <img src="images/iconoWeb.svg" width="40">
-  👤 <span id="userNameHeader"></span>
+    👤 <span id="userNameHeader"></span>
   </header>
   <h1>El último en pi e</h1>
 
@@ -47,8 +47,8 @@
 
 
 
-<!--Pantalla Ranking-->
-<div id="listaRankingCompleta" style="display:none;">
+  <!--Pantalla Ranking-->
+  <div id="screenRanking" style="display:none;">
     <h3 style="text-align: center;">Ranking</h3>
     <table>
       <thead>
@@ -74,7 +74,19 @@
     <iframe src="https://www.worldguessr.com/"></iframe>
   </div>
 
-  
+  <!-- 2º Juego SongGuessr-->
+  <div id="screenGuessSong" class="mobile-screen" style="display: none;">
+    <h3>¿De quién es la canción?</h3>
+    <button onclick="enviarSospechoso('Pablo')">Pablo</button>
+    <button onclick="enviarSospechoso('Inés')">Inés</button>
+
+    <hr>
+
+    <h3>¿Qué canción es?</h3>
+    <input type="text" id="mobileSongInput" placeholder="Título...">
+    <button id="sendSongBtn">Enviar</button>
+  </div>
+
 </body>
 
 </html>
