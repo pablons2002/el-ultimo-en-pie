@@ -33,8 +33,9 @@ onSnapshot(q, (snapshot) => {
   });
 });
 */
-
+// ==================================
 // El orden en el que se jugarán los juegos del concurso
+// ==================================
 const games = ["WorldGuessr", "GuessSong", "GlassTower", "IrrationalPrice", "NumbersAndLetters", "TruthOrLie", "TheLiar", "LastTheorem"];
 
 // ======================
@@ -83,6 +84,13 @@ document.getElementById("startBtn").onclick = () => {
   setScreen("screenRoulette", "WorldGuessr");
   showScreenTV("screenRoulette")
 };
+// =======================
+//  Botón para ir al ranking
+// =======================
+function goToRanking() {
+  setScreen(screenRanking);
+  showScreen(screenRanking);
+}
 
 // =====================
 // Botón para girar la ruleta y elegir juego (valor de game en firestore, previamente elegido). Falta implementar la ruleta visualmente
@@ -354,6 +362,12 @@ document.getElementById("nextGameBtn").onclick = async () => {
 // ========================
 // 2º Juego GuessSong
 // ========================
+const songs = [
+  { title: "Los Jardines de marzo - La bien querida", audioURL: "assets/audio/" },
+  { title: "Killing An Arab - The Cure", audioURL: "assets/audio/Killing An Arab - The Cure (320k).mp3" },
+  { title: "Where The Hell Is My Husband - RAYE", audioURL: "assets/audio/Where The Hell Is My Husband.m4a" }
+]; 
+
 
 async function renderTvGuessSong() {
   try {
@@ -362,9 +376,9 @@ async function renderTvGuessSong() {
     if (!songSnap.exists()) return;
     const songData = songSnap.data();
 
-    const audioPlayer = document.getElementById("tvAudioPlayer"); //mira firebase el url del audio y cambia el audio
-    if (audioPlayer.src !== songData.audioUrl) {
-      audioPlayer.src = songData.audioUrl;
+    const audioPlayer = document.getElementById("tvAudioPlayer"); //mira firebase el url del audio y cambia el audio si es diferente
+    if (audioPlayer.src !== songData.audioURL) {
+      audioPlayer.src = songData.audioURL;
       audioPlayer.load();
     }
     //si se ha dado al botón de revelar resultado (revealed true) sale el nombre del título guardado en firebase, si no sale la pregunta.
@@ -406,8 +420,115 @@ async function renderTvGuessSong() {
   } catch (err) {
     console.error(err);
   }
+
 }
 
+
+// ==============================
+// Juego 3º GlassTower
+// ==============================
+window.guardarIntentoVaso = async function(playerId, numIntento) {
+  const inputId = `Tiempo-${playerId}-${numIntento}`;
+  const tiempoTexto = document.getElementById(inputId).value.trim();
+  
+  if(!tiempoTexto) return alert("Introduce un tiempo válido (ej: 12.4)");
+  const tiempo = parseFloat(tiempoTexto.replace(",", ".")); // Por si pones comas
+
+  try {
+    const playerRef = doc(window.db, "players", playerId);
+    
+    // Conseguimos los datos actuales del jugador para actualizar el array
+    const playersSnap = await getDocs(query(collection(window.db, "players")));
+    let datosPlayer = null;
+    playersSnap.forEach(d => { if(d.id === playerId) datosPlayer = d.data(); });
+
+    let currentAttempts = (datosPlayer.towerGame && datosPlayer.towerGame.attempts) ? [...datosPlayer.towerGame.attempts] : [0, 0, 0];
+    
+    // Guardamos el tiempo en la posición correspondiente (intento 1 = índice 0)
+    currentAttempts[numIntento - 1] = tiempo;
+
+    // Filtramos los intentos que no sean 0 para sacar el mejor tiempo real
+    const intentosValidos = currentAttempts.filter(t => t > 0);
+    const mejorTiempo = intentosValidos.length > 0 ? Math.min(...intentosValidos) : 999;
+
+    // Actualizamos Firebase
+    await updateDoc(playerRef, {
+      "towerGame.attempts": currentAttempts,
+      "towerGame.bestTime": mejorTiempo
+    });
+
+    alert(`Intento ${numIntento} guardado: ${tiempo}s`);
+    renderTvVasos(); // Renderiza de nuevo para actualizar el Ranking
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+// 2. RENDERIZAR LA PANTALLA (PANEL DE CONTROL + RANKING DE TIEMPOS)
+async function renderTvVasos() {
+  const containerControls = document.getElementById("vasosControlsContainer");
+  const containerLeaderboard = document.getElementById("vasosLeaderboard");
+  if (!containerControls || !containerLeaderboard) return;
+
+  const playersSnap = await getDocs(query(collection(window.db, "players"), where("active", "==", true)));
+  
+  let htmlControls = "";
+  let listaTiempos = []; // Aquí meteremos todos los tiempos para ordenarlos
+
+  playersSnap.forEach((playerDoc) => {
+    const p = playerDoc.data();
+    const id = playerDoc.id;
+    const tower = p.towerGame || { attempts: [0, 0, 0], bestTime: 0 };
+
+    // A) Generar los inputs para el Presentador
+    htmlControls += `
+      <div class="player-vasos-row" style="margin-bottom: 15px; border-bottom: 1px solid #444; padding-bottom: 10px;">
+        <strong style="font-size: 1.2rem;">👤 ${p.name}</strong> (Mejor: ${tower.bestTime ? tower.bestTime + 's' : '---'})
+        <div style="margin-top: 5px;">
+          Intento 1: <input type="number" step="0.01" id="time-${id}-1" value="${tower.attempts[0] || ''}" style="width:60px;"> <button onclick="guardarIntentoVaso('${id}', 1)">💾</button> | 
+          Intento 2: <input type="number" step="0.01" id="time-${id}-2" value="${tower.attempts[1] || ''}" style="width:60px;"> <button onclick="guardarIntentoVaso('${id}', 2)">💾</button> | 
+          Intento 3: <input type="number" step="0.01" id="time-${id}-3" value="${tower.attempts[2] || ''}" style="width:60px;"> <button onclick="guardarIntentoVaso('${id}', 3)">💾</button>
+        </div>
+        <div style="margin-top: 5px;">
+          <button onclick="sumarPuntosGlobales('${id}', 3)" style="background:#28a745; color:white;">🏆 +3 pts</button>
+          <button onclick="sumarPuntosGlobales('${id}', 2)" style="background:#ffc107;">🥈 +2 pts</button>
+          <button onclick="sumarPuntosGlobales('${id}', 1)" style="background:#17a2b8; color:white;">🥉 +1 pt</button>
+        </div>
+      </div>
+    `;
+
+    // B) Recopilar todos los intentos individuales para el Ranking General de mejores tiempos
+    tower.attempts.forEach((tiempo) => {
+      if (tiempo > 0) {
+        listaTiempos.push({ name: p.name, time: tiempo });
+      }
+    });
+  });
+
+  // Ordenar la lista de tiempos de MENOR a MAYOR (El más rápido arriba)
+  listaTiempos.sort((a, b) => a.time - b.time);
+
+  // C) Dibujar el Ranking de tiempos (Permite duplicados de nombres si hacen varias marcas buenas)
+  let htmlLeaderboard = "<ol>";
+  listaTiempos.forEach((registro) => {
+    htmlLeaderboard += `<li style="font-size: 1.3rem; margin-bottom: 5px;"><strong>${registro.time}s</strong> - ${registro.name}</li>`;
+  });
+  htmlLeaderboard += "</ol>";
+
+  containerControls.innerHTML = htmlControls;
+  containerLeaderboard.innerHTML = listaTiempos.length > 0 ? htmlLeaderboard : "<p>Esperando los primeros tiempos...</p>";
+}
+
+// 3. ASIGNAR LOS PUNTOS FINALES QUE TÚ DECIDAS
+window.sumarPuntosGlobales = async function(playerId, puntos) {
+  try {
+    await updateDoc(doc(window.db, "players", playerId), {
+      score: increment(puntos)
+    });
+    alert("Puntos sumados al marcador global.");
+    renderTvVasos();
+  } catch(err) { console.error(err); }
+};
 
 
 // =====================

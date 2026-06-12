@@ -124,8 +124,25 @@
 
     <div id="guessSongPlayersContainer" class="players-grid">
     </div>
-
+    <button onclick="goToRanking()"> Ranking</button>
   </div>
+
+  <!-- Juego 3º GlassTower-->
+   <div id="screenGlassTower" class="screen" style="display: none; gap: 40px; padding: 20px;">
+  
+  <div class="panel-presentador" style="flex: 1; background: #222; padding: 20px; border-radius: 10px; color: white;">
+    <h2>⏱️ Panel de Cronometraje</h2>
+    <hr>
+    <div id="vasosControlsContainer"></div>
+  </div>
+
+  <div class="panel-ranking" style="flex: 1; background: #111; padding: 20px; border-radius: 10px; border: 2px solid #ffc107; color: white;">
+    <h2 style="color: #ffc107; text-align: center;">⚡ TOP TIEMPOS (VASOS) ⚡</h2>
+    <hr style="border-color: #ffc107;">
+    <div id="vasosLeaderboard"></div>
+  </div>
+
+</div>
 </body>
 
 </html>

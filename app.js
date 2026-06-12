@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // =====================
 const screenMapMobile = {
   screenRoulette: "screenRanking",
-  screenGame: "screenWaiting"
+  screenGlassTower: "screenRanking"
   };
 
 function showScreen(screen) {
@@ -39,7 +39,6 @@ function showScreen(screen) {
   }
   ///////////////console.log("Cambiando a pantalla:", screen);
   document.getElementById("screenSelect").style.display = "none";
-  document.getElementById("screenGame").style.display = "none";
   document.getElementById("screenRanking").style.display = "none";
   document.getElementById("screenWaiting").style.display = "none";
   document.getElementById("screenWorldGuessr").style.display = "none";
@@ -203,7 +202,6 @@ const games = {
 function handleState(state) {
   console.log("Estoy en handleState:", state.screen);
   showScreen(state.screen);
-  if (state.screen !== "screenGame") return;
 
   const game = games[state.game];
 
@@ -223,7 +221,7 @@ function guessSong() {
   window.enviarSospechoso = async (nombreSospechoso) => {
   const miPlayerId = localStorage.getItem("myPlayerDocId"); // ej: "p1"
   
-  // Firebase crea el objeto 'attempts' y la propiedad 'guessWho' automáticamente si no existen
+  // Firebase crea el objeto 'attemptsSong' y la propiedad 'guessWho' automáticamente si no existen
   await updateDoc(doc(window.db, "players", miPlayerId), {
     "attemptsSong.guessWho": nombreSospechoso
   });
@@ -243,7 +241,77 @@ document.getElementById("sendSongBtn").onclick = async () => {
 }
 
 function glassTower() {
+  /*
   // Lógica para el juego Torre de Cristal
+  export function iniciarMovilVasos() {
+  const miPlayerId = localStorage.getItem("myPlayerDocId"); // El ID del usuario actual (ej: "p1")
+  if (!miPlayerId) return;
+
+  // 1. ESCUCHAR LOS DATOS DE TODOS LOS JUGADORES EN TIEMPO REAL
+  // Así el móvil se actualiza en cuanto el presentador guarda un tiempo en la TV
+  onSnapshot(query(collection(window.db, "players"), where("active", "==", true)), (snapshot) => {
+    let listaTiemposGlobales = [];
+    let misDatos = null;
+
+    snapshot.forEach((playerDoc) => {
+      const p = playerDoc.data();
+      const id = playerDoc.id;
+      const tower = p.towerGame || { attempts: [0, 0, 0], bestTime: 0 };
+
+      // Si es el jugador dueño de este móvil, guardamos sus datos
+      if (id === miPlayerId) {
+        misDatos = tower;
+      }
+
+      // Recopilamos todos los intentos del juego para el ranking general
+      tower.attempts.forEach((tiempo) => {
+        if (tiempo > 0) {
+          listaTiemposGlobales.push({ name: p.name, time: tiempo });
+        }
+      });
+    });
+
+    // 2. ACTUALIZAR LA TARJETA PERSONAL DEL JUGADOR
+    if (misDatos) {
+      const bestTimeElement = document.getElementById("mobileBestTime");
+      const attemptsListElement = document.getElementById("mobileAttemptsList");
+
+      if (bestTimeElement) {
+        bestTimeElement.innerText = misDatos.bestTime && misDatos.bestTime !== 999 
+          ? `⏱️ Tu récord: ${misDatos.bestTime}s` 
+          : "⏱️ Tu récord: --";
+      }
+
+      if (attemptsListElement) {
+        const t1 = misDatos.attempts[0] ? `${misDatos.attempts[0]}s` : "-";
+        const t2 = misDatos.attempts[1] ? `${misDatos.attempts[1]}s` : "-";
+        const t3 = misDatos.attempts[2] ? `${misDatos.attempts[2]}s` : "-";
+        attemptsListElement.innerText = `Intentos: [${t1}] [${t2}] [${t3}]`;
+      }
+    }
+
+    // 3. ACTUALIZAR EL RANKING EN EL MÓVIL (Ordenado de menor a mayor tiempo)
+    listaTiemposGlobales.sort((a, b) => a.time - b.time);
+    const leaderboardElement = document.getElementById("mobileVasosLeaderboard");
+    
+    if (leaderboardElement) {
+      if (listaTiemposGlobales.length === 0) {
+        leaderboardElement.innerHTML = `<p style="text-align:center; color:#666; margin:0;">Nadie ha jugado aún esta ronda</p>`;
+      } else {
+        let html = "<ol style='margin: 0; padding-left: 20px; color: #fff;'>";
+        listaTiemposGlobales.forEach((registro) => {
+          // Si el tiempo es del propio jugador, lo resaltamos en amarillo
+          const esElMio = registro.name === localStorage.getItem("myPlayerName"); // O la lógica que uses para tu nombre
+          const estilo = esElMio ? "style='color: #ffc107; font-weight: bold;'" : "";
+          
+          html += `<li ${estilo} style="margin-bottom: 5px;"><strong>${registro.time}s</strong> - ${registro.name}</li>`;
+        });
+        html += "</ol>";
+        leaderboardElement.innerHTML = html;
+      }
+    }
+  });
+}*/
 }
 
 function irrationalPrice() {
