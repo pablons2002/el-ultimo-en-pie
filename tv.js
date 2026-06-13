@@ -87,9 +87,9 @@ document.getElementById("startBtn").onclick = () => {
 // =======================
 //  Botón para ir al ranking
 // =======================
-function goToRanking() {
-  setScreen(screenRanking);
-  showScreen(screenRanking);
+window.goToRanking = function () {
+  setScreen("screenRanking");
+  showScreenTV("screenRanking");
 }
 
 // =====================
@@ -427,108 +427,124 @@ async function renderTvGuessSong() {
 // ==============================
 // Juego 3º GlassTower
 // ==============================
-window.guardarIntentoVaso = async function(playerId, numIntento) {
-  const inputId = `Tiempo-${playerId}-${numIntento}`;
-  const tiempoTexto = document.getElementById(inputId).value.trim();
-  
-  if(!tiempoTexto) return alert("Introduce un tiempo válido (ej: 12.4)");
-  const tiempo = parseFloat(tiempoTexto.replace(",", ".")); // Por si pones comas
+// Variable local para saber a quién hemos hecho click en la pantalla
+let jugadorSeleccionadoId = null;
+let jugadorSeleccionadoNombre = "";
 
-  try {
-    const playerRef = doc(window.db, "players", playerId);
-    
-    // Conseguimos los datos actuales del jugador para actualizar el array
-    const playersSnap = await getDocs(query(collection(window.db, "players")));
-    let datosPlayer = null;
-    playersSnap.forEach(d => { if(d.id === playerId) datosPlayer = d.data(); });
+export function iniciarTvVasosLibre() {
+  // 1. Escuchar la Ronda actual en tiempo real
+  onSnapshot(doc(window.db, "game", "towerState"), (snap) => {
+    if (snap.exists()) {
+      document.getElementById("tvRondaActual").innerText = snap.data().ronda || "RONDA 1";
+    }
+  });
 
-    let currentAttempts = (datosPlayer.towerGame && datosPlayer.towerGame.attempts) ? [...datosPlayer.towerGame.attempts] : [0, 0, 0];
-    
-    // Guardamos el tiempo en la posición correspondiente (intento 1 = índice 0)
-    currentAttempts[numIntento - 1] = tiempo;
+  // 2. Escuchar jugadores activos para pintar sus botones y el ranking
+  onSnapshot(query(collection(window.db, "players"), where("active", "==", true)), () => {
+    renderizarControlesYRanking();
+  });
+}
 
-    // Filtramos los intentos que no sean 0 para sacar el mejor tiempo real
-    const intentosValidos = currentAttempts.filter(t => t > 0);
-    const mejorTiempo = intentosValidos.length > 0 ? Math.min(...intentosValidos) : 999;
-
-    // Actualizamos Firebase
-    await updateDoc(playerRef, {
-      "towerGame.attempts": currentAttempts,
-      "towerGame.bestTime": mejorTiempo
-    });
-
-    alert(`Intento ${numIntento} guardado: ${tiempo}s`);
-    renderTvVasos(); // Renderiza de nuevo para actualizar el Ranking
-  } catch (err) {
-    console.error(err);
-  }
-};
-
-// 2. RENDERIZAR LA PANTALLA (PANEL DE CONTROL + RANKING DE TIEMPOS)
-async function renderTvVasos() {
-  const containerControls = document.getElementById("vasosControlsContainer");
-  const containerLeaderboard = document.getElementById("vasosLeaderboard");
-  if (!containerControls || !containerLeaderboard) return;
-
+async function renderizarControlesYRanking() {
   const playersSnap = await getDocs(query(collection(window.db, "players"), where("active", "==", true)));
   
-  let htmlControls = "";
-  let listaTiempos = []; // Aquí meteremos todos los tiempos para ordenarlos
+  const contenedorBotones = document.getElementById("tvBotonesJugadores");
+  const leaderboardDiv = document.getElementById("tvLeaderboardVasos");
+  
+  if (!contenedorBotones || !leaderboardDiv) return;
+
+  let htmlBotones = "";
+  let listaClasificacion = [];
 
   playersSnap.forEach((playerDoc) => {
     const p = playerDoc.data();
     const id = playerDoc.id;
-    const tower = p.towerGame || { attempts: [0, 0, 0], bestTime: 0 };
+    const tiempo = p.mejorTiempoVasos || 0;
 
-    // A) Generar los inputs para el Presentador
-    htmlControls += `
-      <div class="player-vasos-row" style="margin-bottom: 15px; border-bottom: 1px solid #444; padding-bottom: 10px;">
-        <strong style="font-size: 1.2rem;">👤 ${p.name}</strong> (Mejor: ${tower.bestTime ? tower.bestTime + 's' : '---'})
-        <div style="margin-top: 5px;">
-          Intento 1: <input type="number" step="0.01" id="time-${id}-1" value="${tower.attempts[0] || ''}" style="width:60px;"> <button onclick="guardarIntentoVaso('${id}', 1)">💾</button> | 
-          Intento 2: <input type="number" step="0.01" id="time-${id}-2" value="${tower.attempts[1] || ''}" style="width:60px;"> <button onclick="guardarIntentoVaso('${id}', 2)">💾</button> | 
-          Intento 3: <input type="number" step="0.01" id="time-${id}-3" value="${tower.attempts[2] || ''}" style="width:60px;"> <button onclick="guardarIntentoVaso('${id}', 3)">💾</button>
-        </div>
-        <div style="margin-top: 5px;">
-          <button onclick="sumarPuntosGlobales('${id}', 3)" style="background:#28a745; color:white;">🏆 +3 pts</button>
-          <button onclick="sumarPuntosGlobales('${id}', 2)" style="background:#ffc107;">🥈 +2 pts</button>
-          <button onclick="sumarPuntosGlobales('${id}', 1)" style="background:#17a2b8; color:white;">🥉 +1 pt</button>
-        </div>
-      </div>
+    // Marcamos con un estilo diferente si es el jugador que tenemos seleccionado actualmente
+    const claseActiva = (id === jugadorSeleccionadoId) ? "background: #007bff; border-color: #fff;" : "background: #444; border-color: #555;";
+
+    // A) Generar botón gigante para cada jugador activo
+    htmlBotones += `
+      <button onclick="seleccionarJugador('${id}', '${p.name}')" style="${claseActiva} color: white; padding: 15px; font-size: 1.2rem; border-radius: 8px; cursor: pointer; transition: 0.2s; font-weight: bold; border: 2px solid;">
+        👤 ${p.name}
+        <span style="display:block; font-size:0.9rem; font-weight:normal; opacity:0.7; margin-top:4px;">
+          ${tiempo > 0 ? 'Mejor: ' + tiempo + 's' : 'Sin tiempo'}
+        </span>
+      </button>
     `;
 
-    // B) Recopilar todos los intentos individuales para el Ranking General de mejores tiempos
-    tower.attempts.forEach((tiempo) => {
-      if (tiempo > 0) {
-        listaTiempos.push({ name: p.name, time: tiempo });
-      }
+    // B) Recopilar para la clasificación si ya tienen marca
+    if (tiempo > 0) {
+      listaClasificacion.push({ name: p.name, time: tiempo });
+    }
+  });
+
+  contenedorBotones.innerHTML = htmlBotones;
+
+  // C) Ordenar y pintar la clasificación (Menor tiempo primero)
+  listaClasificacion.sort((a, b) => a.time - b.time);
+  
+  if (listaClasificacion.length === 0) {
+    leaderboardDiv.innerHTML = `<p style="text-align:center; color:#666;">Esperando marcas...</p>`;
+  } else {
+    let htmlRank = "<ol style='padding-left:25px; margin:0;'>";
+    listaClasificacion.forEach((jugador) => {
+      htmlRank += `<li style='margin-bottom: 8px;'><strong>${jugador.time}s</strong> — ${jugador.name}</li>`;
     });
-  });
-
-  // Ordenar la lista de tiempos de MENOR a MAYOR (El más rápido arriba)
-  listaTiempos.sort((a, b) => a.time - b.time);
-
-  // C) Dibujar el Ranking de tiempos (Permite duplicados de nombres si hacen varias marcas buenas)
-  let htmlLeaderboard = "<ol>";
-  listaTiempos.forEach((registro) => {
-    htmlLeaderboard += `<li style="font-size: 1.3rem; margin-bottom: 5px;"><strong>${registro.time}s</strong> - ${registro.name}</li>`;
-  });
-  htmlLeaderboard += "</ol>";
-
-  containerControls.innerHTML = htmlControls;
-  containerLeaderboard.innerHTML = listaTiempos.length > 0 ? htmlLeaderboard : "<p>Esperando los primeros tiempos...</p>";
+    htmlRank += "</ol>";
+    leaderboardDiv.innerHTML = htmlRank;
+  }
 }
 
-// 3. ASIGNAR LOS PUNTOS FINALES QUE TÚ DECIDAS
-window.sumarPuntosGlobales = async function(playerId, puntos) {
-  try {
-    await updateDoc(doc(window.db, "players", playerId), {
-      score: increment(puntos)
-    });
-    alert("Puntos sumados al marcador global.");
-    renderTvVasos();
-  } catch(err) { console.error(err); }
+// 3. SELECCIONAR AL JUGADOR QUE VA A POLTRONA EN ESE INSTANTE
+window.seleccionarJugador = function(id, name) {
+  jugadorSeleccionadoId = id;
+  jugadorSeleccionadoNombre = name;
+
+  // Mostramos la caja del cronómetro personalizada
+  document.getElementById("nombreSeleccionado").innerText = name;
+  document.getElementById("inputTiempoActual").value = "";
+  document.getElementById("zonaCronometro").style.display = "block";
+
+  // Refrescamos los botones para que se vea cuál está iluminado en azul
+  renderizarControlesYRanking();
 };
+
+// 4. GUARDAR EL TIEMPO DEL JUGADOR SELECCIONADO
+window.guardarTiempoDirecto = async function() {
+  if (!jugadorSeleccionadoId) return;
+
+  const inputTiempo = document.getElementById("inputTiempoActual").value.trim();
+  if (!inputTiempo) return alert("Por favor, introduce el tiempo.");
+
+  const tiempoNum = parseFloat(inputTiempo.replace(",", "."));
+
+  // Guardamos directamente en el perfil del jugador en Firebase
+  await updateDoc(doc(window.db, "players", jugadorSeleccionadoId), {
+    mejorTiempoVasos: tiempoNum
+  });
+
+  // Ocultamos la zona del cronómetro hasta que selecciones al siguiente
+  document.getElementById("zonaCronometro").style.display = "none";
+  jugadorSeleccionadoId = null;
+  jugadorSeleccionadoNombre = "";
+};
+
+// 5. CONTROL DE RONDAS DIRECTO DESDE LOS BOTONES
+window.cambiarRondaDirecto = async function(nombreRonda) {
+  await updateDoc(doc(window.db, "game", "towerState"), {
+    ronda: nombreRonda
+  });
+};
+
+
+
+
+
+
+
+
 
 
 // =====================

@@ -128,18 +128,37 @@
   </div>
 
   <!-- Juego 3º GlassTower-->
-   <div id="screenGlassTower" class="screen" style="display: none; gap: 40px; padding: 20px;">
+   <div id="screenGlassTower" class="screen" style="background: #111; color: white; padding: 30px; font-family: sans-serif; display: none;">
   
-  <div class="panel-presentador" style="flex: 1; background: #222; padding: 20px; border-radius: 10px; color: white;">
-    <h2>⏱️ Panel de Cronometraje</h2>
-    <hr>
-    <div id="vasosControlsContainer"></div>
+  <div style="text-align: center; margin-bottom: 25px;">
+    <h1 id="tvRondaActual" style="color: #ffc107; margin: 0; font-size: 2.8rem; display: inline-block; vertical-align: middle;">RONDA 1</h1>
+    <div style="display: inline-block; margin-left: 20px; vertical-align: middle;">
+      <button onclick="cambiarRondaDirecto('Ronda 1')" style="padding: 5px 10px; background: #333; color: white; border: 1px solid #ffc107; cursor: pointer;">R1</button>
+      <button onclick="cambiarRondaDirecto('Ronda 2')" style="padding: 5px 10px; background: #333; color: white; border: 1px solid #ffc107; cursor: pointer;">R2</button>
+      <button onclick="cambiarRondaDirecto('Ronda 3')" style="padding: 5px 10px; background: #333; color: white; border: 1px solid #ffc107; cursor: pointer;">R3</button>
+    </div>
   </div>
 
-  <div class="panel-ranking" style="flex: 1; background: #111; padding: 20px; border-radius: 10px; border: 2px solid #ffc107; color: white;">
-    <h2 style="color: #ffc107; text-align: center;">⚡ TOP TIEMPOS (VASOS) ⚡</h2>
-    <hr style="border-color: #ffc107;">
-    <div id="vasosLeaderboard"></div>
+  <div style="display: flex; gap: 30px; align-items: flex-start;">
+    
+    <div style="flex: 1.2; background: #222; padding: 20px; border-radius: 15px; border: 2px solid #444;">
+      <h2 style="margin-top: 0; font-size: 1.4rem; color: #007bff; text-align: center;">👇 SELECCIONA QUIÉN JUEGA AHORA 👇</h2>
+      
+      <div id="tvBotonesJugadores" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 25px;"></div>
+      
+      <div id="zonaCronometro" style="background: #333; padding: 15px; border-radius: 10px; text-align: center; display: none;">
+        <h3 style="margin: 0 0 10px 0; font-size: 1.5rem;">⏱️ Turno de: <span id="nombreSeleccionado" style="color: #ffc107;">--</span></h3>
+        <input type="number" step="0.01" id="inputTiempoActual" placeholder="0.00" style="font-size: 1.8rem; width: 130px; text-align: center; padding: 5px; border-radius: 5px; border: none; font-weight: bold;">
+        <button onclick="guardarTiempoDirecto()" style="font-size: 1.5rem; background: #28a745; color: white; border: none; padding: 8px 20px; border-radius: 5px; cursor: pointer; margin-left: 10px; font-weight: bold;">Anotar</button>
+      </div>
+    </div>
+
+    <div style="flex: 0.8; background: #1a1a1a; padding: 20px; border-radius: 15px; border: 2px solid #ffc107;">
+      <h3 style="margin-top: 0; color: #ffc107; font-size: 1.6rem; text-align: center;">⚡ TOP TIEMPOS ⚡</h3>
+      <hr style="border-color: #333;">
+      <div id="tvLeaderboardVasos" style="font-size: 1.4rem;"></div>
+    </div>
+
   </div>
 
 </div>
