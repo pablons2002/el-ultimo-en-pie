@@ -1,15 +1,4 @@
-import {
-  collection,
-  query,
-  orderBy,
-  onSnapshot,
-  getDocs,
-  updateDoc,
-  where,
-  getDoc,
-  setDoc,
-  deleteField,
-  doc
+import { collection, query, orderBy, onSnapshot, getDocs, updateDoc, increment, where, getDoc, setDoc, deleteField, doc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 // Escuchar la colección "players" ordenada por "score" de mayor a menor de forma masiva
@@ -71,7 +60,9 @@ function showScreenTV(screen) {
   document.getElementById("screenWorldGuessr").style.display = "none";
   document.getElementById("screenRoulette").style.display = "none";
   document.getElementById("screenRanking").style.display = "none";
-
+  document.getElementById("screenGuessSong").style.display = "none";
+  document.getElementById("screenGlassTower").style.display = "none";
+  document.getElementById("screenIrrationalPrice").style.display = "none";
   document.getElementById(screen).style.display = "block"
 }
 
@@ -363,10 +354,21 @@ document.getElementById("nextGameBtn").onclick = async () => {
 // 2º Juego GuessSong
 // ========================
 const songs = [
-  { title: "Los Jardines de marzo - La bien querida", audioURL: "assets/audio/" },
-  { title: "Killing An Arab - The Cure", audioURL: "assets/audio/Killing An Arab - The Cure (320k).mp3" },
-  { title: "Where The Hell Is My Husband - RAYE", audioURL: "assets/audio/Where The Hell Is My Husband.m4a" }
-]; 
+  { title: "Bloody valentine - Machine Gun Kelly", audioURL: "assets\audio\Bloody valentine - Machine Gun Kelly.mp3" },
+  { title: "Disobedient - Steven Universe, Kate Mucucci, Michaela Dietz", audioURL: "assets\audio\Disobedient - Steven Universe, Kate Mucucci, Michaela Dietz.mp3" },
+  { title: "Fade Into You - Mazzy Star", audioURL: "assets\audio\Fade Into You - Mazzy Star.mp3" },
+  { title: "Give it up to me - Sean Paul, Keyshia", audioURL: "assets\audio\Give it up to me - Sean Paul, Keyshia.mp3" },
+  { title: "In too deep - Sum41", audioURL: "assets\audio\In too deep - Sum41.mp3" },
+  { title: "Jardines de Marzo  - La bien querida", audioURL: "assets\audio\Jardines de Marzo  - La bien querida.mp3" },
+  { title: "Lovefool - The Cardigans", audioURL: "assets\audio\Lovefool - The Cardigans.mp3" },
+  { title: "Migraine - Twenty One Pilots", audioURL: "assets\audio\Migraine - Twenty One Pilots.mp3" },
+  { title: "She doesn't mind - Sean Paul", audioURL: "assets\audio\She doesn't mind - Sean Paul.mp3" },
+  { title: "Sui muri - Psicologi", audioURL: "assets\audio\Sui muri - Psicologi.mp3" },
+  { title: "Superestrella - Aitana", audioURL: "assets\audio\Superestrella - Aitana.mp3" },
+  { title: "Today - The Smashing Pumpkins", audioURL: "assets\audio\Today - The Smashing Pumpkins.mp3" },
+  { title: "Where The Hell Is My Husband - RAYE", audioURL: "assets\audio\Where The Hell Is My Husband - RAYE.mp3" },
+  { title: "Wishing well - Juice WRLD", audioURL: "assets\audio\Wishing well - Juice WRLD.mp3" },
+];
 
 
 async function renderTvGuessSong() {
@@ -430,12 +432,15 @@ async function renderTvGuessSong() {
 // Variable local para saber a quién hemos hecho click en la pantalla
 let jugadorSeleccionadoId = null;
 let jugadorSeleccionadoNombre = "";
+let currentGlassTowerRound = "Ronda 1";
+let ultimoRankingCalculado = [];
 
 export function iniciarTvVasosLibre() {
   // 1. Escuchar la Ronda actual en tiempo real
   onSnapshot(doc(window.db, "game", "towerState"), (snap) => {
     if (snap.exists()) {
-      document.getElementById("tvRondaActual").innerText = snap.data().ronda || "RONDA 1";
+      currentGlassTowerRound = snap.data().ronda || "Ronda 1";
+      document.getElementById("tvRondaActual").innerText = currentGlassTowerRound;
     }
   });
 
@@ -445,12 +450,14 @@ export function iniciarTvVasosLibre() {
   });
 }
 
+iniciarTvVasosLibre();
+
 async function renderizarControlesYRanking() {
   const playersSnap = await getDocs(query(collection(window.db, "players"), where("active", "==", true)));
-  
+
   const contenedorBotones = document.getElementById("tvBotonesJugadores");
   const leaderboardDiv = document.getElementById("tvLeaderboardVasos");
-  
+
   if (!contenedorBotones || !leaderboardDiv) return;
 
   let htmlBotones = "";
@@ -459,52 +466,76 @@ async function renderizarControlesYRanking() {
   playersSnap.forEach((playerDoc) => {
     const p = playerDoc.data();
     const id = playerDoc.id;
-    const tiempo = p.mejorTiempoVasos || 0;
+    const r1 = p.vasosTimes?.round1;
+    const r2 = p.vasosTimes?.round2;
+    const timesText = [];
 
+    // 1. Mostrar --- en los botones si no hay tiempo
+    timesText.push(`R1: ${(typeof r1 === 'number' && r1 > 0) ? r1.toFixed(2) + 's' : '---'}`);
+    timesText.push(`R2: ${(typeof r2 === 'number' && r2 > 0) ? r2.toFixed(2) + 's' : '---'}`);
+
+    const recordedTimes = [r1, r2].filter((value) => typeof value === 'number' && value > 0);
+    const bestTime = recordedTimes.length > 0 ? Math.min(...recordedTimes) : null;
+    const bestText = bestTime !== null ? `Mejor: ${bestTime.toFixed(2)}s` : '';
+    
     // Marcamos con un estilo diferente si es el jugador que tenemos seleccionado actualmente
     const claseActiva = (id === jugadorSeleccionadoId) ? "background: #007bff; border-color: #fff;" : "background: #444; border-color: #555;";
 
     // A) Generar botón gigante para cada jugador activo
     htmlBotones += `
-      <button onclick="seleccionarJugador('${id}', '${p.name}')" style="${claseActiva} color: white; padding: 15px; font-size: 1.2rem; border-radius: 8px; cursor: pointer; transition: 0.2s; font-weight: bold; border: 2px solid;">
-        👤 ${p.name}
-        <span style="display:block; font-size:0.9rem; font-weight:normal; opacity:0.7; margin-top:4px;">
-          ${tiempo > 0 ? 'Mejor: ' + tiempo + 's' : 'Sin tiempo'}
+      <button onclick="seleccionarJugador('${id}', '${p.name}')" style="${claseActiva} color: white; padding: 15px; font-size: 1.2rem; border-radius: 8px; cursor: pointer; transition: 0.2s; font-weight: bold; border: 2px solid; text-align:left; line-height: 1.4;">
+        <strong>👤 ${p.name}</strong>
+        <span style="display:block; font-size:0.9rem; font-weight:normal; opacity:0.85; margin-top:8px;">
+          ${timesText.join(' | ')}${bestText ? ' · ' + bestText : ''}
         </span>
       </button>
     `;
 
     // B) Recopilar para la clasificación si ya tienen marca
-    if (tiempo > 0) {
-      listaClasificacion.push({ name: p.name, time: tiempo });
+    if (bestTime !== null) {
+      listaClasificacion.push({ id: id, name: p.name, time: bestTime, r1, r2 });
     }
   });
 
   contenedorBotones.innerHTML = htmlBotones;
 
-  // C) Ordenar y pintar la clasificación (Menor tiempo primero)
   listaClasificacion.sort((a, b) => a.time - b.time);
-  
+  ultimoRankingCalculado = [...listaClasificacion];
+
   if (listaClasificacion.length === 0) {
     leaderboardDiv.innerHTML = `<p style="text-align:center; color:#666;">Esperando marcas...</p>`;
   } else {
     let htmlRank = "<ol style='padding-left:25px; margin:0;'>";
+    
+    // 2. CORREGIDO: Formato de la lista de clasificación derecha con guiones
     listaClasificacion.forEach((jugador) => {
-      htmlRank += `<li style='margin-bottom: 8px;'><strong>${jugador.time}s</strong> — ${jugador.name}</li>`;
+      const times = [];
+      times.push(`R1: ${(typeof jugador.r1 === 'number' && jugador.r1 > 0) ? jugador.r1.toFixed(2) + 's' : '---'}`);
+      times.push(`R2: ${(typeof jugador.r2 === 'number' && jugador.r2 > 0) ? jugador.r2.toFixed(2) + 's' : '---'}`);
+      
+      htmlRank += `<li style='margin-bottom: 8px;'><strong>${jugador.time.toFixed(2)}s</strong> — ${jugador.name} <span style='color:#aaa; font-size:0.9rem;'>(${times.join(' | ')})</span></li>`;
     });
+    
     htmlRank += "</ol>";
     leaderboardDiv.innerHTML = htmlRank;
   }
 }
-
 // 3. SELECCIONAR AL JUGADOR QUE VA A POLTRONA EN ESE INSTANTE
-window.seleccionarJugador = function(id, name) {
+window.seleccionarJugador = function (id, name) {
   jugadorSeleccionadoId = id;
   jugadorSeleccionadoNombre = name;
 
+  // Si había un cronómetro en marcha, lo paramos y lo reiniciamos
+  if (cronoRunning) {
+    clearInterval(cronoInterval);
+    cronoRunning = false;
+  }
+
   // Mostramos la caja del cronómetro personalizada
   document.getElementById("nombreSeleccionado").innerText = name;
-  document.getElementById("inputTiempoActual").value = "";
+  document.getElementById("cronometroDisplay").innerText = "0.00s";
+  document.getElementById('btnStartCrono').disabled = false;
+  document.getElementById('btnStopCrono').disabled = true;
   document.getElementById("zonaCronometro").style.display = "block";
 
   // Refrescamos los botones para que se vea cuál está iluminado en azul
@@ -512,45 +543,212 @@ window.seleccionarJugador = function(id, name) {
 };
 
 // 4. GUARDAR EL TIEMPO DEL JUGADOR SELECCIONADO
-window.guardarTiempoDirecto = async function() {
-  if (!jugadorSeleccionadoId) return;
+let cronoInterval = null;
+let cronoStart = null;
+let cronoRunning = false;
 
-  const inputTiempo = document.getElementById("inputTiempoActual").value.trim();
-  if (!inputTiempo) return alert("Por favor, introduce el tiempo.");
+window.guardarTiempoDirecto = async function () {
+  // Esta función ya no se usa en el UI, pero dejamos la compatibilidad por si hay llamadas externas.
+  return;
+};
 
-  const tiempoNum = parseFloat(inputTiempo.replace(",", "."));
+window.iniciarCronometro = function () {
+  if (!jugadorSeleccionadoId) {
+    alert('Selecciona primero un jugador.');
+    return;
+  }
 
-  // Guardamos directamente en el perfil del jugador en Firebase
-  await updateDoc(doc(window.db, "players", jugadorSeleccionadoId), {
-    mejorTiempoVasos: tiempoNum
-  });
+  if (cronoRunning) return;
 
-  // Ocultamos la zona del cronómetro hasta que selecciones al siguiente
-  document.getElementById("zonaCronometro").style.display = "none";
+  cronoStart = Date.now();
+  cronoRunning = true;
+  document.getElementById('btnStartCrono').disabled = true;
+  document.getElementById('btnStopCrono').disabled = false;
+
+  cronoInterval = setInterval(() => {
+    const elapsed = (Date.now() - cronoStart) / 1000;
+    document.getElementById('cronometroDisplay').innerText = `${elapsed.toFixed(2)}s`;
+  }, 50);
+};
+
+window.detenerYCargarTiempo = async function () {
+  if (!cronoRunning || !jugadorSeleccionadoId) return;
+
+  clearInterval(cronoInterval);
+  cronoRunning = false;
+
+  const elapsed = (Date.now() - cronoStart) / 1000;
+  const tiempoNum = parseFloat(elapsed.toFixed(2));
+
+  document.getElementById('cronometroDisplay').innerText = `${tiempoNum.toFixed(2)}s`;
+  document.getElementById('btnStartCrono').disabled = false;
+  document.getElementById('btnStopCrono').disabled = true;
+
+  const roundKey = currentGlassTowerRound === 'Ronda 1' ? 'round1' : 'round2';
+  const updateData = {
+    [`vasosTimes.${roundKey}`]: tiempoNum
+  };
+
+  await updateDoc(doc(window.db, 'players', jugadorSeleccionadoId), updateData);
+
+  document.getElementById('zonaCronometro').style.display = 'none';
   jugadorSeleccionadoId = null;
-  jugadorSeleccionadoNombre = "";
+  jugadorSeleccionadoNombre = '';
+
+  renderizarControlesYRanking();
 };
 
 // 5. CONTROL DE RONDAS DIRECTO DESDE LOS BOTONES
-window.cambiarRondaDirecto = async function(nombreRonda) {
-  await updateDoc(doc(window.db, "game", "towerState"), {
+window.cambiarRondaDirecto = async function (nombreRonda) {
+  await updateDoc(doc(window.db, 'game', 'towerState'), {
     ronda: nombreRonda
   });
+  currentGlassTowerRound = nombreRonda;
+  document.getElementById('tvRondaActual').innerText = nombreRonda;
+};
+
+// ==============================================================
+// 🏁 RECUENTO FINAL Y REPARTO DE PUNTOS
+// ==============================================================
+window.finalizarJuegoVasos = async function() {
+  if (ultimoRankingCalculado.length === 0) {
+    alert("No hay marcas registradas para puntuar.");
+    return;
+  }
+  
+
+  // Escala de puntos [1º, 2º, 3º, 4º...]
+  const tablaPuntos = [10, 8, 6, 5, 4, 3, 2, 1];
+
+  try {
+    // Recorremos el ranking guardado en tiempo real
+    for (let i = 0; i < ultimoRankingCalculado.length; i++) {
+      const jugador = ultimoRankingCalculado[i];
+      const puntosAAgregar = tablaPuntos[i] || 0; // Si hay más de 8 jugadores, se llevan 0
+
+      if (puntosAAgregar > 0) {
+        const jugadorRef = doc(window.db, "players", jugador.id);
+        
+        // Sumamos los puntos al score que ya tengan en Firebase
+        await updateDoc(jugadorRef, {
+          score: increment(puntosAAgregar)
+        });
+      }
+    }
+    // Viaje directo a la pantalla del Ranking
+    setScreen("screenRanking");
+    showScreenTV("screenRanking");
+
+  } catch (error) {
+    console.error("Error al procesar los puntos:", error);
+    alert("Hubo un problema al guardar los puntos.");
+  }
+}
+
+
+
+// ==========================================
+// Juego 4º: Irrational Price
+// ==========================================
+let jugadoresConRespuesta = [];
+
+export function iniciarTvIrrationalPrice() {
+  // Escuchar jugadores activos para saber cuántos han respondido ya
+  onSnapshot(query(collection(window.db, "players"), where("active", "==", true)), (snapshot) => {
+    const contenedorContador = document.getElementById("tvContadorRespuestasPrice");
+    if (!contenedorContador) return;
+
+    let totalActivos = 0;
+    let hanRespondido = 0;
+    jugadoresConRespuesta = [];
+
+    snapshot.forEach((playerDoc) => {
+      totalActivos++;
+      const p = playerDoc.data();
+      const id = playerDoc.id;
+      
+      // Buscamos la respuesta del jugador (por ejemplo, guardada en p.lentejasGuess)
+      const respuesta = p.lentejasGuess; 
+
+      if (respuesta !== undefined && respuesta !== null && respuesta !== "") {
+        hanRespondido++;
+        jugadoresConRespuesta.push({
+          id: id,
+          name: p.name,
+          guess: parseFloat(respuesta)
+        });
+      }
+    });
+
+    // Actualiza el marcador en la TV: "5 / 8"
+    contenedorContador.innerText = `${hanRespondido} / ${totalActivos}`;
+  });
+}
+
+// Llama a la inicialización (puedes meterla en tu switch de pantallas si tienes uno)
+iniciarTvIrrationalPrice();
+
+// REVELAR EL NÚMERO Y CALCULAR QUIÉN SE HA QUEDADO MÁS CERCA
+window.calcularGanadoresPrice = function() {
+  const inputValor = document.getElementById("inputLentejasExactas").value.trim();
+  if (!inputValor) return alert("Por favor, introduce el número exacto primero.");
+
+  const valorReal = parseFloat(inputValor);
+  const resultadoDiv = document.getElementById("tvResultadoPrice");
+
+  if (jugadoresConRespuesta.length === 0) {
+    alert("Nadie ha enviado respuestas todavía.");
+    return;
+  }
+
+  // Calculamos la diferencia absoluta |valorReal - respuesta| para cada uno
+  // Math.abs asegura que si la respuesta es menor o mayor, la distancia sea positiva siempre
+  jugadoresConRespuesta.forEach(j => {
+    j.diferencia = Math.abs(valorReal - j.guess);
+  });
+
+  // Ordenamos de menor diferencia (ganador) a mayor diferencia
+  jugadoresConRespuesta.sort((a, b) => a.diferencia - b.diferencia);
+
+  // Pintamos la lista ordenada en la TV para que todos la vean
+  let htmlResultados = "<h4 style='margin:0 0 10px 0; color:#ffc107;'>Resultados:</h4><ol style='padding-left:20px; margin:0;'>";
+  
+  jugadoresConRespuesta.forEach((j, index) => {
+    // Si se queda a 0 de diferencia es un acierto exacto!
+    const detalleDiferencia = j.diferencia === 0 ? "¡EXACTO! 🎯" : `(dif: ${j.diferencia})`;
+    htmlResultados += `<li style='margin-bottom:8px;'><strong>${j.name}</strong> puso <strong>${j.guess}</strong> <span style='color:#aaa; font-size:0.85rem;'>${detalleDiferencia}</span></li>`;
+  });
+  
+  htmlResultados += "</ol>";
+  resultadoDiv.innerHTML = htmlResultados;
 };
 
 
 
 
+// ==========================================
+// Selector de Navegación Rápida del Header
+// ==========================================
+window.navegacionRapidaJuegos = function (idPantalla) {
+  if (!idPantalla) return;
 
+  try {
+    // Cambia a la pantalla seleccionada con tus funciones
+    setScreen(idPantalla);
+    showScreenTV(idPantalla);
 
+    // Reseteamos el menú para que vuelva a poner "🎮 Saltar a..."
+    document.getElementById("selectorJuegosRapidos").value = "";
 
-
+  } catch (error) {
+    console.error("Error al saltar a la pantalla " + idPantalla + ":", error);
+  }
+};
 
 
 // =====================
 // Reseteo llamado autodestrucción. Puede ser que vaya aumentado las colecciones en Firebase y no se suficiente
 // =====================
-// Función para resetear el estado del juego a los valores iniciales
 // Función para resetear el estado del juego a los valores iniciales
 async function resetGame() {
   const ok = confirm("⚠️ Esto borrará puntuaciones y reiniciará el juego. ¿Continuar?");
@@ -564,29 +762,30 @@ async function resetGame() {
     // 2. Reset TODOS los jugadores
     const snap = await getDocs(collection(window.db, "players"));
     const promises = [];
-    
+
     snap.forEach((playerDoc) => {
-      const playerData = playerDoc.data(); // 🟢 CORREGIDO: Declaramos playerData para poder leer los campos
-      
+      const playerData = playerDoc.data();
+
       const datosUpdate = {
         score: 0,
-        active: false
+        active: false,
+        vasosTimes: { round1: 0, round2: 0 }
       };
-      
+
       if (playerData.attemptsSong !== undefined) {
         datosUpdate.attemptsSong = deleteField();
       }
-      
+
       const playerRef = doc(window.db, "players", playerDoc.id);
       promises.push(updateDoc(playerRef, datosUpdate));
     });
 
     await Promise.all(promises); // Esperar a que se completen todos los updates
-    
+
     // 3. Reset de la canción activa
     await updateDoc(doc(window.db, "game", "currentSong"), {
       title: "Ninguna",
-      audioUrl: "",
+      audioURL: "",
       revealed: false
     });
     console.log("🎵 ¡Documento currentSong inicializado!");
@@ -594,16 +793,18 @@ async function resetGame() {
   } catch (error) {
     console.error("❌ Error durante el reset total del juego:", error);
   }
+  // Reset de la ronda de GlassTower
+  await updateDoc(doc(window.db, "game", "towerState"), {
+    ronda: "Ronda 1"
+  });
 }
+
 
 // Funcionalidad al botón autodestrucción para resetear el juego
 document.getElementById("selfDestruct").onclick = () => {
   resetGame();
 };
-// Funcionalidad al botón autodestrucción para resetear el juego
-document.getElementById("selfDestruct").onclick = () => {
-  resetGame();
-};
+
 // =====================
 // Función para esperar milisegundos
 // =====================
