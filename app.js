@@ -1,7 +1,9 @@
-import { 
-  collection, 
-  getDocs, 
-  addDoc, 
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  addDoc,
   query,
   orderBy,
   onSnapshot,
@@ -10,19 +12,19 @@ import {
   doc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+const firebaseConfig = {
+  apiKey: "AIzaSyBPpKax_7zzPteOtnnutKX6anU6xqgfoMw",
+  authDomain: "el-ultimo-en-pie-matematikos.firebaseapp.com",
+  projectId: "el-ultimo-en-pie-matematikos",
+  storageBucket: "el-ultimo-en-pie-matematikos.firebasestorage.app",
+  messagingSenderId: "984317427914",
+  appId: "1:984317427914:web:c9fcf803d20186494b3433"
+};
 
-// ======================
-// Poner el nombre del concursante en el header de la TV
-// ======================
-document.addEventListener("DOMContentLoaded", () => {
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+window.db = db;
 
-  const nombre = localStorage.getItem("playerName");
-
-  if (nombre) {
-    document.getElementById("userNameHeader").innerText = nombre;
-  }
-
-});
 
 // =====================
 // PANTALLAS   oculta todas las pantallas menos la que pongas en screen
@@ -30,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
 const screenMapMobile = {
   screenRoulette: "screenRanking",
   screenGlassTower: "screenRanking"
-  };
+};
 
 function showScreen(screen) {
   // traducir solo en móvil
@@ -43,20 +45,21 @@ function showScreen(screen) {
   document.getElementById("screenWaiting").style.display = "none";
   document.getElementById("screenWorldGuessr").style.display = "none";
   document.getElementById("screenGuessSong").style.display = "none";
- // //document.getElementById("screenRoulette").style.display = "none";
+  document.getElementById("screenIrrationalPrice").style.display = "none";
+  //document.getElementById("screenRoulette").style.display = "none";
   console.log("Estoy aquí", screen);
   document.getElementById(screen).style.display = "block";
 }
-
 // =====================
 // CARGAR JUGADORES
 // =====================
 async function loadPlayers() {
   const snapshot = await getDocs(collection(window.db, "players"));
   const container = document.getElementById("screenSelect");
-  ///////////////console.log("Cargando jugadores, snapshot obtenido:", snapshot);
+
+  if (!container) return; // Evita errores si no encuentra el div
+  container.innerHTML = "";
   snapshot.forEach((docSnap) => {
-    ///////////////console.log("Procesando jugador:", docSnap.id, docSnap.data());
     const player = docSnap.data();
 
     const card = document.createElement("div");
@@ -77,37 +80,98 @@ async function loadPlayers() {
   });
 }
 
-// Espera a que cargue el DOM para cargar los jugadores.
-window.addEventListener("DOMContentLoaded", () => {
-  loadPlayers();
-});
 // =====================
 // SELECCIONAR JUGADOR
 // =====================
 async function selectPlayer(id, name) {
-  // Actualizar Firebase para poner active en true
+  // 1. Guardar datos en localStorage y variable global
+  localStorage.setItem("playerId", id);
+  localStorage.setItem("playerName", name);
+  window.miJugadorId = id;
+
+  // 2. Pintar el nombre en el Header/UI de forma directa
+  const userNameHeader = document.getElementById("userNameHeader");
+  if (userNameHeader) userNameHeader.innerText = name;
+
+  const playerNameEl = document.getElementById("playerName");
+  if (playerNameEl) playerNameEl.innerText = name;
+
+  // 3. Actualizar Firebase para poner active en true y asignar la pantalla inicial
   try {
     const playerRef = doc(window.db, "players", id);
-    await updateDoc(playerRef, { active: true });
+    await updateDoc(playerRef, {
+      active: true,
+      pantallaActual: "screenWaiting" // Le decimos a la base de datos que empiece en espera
+    });
   } catch (e) {
     console.warn('No se pudo marcar jugador activo en Firestore:', e);
   }
 
-  // Guardar en localStorage y preparar la pantalla móvil
-  localStorage.setItem("playerId", id);
-  localStorage.setItem("playerName", name);
-  const playerNameEl = document.getElementById("playerName");
-  if (playerNameEl) playerNameEl.innerText = name;
+  // 4. Cambiar la UI localmente para pasar a la pantalla de espera
+  const selectScreen = document.getElementById("screenSelect");
+  if (selectScreen) selectScreen.style.display = "none";
 
-  //Esperar a que el presentador pulse el botón de empezar juego en la TV para pasar a la pantalla de espera, así se asegura que todos los jugadores han seleccionado su personaje antes de empezar el juego
   const waitingScreen = document.getElementById("screenWaiting");
   if (waitingScreen) waitingScreen.style.display = "block";
 
-  const selectScreen = document.getElementById("screenSelect");
-  if (selectScreen) selectScreen.style.display = "none";
-  listenToRankingAndScore();
+  // 5. 🔥 ENLAZAR MÓVIL CON SU DOCUMENTO INDIVIDUAL
+  conectarEscuchaPantalla(id);
+
+  // Tu función original
+  if (typeof listenToRankingAndScore === "function") {
+    listenToRankingAndScore();
+  }
+}
+window.selectPlayer = selectPlayer;
+
+// ==============================================================
+// 🔄 ESCUCHA ACTIVA DEL DOCUMENTO DEL PLAYER (Para cambios de pantalla)
+// ==============================================================
+function conectarEscuchaPantalla(idJugador) {
+  console.log("Móvil escuchando en tiempo real al jugador:", idJugador);
+
+  onSnapshot(doc(window.db, "players", idJugador), (snapshot) => {
+    if (snapshot.exists()) {
+      const datos = snapshot.data();
+      const proximaPantalla = datos.pantallaActual;
+
+      if (proximaPantalla) {
+        console.log("Orden de la TV recibida. Cambiando a:", proximaPantalla);
+        cambiarPantallaEnElMovil(proximaPantalla);
+      }
+    }
+  });
 }
 
+// ==============================================================
+// 🛠️ FUNCIÓN AUXILIAR PARA OCULTAR/MOSTRAR PANTALLAS EN EL MÓVIL
+// ==============================================================
+function cambiarPantallaEnElMovil(idPantallaObjetivo) {
+  // Ocultamos todas las pantallas que tengan la clase 'mobile-screen'
+  // (Asegúrate de ponerle class="mobile-screen" a tus divs screenSelect, screenWaiting, screenMobileIrrationalPrice, etc.)
+  const pantallas = document.querySelectorAll(".mobile-screen");
+  pantallas.forEach(p => p.style.display = "none");
+
+  // Mostramos la que nos pide Firebase
+  const pantallaActiva = document.getElementById(idPantallaObjetivo);
+  if (pantallaActiva) {
+    pantallaActiva.style.display = "block";
+
+    // Lógica especial si entramos al juego de las lentejas (reiniciar formulario)
+    if (idPantallaObjetivo === "screenMobileIrrationalPrice") {
+      if (document.getElementById("formContenedorPrice")) document.getElementById("formContenedorPrice").style.display = "block";
+      if (document.getElementById("esperaContenedorPrice")) document.getElementById("esperaContenedorPrice").style.display = "none";
+      if (document.getElementById("inputMovilLentejas")) document.getElementById("inputMovilLentejas").value = "";
+      const btn = document.getElementById("btnEnviarPrice");
+      if (btn) {
+        btn.disabled = false;
+        btn.innerText = "🚀 Enviar Respuesta";
+      }
+    }
+  } else {
+    console.error("No existe ningún elemento en el HTML con el ID: " + idPantallaObjetivo);
+  }
+}
 
 
 
@@ -118,12 +182,12 @@ async function selectPlayer(id, name) {
 function listenToRankingAndScore() {
   // CORRECCIÓN 1: Apuntamos al <tbody> (listaRankingActivos) para meter ahí las filas
   const tablaContenedor = document.getElementById("listaRankingActivos");
-  
+
   // Si la tabla no existe en el HTML todavía, esperamos un poco y reintentamos
   if (!tablaContenedor) {
     setTimeout(listenToRankingAndScore, 50);
     return;
-  } 
+  }
 
   // Si Firebase aún no ha cargado en window.db, esperamos un poco y reintentamos
   if (!window.db) {
@@ -134,22 +198,22 @@ function listenToRankingAndScore() {
   console.log("¡Conectando con Firebase para el ranking activo!");
 
   const q = query(
-    collection(window.db, "players"), 
-    where("active", "==", true), 
+    collection(window.db, "players"),
+    where("active", "==", true),
     orderBy("score", "desc")
   );
 
   onSnapshot(q, (snapshot) => {
     // CORRECCIÓN 2: Ahora esto solo limpia las filas de los jugadores, 
     // respetando el título y las cabeceras del HTML.
-    tablaContenedor.innerHTML = ""; 
+    tablaContenedor.innerHTML = "";
 
     let posicion = 1;
 
     snapshot.forEach((docSnap) => {
       const jugador = docSnap.data();
       const fila = document.createElement("tr");
-      
+
       fila.innerHTML = `
         <td>#${posicion}</td>
         <td>${jugador.name || "Sin nombre"}</td>
@@ -192,6 +256,7 @@ const games = {
   GuessSong: guessSong, //2º Juego Adivinar quién escucha la canción
   GlassTower: glassTower, //3º Juego Torre de Cristal 
   IrrationalPrice: irrationalPrice, //4º Juego El precio Irracional, el de las unidades de lentejas
+  SimbolZone: simbolZone, // 5º El de los símbolos en la espalda con pinzas y tienen que ir a su zona.
   NumbersAndLetters: numbersAndLetters, //5º Juego Cifras y letras juego de operaciones
   TruthOrLie: truthOrLie, //6º Juego: Verdad o invent, presentadores cuentan 3 historias, 1 de verdad.
   TheLiar: theLiar, //7º Juego: El mentiroso con material audiovisual
@@ -220,24 +285,24 @@ function worldGuessr() {
 
 function guessSong() {
   window.enviarSospechoso = async (nombreSospechoso) => {
-  const miPlayerId = localStorage.getItem("myPlayerDocId"); // ej: "p1"
-  
-  // Firebase crea el objeto 'attemptsSong' y la propiedad 'guessWho' automáticamente si no existen
-  await updateDoc(doc(window.db, "players", miPlayerId), {
-    "attemptsSong.guessWho": nombreSospechoso
-  });
-};
+    const miPlayerId = localStorage.getItem("myPlayerDocId"); // ej: "p1"
 
-document.getElementById("sendSongBtn").onclick = async () => {
-  const miPlayerId = localStorage.getItem("myPlayerDocId");
-  const textoCancion = document.getElementById("mobileSongInput").value.trim();
-  if(!textoCancion) return;
+    // Firebase crea el objeto 'attemptsSong' y la propiedad 'guessWho' automáticamente si no existen
+    await updateDoc(doc(window.db, "players", miPlayerId), {
+      "attemptsSong.guessWho": nombreSospechoso
+    });
+  };
 
-  // Firebase mete 'guessSong' dentro de 'attempts' sin tocar 'guessWho'
-  await updateDoc(doc(window.db, "players", miPlayerId), {
-    "attemptsSong.guessSong": textoCancion
-  });
-};
+  document.getElementById("sendSongBtn").onclick = async () => {
+    const miPlayerId = localStorage.getItem("myPlayerDocId");
+    const textoCancion = document.getElementById("mobileSongInput").value.trim();
+    if (!textoCancion) return;
+
+    // Firebase mete 'guessSong' dentro de 'attempts' sin tocar 'guessWho'
+    await updateDoc(doc(window.db, "players", miPlayerId), {
+      "attemptsSong.guessSong": textoCancion
+    });
+  };
   // Lógica para el juego Adivinar quién escucha la canción
 }
 
@@ -317,6 +382,59 @@ function glassTower() {
 
 function irrationalPrice() {
   // Lógica para el juego El precio Irracional
+  console.log("🎮 Iniciando juego del Precio Irracional en el móvil");
+
+  const btnEnviar = document.getElementById("btnEnviarPrice");
+  
+  if (btnEnviar) {
+    btnEnviar.onclick = async () => {
+      // 1. Recuperamos el ID del jugador desde SU localStorage
+      const miPlayerId = localStorage.getItem("playerId"); 
+      
+      if (!miPlayerId) {
+        alert("❌ Error: No se encuentra tu ID de jugador. Reinicia la aplicación.");
+        return;
+      }
+
+      // 2. Pillamos el número que ha escrito en el input del móvil
+      const inputMovil = document.getElementById("inputMovilLentejas");
+      const respuestaUsuario = inputMovil ? inputMovil.value.trim() : "";
+
+      if (!respuestaUsuario || isNaN(respuestaUsuario)) {
+        alert("🔢 Por favor, introduce un número válido antes de enviar.");
+        return;
+      }
+
+      try {
+        // Desactivamos el botón para que no pulse 2 veces seguidas por los nervios
+        btnEnviar.disabled = true;
+        btnEnviar.innerText = "⏳ Enviando...";
+
+        // 3. 🔥 MODIFICAMOS EL VALOR EN FIREBASE CORRESPONDIENTE A SU ID
+        // Cambiamos 'lentejasGuess' dentro de SU propio documento en la colección 'players'
+        const playerRef = doc(window.db, "players", miPlayerId);
+        await updateDoc(playerRef, {
+          lentejasGuess: parseFloat(respuestaUsuario)
+        });
+
+        console.log(`✅ Respuesta (${respuestaUsuario}) guardada con éxito para el jugador: ${miPlayerId}`);
+
+        // 4. Cambiamos la interfaz del móvil para avisarle de que ya hemos recibido el dato
+        if (document.getElementById("formContenedorPrice")) {
+          document.getElementById("formContenedorPrice").style.display = "none";
+        }
+        if (document.getElementById("esperaContenedorPrice")) {
+          document.getElementById("esperaContenedorPrice").style.display = "block";
+        }
+
+      } catch (error) {
+        console.error("❌ Error al enviar la respuesta a Firebase:", error);
+        alert("Hubo un problema al enviar tu respuesta. Inténtalo de nuevo.");
+        btnEnviar.disabled = false;
+        btnEnviar.innerText = "🚀 Enviar Respuesta";
+      }
+    };
+  }
 }
 
 function numbersAndLetters() {
@@ -335,4 +453,76 @@ function lastTheorem() {
   // Lógica para el juego El último teorema
 }
 
-window.selectPlayer = selectPlayer;
+function simbolZone() {
+  // Lógica para el juego El último teorema
+}
+
+
+
+
+
+
+
+// ======================
+// Escucha la autodestrucción de la TV y resetea el localStorage
+// ======================
+window.addEventListener("DOMContentLoaded", () => {
+  loadPlayers();
+
+  // 1. Recuperar sesión si refrescan la pantalla de forma normal
+  const savedId = localStorage.getItem("playerId");
+  if (savedId) {
+    window.miJugadorId = savedId;
+    conectarEscuchaPantalla(savedId);
+  }
+
+// 2. 💣 DETECTOR GLOBAL DE AUTODESTRUCCIÓN (Versión Blindada)
+  onSnapshot(doc(window.db, "game", "state"), (snapshot) => {
+    if (!snapshot.exists()) {
+      console.warn("⚠️ El documento game/state no existe en Firebase.");
+      return;
+    }
+
+    const datos = snapshot.data();
+    console.log("📡 Datos recibidos de game/state:", datos);
+
+    const tokenFirebase = datos.globalResetToken;
+    const jugadorLogueado = localStorage.getItem("playerId");
+
+    // SI NO HAY JUGADOR LOGUEADO en este móvil, no hace falta resetear nada
+    if (!jugadorLogueado) return;
+
+    if (tokenFirebase) {
+      const ultimoTokenLocal = localStorage.getItem("miUltimoResetToken");
+
+      console.log(`Bomba detectada. Token FB: ${tokenFirebase} | Token Local: ${ultimoTokenLocal}`);
+
+      // Si el número de la tele es diferente al que recuerda el móvil: ¡BOMBA!
+      if (tokenFirebase.toString() !== String(ultimoTokenLocal)) {
+        console.log("💣 ¡LA CONDICIÓN ES CORRECTA! Reseteando todo ahora mismo...");
+
+        // 1. Guardamos el token para evitar bucles infinitos
+        localStorage.setItem("miUltimoResetToken", tokenFirebase.toString());
+
+        // 2. Borramos la pantalla para que no se vea el "Esperando..."
+        document.body.innerHTML = `
+          <div style="text-align:center; margin-top:100px; font-family:sans-serif; color:#666;">
+            <p style="font-size: 2.5rem; animation: spin 1s linear infinite;">🔄</p>
+            <p style="font-size: 1.2rem;">Reiniciando juego por orden de la TV...</p>
+          </div>
+        `;
+
+        // 3. Vaciamos por completo el almacenamiento local
+        localStorage.removeItem("playerId");
+        localStorage.removeItem("playerName");
+        window.miJugadorId = null;
+
+        // 4. Forzamos la recarga inmediata del navegador
+        console.log("Ejecutando window.location.reload()...");
+        window.location.reload();
+      }
+    } else {
+      console.warn("⚠️ El campo 'globalResetToken' no existe o está vacío en game/state.");
+    }
+  });
+})

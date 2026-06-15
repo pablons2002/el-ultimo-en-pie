@@ -1,4 +1,5 @@
-import { collection, query, orderBy, onSnapshot, getDocs, updateDoc, increment, where, getDoc, setDoc, deleteField, doc
+import {
+  collection, query, orderBy, onSnapshot, getDocs, updateDoc, increment, where, getDoc, setDoc, deleteField, doc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 // Escuchar la colección "players" ordenada por "score" de mayor a menor de forma masiva
@@ -477,7 +478,7 @@ async function renderizarControlesYRanking() {
     const recordedTimes = [r1, r2].filter((value) => typeof value === 'number' && value > 0);
     const bestTime = recordedTimes.length > 0 ? Math.min(...recordedTimes) : null;
     const bestText = bestTime !== null ? `Mejor: ${bestTime.toFixed(2)}s` : '';
-    
+
     // Marcamos con un estilo diferente si es el jugador que tenemos seleccionado actualmente
     const claseActiva = (id === jugadorSeleccionadoId) ? "background: #007bff; border-color: #fff;" : "background: #444; border-color: #555;";
 
@@ -506,16 +507,16 @@ async function renderizarControlesYRanking() {
     leaderboardDiv.innerHTML = `<p style="text-align:center; color:#666;">Esperando marcas...</p>`;
   } else {
     let htmlRank = "<ol style='padding-left:25px; margin:0;'>";
-    
+
     // 2. CORREGIDO: Formato de la lista de clasificación derecha con guiones
     listaClasificacion.forEach((jugador) => {
       const times = [];
       times.push(`R1: ${(typeof jugador.r1 === 'number' && jugador.r1 > 0) ? jugador.r1.toFixed(2) + 's' : '---'}`);
       times.push(`R2: ${(typeof jugador.r2 === 'number' && jugador.r2 > 0) ? jugador.r2.toFixed(2) + 's' : '---'}`);
-      
+
       htmlRank += `<li style='margin-bottom: 8px;'><strong>${jugador.time.toFixed(2)}s</strong> — ${jugador.name} <span style='color:#aaa; font-size:0.9rem;'>(${times.join(' | ')})</span></li>`;
     });
-    
+
     htmlRank += "</ol>";
     leaderboardDiv.innerHTML = htmlRank;
   }
@@ -610,12 +611,12 @@ window.cambiarRondaDirecto = async function (nombreRonda) {
 // ==============================================================
 // 🏁 RECUENTO FINAL Y REPARTO DE PUNTOS
 // ==============================================================
-window.finalizarJuegoVasos = async function() {
+window.finalizarJuegoVasos = async function () {
   if (ultimoRankingCalculado.length === 0) {
     alert("No hay marcas registradas para puntuar.");
     return;
   }
-  
+
 
   // Escala de puntos [1º, 2º, 3º, 4º...]
   const tablaPuntos = [10, 8, 6, 5, 4, 3, 2, 1];
@@ -628,7 +629,7 @@ window.finalizarJuegoVasos = async function() {
 
       if (puntosAAgregar > 0) {
         const jugadorRef = doc(window.db, "players", jugador.id);
-        
+
         // Sumamos los puntos al score que ya tengan en Firebase
         await updateDoc(jugadorRef, {
           score: increment(puntosAAgregar)
@@ -666,9 +667,9 @@ export function iniciarTvIrrationalPrice() {
       totalActivos++;
       const p = playerDoc.data();
       const id = playerDoc.id;
-      
+
       // Buscamos la respuesta del jugador (por ejemplo, guardada en p.lentejasGuess)
-      const respuesta = p.lentejasGuess; 
+      const respuesta = p.lentejasGuess;
 
       if (respuesta !== undefined && respuesta !== null && respuesta !== "") {
         hanRespondido++;
@@ -689,7 +690,7 @@ export function iniciarTvIrrationalPrice() {
 iniciarTvIrrationalPrice();
 
 // REVELAR EL NÚMERO Y CALCULAR QUIÉN SE HA QUEDADO MÁS CERCA
-window.calcularGanadoresPrice = function() {
+window.calcularGanadoresPrice = function () {
   const inputValor = document.getElementById("inputLentejasExactas").value.trim();
   if (!inputValor) return alert("Por favor, introduce el número exacto primero.");
 
@@ -712,13 +713,13 @@ window.calcularGanadoresPrice = function() {
 
   // Pintamos la lista ordenada en la TV para que todos la vean
   let htmlResultados = "<h4 style='margin:0 0 10px 0; color:#ffc107;'>Resultados:</h4><ol style='padding-left:20px; margin:0;'>";
-  
+
   jugadoresConRespuesta.forEach((j, index) => {
     // Si se queda a 0 de diferencia es un acierto exacto!
     const detalleDiferencia = j.diferencia === 0 ? "¡EXACTO! 🎯" : `(dif: ${j.diferencia})`;
     htmlResultados += `<li style='margin-bottom:8px;'><strong>${j.name}</strong> puso <strong>${j.guess}</strong> <span style='color:#aaa; font-size:0.85rem;'>${detalleDiferencia}</span></li>`;
   });
-  
+
   htmlResultados += "</ol>";
   resultadoDiv.innerHTML = htmlResultados;
 };
@@ -758,7 +759,10 @@ async function resetGame() {
     // 1. Reset estado global
     await setScreen("screenSelect", null);
     showScreenTV("screenSelect");
-
+    
+    await updateDoc(doc(window.db, "game", "state"), {
+      globalResetToken: Date.now()
+    });
     // 2. Reset TODOS los jugadores
     const snap = await getDocs(collection(window.db, "players"));
     const promises = [];

@@ -11,31 +11,14 @@
 </head>
 
 <body>
+  <script type="module" src="app.js"></script>
   <header id="userHeader">
     <img src="images/iconoWeb.svg" width="40">
     👤 <span id="userNameHeader"></span>
   </header>
   <h1>El último en pi e</h1>
 
-  <!--firebase-->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyBPpKax_7zzPteOtnnutKX6anU6xqgfoMw",
-      authDomain: "el-ultimo-en-pie-matematikos.firebaseapp.com",
-      projectId: "el-ultimo-en-pie-matematikos",
-      storageBucket: "el-ultimo-en-pie-matematikos.firebasestorage.app",
-      messagingSenderId: "984317427914",
-      appId: "1:984317427914:web:c9fcf803d20186494b3433"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    window.db = db;
-  </script>
-  <script type="module" src="app.js"></script>
   <!-- Selección de personaje -->
   <div id="screenSelect"></div>
 
@@ -80,8 +63,8 @@
     <button id="sendSongBtn">Enviar</button>
   </div>
 
-    <!-- 3º Juego GlassTower-->
-     <!--Si hay tiempo meter algo de este estilo, si no no hace falta
+  <!-- 3º Juego GlassTower-->
+  <!--Si hay tiempo meter algo de este estilo, si no no hace falta
     <div id="screenGlassTower" class="mobile-screen" style="display: none; padding: 15px; text-align: center; color: white; background-color: #1a1a1a; display: none;">
 
   <div id="personalStatsCard" style="background: linear-gradient(135deg, #6f42c1, #43227a); padding: 15px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
@@ -100,9 +83,32 @@
       <p style="text-align: center; color: #888;">Cargando tiempos...</p>
     </div>
   </div>
+    </div>
 -->
 
-</div>
+
+
+  <!-- 4º Juego Precio Irracional-->
+
+  <div id="screenIrrationalPrice"  style="display:none; text-align:center; padding: 20px;">
+    <h2>🫙 El Precio Irracional</h2>
+    <p>Mira la TV. ¿Cuántas lentejas crees que hay dentro del tarro?</p>
+
+    <div id="formContenedorPrice">
+      <input type="number" id="inputMovilLentejas" placeholder="Ej: 450"
+        style="font-size: 1.5rem; padding: 10px; width: 80%; text-align: center; margin-bottom: 20px; border-radius: 8px; border: 2px solid #ccc;">
+      <br>
+      <button id="btnEnviarPrice"
+        style="font-size: 1.3rem; padding: 12px 30px; background: #00e676; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; width: 85%;">
+        🚀 Enviar Respuesta
+      </button>
+    </div>
+
+    <div id="esperaContenedorPrice" style="display:none; margin-top: 30px; color: #aaa;">
+      <p style="font-size: 3rem; margin: 0;">✔</p>
+      <p>¡Respuesta enviada! Esperando a que el resto termine...</p>
+    </div>
+  </div>
 </body>
 
 </html>
