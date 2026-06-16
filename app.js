@@ -301,13 +301,16 @@ function guessSong() {
         return;
       }
 
-      // 2. Pillamos el texto que ha escrito en el input del móvil
-      const inputMovil = document.getElementById("inputMovilCancion");
-      const respuestaUsuario = inputMovil ? inputMovil.value.trim() : "";
+      // 2. Pillamos los textos que ha escrito en los inputs del móvil
+      const inputCancion = document.getElementById("inputMovilCancion");
+      const inputAutor = document.getElementById("inputMovilAutor"); // <- NUEVO INPUT
 
-      // MODIFICADO: Ahora validamos que simplemente no esté vacío (ya que es texto, no un número)
-      if (!respuestaUsuario) {
-        alert("🎵 Por favor, escribe el nombre de la canción antes de enviar.");
+      const respuestaCancion = inputCancion ? inputCancion.value.trim() : "";
+      const respuestaAutor = inputAutor ? inputAutor.value.trim() : ""; // <- NUEVA VARIABLE
+
+      // Validamos que al menos escriba algo en la canción (o puedes exigir ambos si quieres)
+      if (!respuestaCancion || !respuestaAutor) {
+        alert("🎵 Por favor, completa el nombre de la canción y el autor antes de enviar.");
         return;
       }
 
@@ -316,15 +319,18 @@ function guessSong() {
         btnEnviar.disabled = true;
         btnEnviar.innerText = "⏳ Enviando...";
 
-        // 3. 🔥 MODIFICAMOS EL VALOR EN FIREBASE
+        // 3. 🔥 MODIFICAMOS EL VALOR EN FIREBASE (Estructura de Mapa)
         const playerRef = doc(window.db, "players", miPlayerId);
+        
+        // Usamos la notación "respuestasSong.campo" para actualizar dentro del mapa de forma segura
         await updateDoc(playerRef, {
-          respuestaCancion: respuestaUsuario
+          "respuestasSong.respuestaCancion": respuestaCancion,
+          "respuestasSong.respuestaAutor": respuestaAutor
         });
 
-        console.log(`✅ Respuesta (${respuestaUsuario}) guardada con éxito para: ${miPlayerId}`);
+        console.log(`✅ Respuestas guardadas con éxito en respuestasSong para: ${miPlayerId}`);
 
-        // 4. Cambiamos la interfaz del móvil (IDs corregidos según tu HTML)
+        // 4. Cambiamos la interfaz del móvil
         const contenedorForm = document.getElementById("screenGuessSong");
         const contenedorEspera = document.getElementById("pantalla-espera");
 

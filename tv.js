@@ -446,21 +446,31 @@ btnVerRespuestas.addEventListener('click', async () => {
         querySnapshot.forEach((jugadorDoc) => {
             const datosJugador = jugadorDoc.data();
             
-            // Solo creamos la etiqueta si el usuario escribió algo en su móvil
-            if (datosJugador.respuestaCancion || datosJugador.respuestaAutor) {
+            // 1. Accedemos al mapa respuestasSong (si no existe, creamos un objeto vacío por seguridad)
+            const respuestasSong = datosJugador.respuestasSong || {};
+            
+            const cancionRespondida = respuestasSong.respuestaCancion ? respuestasSong.respuestaCancion.trim() : "";
+            const autorRespondido = respuestasSong.respuestaAutor ? respuestasSong.respuestaAutor.trim() : "";
+
+            // 2. Solo creamos la etiqueta si el usuario escribió algo en el mapa de su móvil
+            if (cancionRespondida || autorRespondido) {
                 const li = document.createElement('li');
-                li.style.padding = "8px 0";
+                li.style.padding = "10px 0";
                 li.style.borderBottom = "1px dashed #eee";
+                li.style.fontSize = "18px"; // Un poquito más grande para que se vea bien en la tele
                 
-                const cancionRespondida = datosJugador.respuestaCancion || "❓";
-                const autorRespondido = datosJugador.respuestaAutor || "❓";
+                // Si falta alguno de los dos campos por rellenar, ponemos el emoji de incógnita
+                const cancionMostrar = cancionRespondida || "❓";
+                const autorMostrar = autorRespondido || "❓";
                 
-                li.innerHTML = `👤 <strong>${datosJugador.name}:</strong> "${cancionRespondida}" de <em>${autorRespondido}</em>`;
+                // 3. Pintamos el nombre del jugador junto a sus datos estructurados
+                li.innerHTML = `👤 <strong>${datosJugador.name || "Jugador Anónimo"}:</strong> "${cancionMostrar}" de <em>${autorMostrar}</em>`;
                 listaRespuestasUI.appendChild(li);
             }
         });
     } catch (error) {
         console.error("Error al traer respuestas de los jugadores:", error);
+        alert("No se pudieron cargar las respuestas. Revisa la consola.");
     }
 
     // Desplegamos el contenedor que tiene la lista y el botón final de "Siguiente"
@@ -977,3 +987,5 @@ document.getElementById("selfDestruct").onclick = () => {
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+
