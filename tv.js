@@ -355,6 +355,7 @@ document.getElementById("nextGameBtn").onclick = async () => {
 // 2º Juego GuessSong
 // ========================
 
+
 // 3. CAPTURA DE ELEMENTOS DEL HTML
 const botonPlay = document.getElementById('btn-play');
 const botonSiguiente = document.getElementById('btn-siguiente');
@@ -364,20 +365,23 @@ const tiempoActualTxt = document.getElementById('tiempo-actual');
 const tiempoTotalTxt = document.getElementById('tiempo-total');
 const segundosCronoTxt = document.getElementById('segundos-crono');
 
-// Nuevos elementos para alternar pantallas y mostrar textos
+// Elementos de las pantallas de respuestas y revelación
 const pantallaJuego = document.getElementById('pantalla-juego');
 const pantallaRespuesta = document.getElementById('pantalla-respuesta');
 const txtNombreCancion = document.getElementById('txt-nombre-cancion');
 const txtAutor = document.getElementById('txt-autor');
+const btnVerRespuestas = document.getElementById('btn-ver-respuestas');
+const contenedorRespuestasUsuarios = document.getElementById('contenedor-respuestas-usuarios');
+const listaRespuestasUI = document.getElementById('lista-respuestas-jugadores');
 const botonContinuar = document.getElementById('btn-continuar');
 
 // 4. VARIABLES DE CONTROL DEL JUEGO Y CRONÓMETRO
-let listaCanciones = [];  
-let indiceActual = 0;     
-let tiempoRestante = 20;
-let IDIntervalo = null;
+let listaCanciones = [];  // Array con todas las canciones de Firestore
+let indiceActual = 0;     // Posición de la canción actual
+let tiempoRestante = 20;  // Tiempo límite por canción
+let IDIntervalo = null;   // ID del temporizador
 
-// 5. FUNCIONES DEL CRONÓMETRO
+// 5. FUNCIONES DE CONTROL DEL CRONÓMETRO
 function iniciarCronometro() {
     if (IDIntervalo !== null) return;
 
@@ -385,10 +389,11 @@ function iniciarCronometro() {
         tiempoRestante--;
         segundosCronoTxt.textContent = tiempoRestante;
 
+        // Si se acaba el tiempo, detenemos y mostramos la solución
         if (tiempoRestante <= 0) {
             clearInterval(IDIntervalo);
             IDIntervalo = null;
-            revelarRespuesta(); // 🌟 Si el tiempo llega a 0, revela automáticamente la respuesta
+            revelarRespuesta(); 
         }
     }, 1000);
 }
@@ -404,6 +409,7 @@ function reiniciarCronometro() {
     segundosCronoTxt.textContent = tiempoRestante;
 }
 
+// Transforma segundos flotantes a formato MM:SS
 function formatearTiempo(segundos) {
     if (isNaN(segundos)) return "0:00";
     const min = Math.floor(segundos / 60);
@@ -411,31 +417,65 @@ function formatearTiempo(segundos) {
     return `${min}:${seg < 10 ? '0' : ''}${seg}`;
 }
 
-// 6. FUNCIÓN NUEVA: MOSTRAR LA PANTALLA DE RESPUESTA
-function revelarRespuesta() {
-    reproductor.pause(); // Detenemos la música
-    pausarCronometro();  // Detenemos el cronómetro
+// 6. FASE 1 DE LA RESPUESTA: MOSTRAR TÍTULO Y AUTOR LIMPIOS
+async function revelarRespuesta() {
+    reproductor.pause(); 
+    pausarCronometro();  
 
-    // Extraemos la canción actual de nuestra lista
     const cancionActual = listaCanciones[indiceActual];
-
-    // Pintamos los datos usando los nombres exactos de tus campos en Firestore
     txtNombreCancion.textContent = cancionActual.nombreCancion || "Desconocido";
     txtAutor.textContent = cancionActual.autor || "Desconocido";
 
-    // Cambiamos las pantallas: ocultamos el juego y mostramos la respuesta
+    // Ocultamos el bloque de usuarios por ahora y aseguramos que el botón de ver respuestas aparezca
+    contenedorRespuestasUsuarios.style.display = "none";
+    btnVerRespuestas.style.display = "inline-block";
+
     pantallaJuego.style.display = "none";
     pantallaRespuesta.style.display = "block";
 }
 
-// 7. FUNCIÓN PARA CARGAR UNA NUEVA CANCIÓN (Prepara los controles ocultos)
+// 7. FASE 2 DE LA RESPUESTA: EVENTO PARA CARGAR Y MOSTRAR QUÉ PUSO CADA JUGADOR
+btnVerRespuestas.addEventListener('click', async () => {
+    btnVerRespuestas.style.display = "none"; // Escondemos este botón intermedio
+    listaRespuestasUI.innerHTML = "";        // Limpiamos respuestas de rondas anteriores
+
+    try {
+        // Consultamos la colección 'players' en Firestore
+        const querySnapshot = await getDocs(collection(db, "players"));
+        
+        querySnapshot.forEach((jugadorDoc) => {
+            const datosJugador = jugadorDoc.data();
+            
+            // Solo creamos la etiqueta si el usuario escribió algo en su móvil
+            if (datosJugador.respuestaCancion || datosJugador.respuestaAutor) {
+                const li = document.createElement('li');
+                li.style.padding = "8px 0";
+                li.style.borderBottom = "1px dashed #eee";
+                
+                const cancionRespondida = datosJugador.respuestaCancion || "❓";
+                const autorRespondido = datosJugador.respuestaAutor || "❓";
+                
+                li.innerHTML = `👤 <strong>${datosJugador.name}:</strong> "${cancionRespondida}" de <em>${autorRespondido}</em>`;
+                listaRespuestasUI.appendChild(li);
+            }
+        });
+    } catch (error) {
+        console.error("Error al traer respuestas de los jugadores:", error);
+    }
+
+    // Desplegamos el contenedor que tiene la lista y el botón final de "Siguiente"
+    contenedorRespuestasUsuarios.style.display = "block";
+});
+
+// 8. FUNCIÓN PARA CARGAR LA SIGUIENTE CANCIÓN LOCAL
 function cargarCancion(indice) {
     if (indice < listaCanciones.length) {
-        // Volvemos a mostrar la pantalla de juego y ocultamos la de respuesta
+        // Regresamos a la interfaz de reproducción y ocultamos las tarjetas de respuestas
         pantallaRespuesta.style.display = "none";
+        contenedorRespuestasUsuarios.style.display = "none";
         pantallaJuego.style.display = "block";
 
-        // Reiniciamos barra, audios y tiempos
+        // Reiniciamos elementos multimedia
         reproductor.src = listaCanciones[indice].url;
         barraProgreso.value = 0;
         tiempoActualTxt.textContent = "0:00";
@@ -445,7 +485,7 @@ function cargarCancion(indice) {
         botonPlay.textContent = "Reproducir Música 🎵";
         botonSiguiente.disabled = false;
     } else {
-        // Fin de la lista de canciones
+        // Si no quedan más canciones en el array
         pantallaRespuesta.style.display = "none";
         pantallaJuego.style.display = "block";
         reiniciarCronometro();
@@ -456,9 +496,10 @@ function cargarCancion(indice) {
     }
 }
 
-// 8. EVENTO: EMPEZAR / PLAY / PAUSA
+// 9. EVENTO: INICIAR JUEGO / PLAY / PAUSA
 botonPlay.addEventListener('click', async () => {
     try {
+        // Descarga inicial de canciones solo en el primer clic de la partida
         if (listaCanciones.length === 0) {
             botonPlay.textContent = "Cargando canciones...";
             
@@ -477,6 +518,7 @@ botonPlay.addEventListener('click', async () => {
             cargarCancion(indiceActual);
         }
 
+        // Interruptor Play / Pausa estándar
         if (reproductor.paused) {
             await reproductor.play();
             botonPlay.textContent = "Pausar ⏸️";
@@ -488,22 +530,45 @@ botonPlay.addEventListener('click', async () => {
         }
 
     } catch (error) {
-        console.error("Error en el juego:", error);
+        console.error("Error en el flujo del botón Play:", error);
     }
 });
 
-// 9. EVENTO: BOTÓN REVELAR RESPUESTA (El antiguo botón Siguiente)
+// 10. EVENTO: BOTÓN REVELAR RESPUESTA DURANTE LA MÚSICA
 botonSiguiente.addEventListener('click', () => {
     revelarRespuesta();
 });
 
-// 10. NUEVO EVENTO: BOTÓN CONTINUAR (El botón de la pantalla de respuestas)
-botonContinuar.addEventListener('click', () => {
-    indiceActual++; // Pasamos al siguiente número de índice
-    cargarCancion(indiceActual); // Carga el juego con la siguiente canción
+// 11. EVENTO: BOTÓN SIGUIENTE CANCIÓN (Borra inputs en Firebase y avanza)
+botonContinuar.addEventListener('click', async () => {
+    botonContinuar.disabled = true;
+    botonContinuar.textContent = "Limpiando sala...";
+
+    try {
+        // Obtenemos todos los jugadores para reiniciar sus respuestas en Firestore
+        const querySnapshot = await getDocs(collection(db, "players"));
+        
+        // Ejecutamos la limpieza de forma secuencial segura
+        for (const jugadorDoc of querySnapshot.docs) {
+            const jugadorRef = doc(db, "players", jugadorDoc.id);
+            await updateDoc(jugadorRef, {
+                respuestaCancion: "",
+                respuestaAutor: ""
+            });
+        }
+    } catch (e) {
+        console.error("Error al limpiar respuestas en Firestore:", e);
+    }
+
+    botonContinuar.disabled = false;
+    botonContinuar.textContent = "Siguiente Canción ➡️";
+
+    // Pasamos al siguiente índice de la lista y cargamos los paneles
+    indiceActual++; 
+    cargarCancion(indiceActual); 
 });
 
-// 11. EVENTOS DE LA BARRA DE PROGRESO
+// 12. EVENTOS AUTOMÁTICOS DE LA BARRA DE PROGRESO (Estilo Spotify)
 reproductor.addEventListener('timeupdate', () => {
     if (reproductor.duration) {
         const porcentaje = (reproductor.currentTime / reproductor.duration) * 100;

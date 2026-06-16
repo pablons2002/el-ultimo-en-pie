@@ -283,27 +283,60 @@ function worldGuessr() {
   showScreen("screenWorldGuessr");
 }
 
+// GuessSong
+
+// 4. CAPTURA DE LOS ELEMENTOS DEL HTML
 function guessSong() {
-  window.enviarSospechoso = async (nombreSospechoso) => {
-    const miPlayerId = localStorage.getItem("myPlayerDocId"); // ej: "p1"
+  const inputCancion = document.getElementById('input-cancion');
+  const inputAutor = document.getElementById('input-autor');
+  const botonEnviar = document.getElementById('btn-enviar');
+  const pantallaEscribir = document.getElementById('pantalla-escribir');
+  const pantallaEspera = document.getElementById('pantalla-espera');
 
-    // Firebase crea el objeto 'attemptsSong' y la propiedad 'guessWho' automáticamente si no existen
-    await updateDoc(doc(window.db, "players", miPlayerId), {
-      "attemptsSong.guessWho": nombreSospechoso
-    });
-  };
+  // 5. LOGICA DEL BOTÓN ENVIAR
+  botonEnviar.addEventListener('click', async () => {
+    // Extraemos el texto de los inputs quitando espacios sobrantes
+    const cancion = inputCancion.value.trim();
+    const autor = inputAutor.value.trim();
 
-  document.getElementById("sendSongBtn").onclick = async () => {
-    const miPlayerId = localStorage.getItem("myPlayerDocId");
-    const textoCancion = document.getElementById("mobileSongInput").value.trim();
-    if (!textoCancion) return;
+    // Validación elemental: evitar enviar campos totalmente vacíos
+    if (!cancion && !autor) {
+      alert("Por favor, escribe al menos una respuesta antes de enviar.");
+      return;
+    }
 
-    // Firebase mete 'guessSong' dentro de 'attempts' sin tocar 'guessWho'
-    await updateDoc(doc(window.db, "players", miPlayerId), {
-      "attemptsSong.guessSong": textoCancion
-    });
-  };
-  // Lógica para el juego Adivinar quién escucha la canción
+    try {
+      // Bloqueamos el botón para evitar que el usuario pulse varias veces seguidas
+      botonEnviar.disabled = true;
+      botonEnviar.textContent = "Guardando en Firebase...";
+
+      // Creamos la referencia exacta hacia el documento 'p1' dentro de la colección 'players'
+      const jugadorRef = doc(window.db, "players", "p1");
+
+      // Modificamos directamente los dos campos en la base de datos
+      await updateDoc(jugadorRef, {
+        respuestaCancion: cancion,
+        respuestaAutor: autor
+      });
+
+      console.log("¡Campos actualizados correctamente en Firestore!");
+
+      // Si la base de datos responde con éxito, cambiamos las pantallas visuales del móvil
+      if (pantallaEscribir) pantallaEscribir.style.display = "none";
+      if (pantallaEspera) pantallaEspera.style.display = "block";
+
+    } catch (error) {
+      // En caso de fallo de red, de permisos o configuración, saltará este aviso detallado
+      console.error("Error al escribir en Firestore:", error);
+
+      // Desbloqueamos el botón para que el usuario pueda volver a intentar
+      botonEnviar.disabled = false;
+      botonEnviar.textContent = "Enviar Respuesta 🚀";
+
+      // Alerta informativa con el motivo técnico del fallo
+      alert("❌ No se pudo guardar la respuesta.\nMotivo: " + error.message);
+    }
+  });
 }
 
 function glassTower() {
@@ -385,12 +418,12 @@ function irrationalPrice() {
   console.log("🎮 Iniciando juego del Precio Irracional en el móvil");
 
   const btnEnviar = document.getElementById("btnEnviarPrice");
-  
+
   if (btnEnviar) {
     btnEnviar.onclick = async () => {
       // 1. Recuperamos el ID del jugador desde SU localStorage
-      const miPlayerId = localStorage.getItem("playerId"); 
-      
+      const miPlayerId = localStorage.getItem("playerId");
+
       if (!miPlayerId) {
         alert("❌ Error: No se encuentra tu ID de jugador. Reinicia la aplicación.");
         return;
@@ -476,7 +509,7 @@ window.addEventListener("DOMContentLoaded", () => {
     conectarEscuchaPantalla(savedId);
   }
 
-// 2. 💣 DETECTOR GLOBAL DE AUTODESTRUCCIÓN (Versión Blindada)
+  // 2. 💣 DETECTOR GLOBAL DE AUTODESTRUCCIÓN (Versión Blindada)
   onSnapshot(doc(window.db, "game", "state"), (snapshot) => {
     if (!snapshot.exists()) {
       console.warn("⚠️ El documento game/state no existe en Firebase.");
