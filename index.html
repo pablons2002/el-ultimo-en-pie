@@ -42,10 +42,11 @@
         <select id="selectorJuegosRapidos" onchange="navegacionRapidaJuegos(this.value)"
           style="padding: 5px 10px; font-size: 0.9rem; border-radius: 4px; cursor: pointer; background: #333; color: white; border: 1px solid #555;">
           <option value="" selected disabled>🎮 Saltar a...</option>
-          <option value="screenWorldGuessr">📊 Ranking Global</option>
-          <option value="screenGuessSong">🎵 Guess The Song</option>
-          <option value="screenGlassTower">⏱️ Torre de Vasos</option>
-          <option value="screenIrrationalPrice"> Precio Irracional</option>
+          <option value="WorldGuessr">📊 Ranking Global</option>
+          <option value="GuessSong">🎵 Guess The Song</option>
+          <option value="GlassTower">⏱️ Torre de Vasos</option>
+          <option value="IrrationalPrice"> Precio Irracional</option>
+          <option value="SymbolZone"> Zona Símbolo </option>
 
         </select>
       </div>
@@ -267,9 +268,73 @@
       </div>
 
     </div>
-
+    <button onclick="pointsIrrationalPrice()"
+      style="font-size: 1.1rem; background: #007bff; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px;">
+      🏆 Finalizar juego y Sumar Puntos
+    </button>
+    <button onclick="goToRanking()">Ranking</button>
   </div>
 
+
+  <!-- 5º Juego SymbolZone -->
+  <div id="screenSymbolZone" class="screen"
+    style="background: #111; color: white; padding: 30px; font-family: sans-serif; display: none;">
+
+    <div style="text-align: center; margin-bottom: 20px;">
+      <h1 style="color: #ff3d00; margin: 0; font-size: 3rem; text-shadow: 0 0 10px rgba(255,61,0,0.3);">🔺 SymbolZone 🔵
+      </h1>
+      <p style="color: #aaa; font-size: 1.2rem; margin-top: 5px;">¡Adivina el símbolo de tu espalda antes de que el
+        tiempo se agote!</p>
+    </div>
+
+    <div style="display: flex; gap: 30px;">
+
+      <div
+        style="flex: 0.8; background: #222; padding: 25px; border-radius: 15px; border: 2px solid #444; text-align: center;">
+        <h2 id="tvRondaSymbol" style="color: #ff3d00; font-size: 2rem; margin-top: 0;">Ronda 1 / 5</h2>
+
+        <div id="tvCronometroSymbol"
+          style="font-size: 5rem; font-weight: bold; font-family: monospace; color: #fff; margin: 20px 0; background: #1a1a1a; padding: 15px; border-radius: 10px; border: 2px solid #ff3d00;">
+          01:00
+        </div>
+
+        <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 20px;">
+          <button onclick="controlarTiempoSymbol('iniciar')"
+            style="background: #00e676; color: black; border: none; padding: 10px 20px; font-weight: bold; border-radius: 5px; cursor: pointer;">▶️
+            Iniciar</button>
+          <button onclick="controlarTiempoSymbol('pausar')"
+            style="background: #ffc107; color: black; border: none; padding: 10px 20px; font-weight: bold; border-radius: 5px; cursor: pointer;">⏸️
+            Pausar</button>
+            <button onclick="controlarTiempoSymbol('acabar')" style="background: #e53935; color: white; border: none; padding: 10px 20px; font-weight: bold; border-radius: 5px; cursor: pointer;">⏹️ Acabar</button>
+        </div>
+
+        <hr style="border-color: #333; margin: 20px 0;">
+
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <button onclick="pointsSymbolZone()"
+            style="font-size: 1.1rem; background: #007bff; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold;">
+            💾 Guardar Ronda y Sumar Puntos
+          </button>
+          <button onclick="siguienteRondaSymbol()"
+            style="font-size: 1.1rem; background: #fff; color: black; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold;">
+            ➡️ Pasar a la Siguiente Ronda
+          </button>
+        </div>
+      </div>
+
+      <div style="flex: 1.2; background: #1a1a1a; padding: 25px; border-radius: 15px; border: 2px solid #ff3d00;">
+        <h3 style="margin-top: 0; color: #ff3d00; font-size: 1.5rem; text-align: center;">🎯 Panel del Presentador</h3>
+        <p style="color: #aaa; text-align: center; font-size: 0.95rem; margin-bottom: 15px;">Haz clic en los jugadores
+          que **SE EQUIVOCARON** (se pondrán en rojo y recibirán 0 pts).</p>
+
+        <div id="tvListaJugadoresSymbol"
+          style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; max-height: 400px; overflow-y: auto; padding: 5px;">
+        </div>
+      </div>
+
+    </div>
+    <button onclick="goToRanking()">Ranking</button>
+  </div>
 </body>
 
 </html>

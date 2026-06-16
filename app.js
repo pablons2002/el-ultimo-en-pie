@@ -31,7 +31,8 @@ window.db = db;
 // =====================
 const screenMapMobile = {
   screenRoulette: "screenRanking",
-  screenGlassTower: "screenRanking"
+  screenGlassTower: "screenRanking",
+  screenSymbolZone: "screenRanking"
 };
 function showScreen(screen) {
   // traducir solo en móvil
@@ -192,7 +193,7 @@ const games = {
   GuessSong: guessSong, //2º Juego Adivinar quién escucha la canción
   GlassTower: glassTower, //3º Juego Torre de Cristal 
   IrrationalPrice: irrationalPrice, //4º Juego El precio Irracional, el de las unidades de lentejas
-  SimbolZone: simbolZone, // 5º El de los símbolos en la espalda con pinzas y tienen que ir a su zona.
+  SymbolZone: symbolZone, // 5º El de los símbolos en la espalda con pinzas y tienen que ir a su zona.
   NumbersAndLetters: numbersAndLetters, //5º Juego Cifras y letras juego de operaciones
   TruthOrLie: truthOrLie, //6º Juego: Verdad o invent, presentadores cuentan 3 historias, 1 de verdad.
   TheLiar: theLiar, //7º Juego: El mentiroso con material audiovisual
@@ -502,6 +503,11 @@ function irrationalPrice() {
   }
 }
 
+function symbolZone() {
+  // Lógica para el juego El último teorema
+
+}
+
 function numbersAndLetters() {
   // Lógica para el juego Cifras y letras
 }
@@ -518,9 +524,7 @@ function lastTheorem() {
   // Lógica para el juego El último teorema
 }
 
-function simbolZone() {
-  // Lógica para el juego El último teorema
-}
+
 
 
 
