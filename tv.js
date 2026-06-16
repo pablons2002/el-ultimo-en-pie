@@ -354,6 +354,7 @@ document.getElementById("nextGameBtn").onclick = async () => {
 // ========================
 // 2º Juego GuessSong
 // ========================
+
 // 3. CAPTURA DE ELEMENTOS DEL HTML
 const botonPlay = document.getElementById('btn-play');
 const botonSiguiente = document.getElementById('btn-siguiente');
@@ -363,9 +364,16 @@ const tiempoActualTxt = document.getElementById('tiempo-actual');
 const tiempoTotalTxt = document.getElementById('tiempo-total');
 const segundosCronoTxt = document.getElementById('segundos-crono');
 
+// Nuevos elementos para alternar pantallas y mostrar textos
+const pantallaJuego = document.getElementById('pantalla-juego');
+const pantallaRespuesta = document.getElementById('pantalla-respuesta');
+const txtNombreCancion = document.getElementById('txt-nombre-cancion');
+const txtAutor = document.getElementById('txt-autor');
+const botonContinuar = document.getElementById('btn-continuar');
+
 // 4. VARIABLES DE CONTROL DEL JUEGO Y CRONÓMETRO
-let listaCanciones = [];  // Aquí guardaremos todas las canciones de Firestore
-let indiceActual = 0;     // Para saber en qué canción vamos (0, 1, 2...)
+let listaCanciones = [];  
+let indiceActual = 0;     
 let tiempoRestante = 20;
 let IDIntervalo = null;
 
@@ -380,9 +388,7 @@ function iniciarCronometro() {
         if (tiempoRestante <= 0) {
             clearInterval(IDIntervalo);
             IDIntervalo = null;
-            reproductor.pause();
-            botonPlay.textContent = "¡Tiempo agotado! ⏱️";
-            alert("¡Se acabó el tiempo para esta canción!");
+            revelarRespuesta(); // 🌟 Si el tiempo llega a 0, revela automáticamente la respuesta
         }
     }, 1000);
 }
@@ -405,10 +411,31 @@ function formatearTiempo(segundos) {
     return `${min}:${seg < 10 ? '0' : ''}${seg}`;
 }
 
-// 6. FUNCIÓN PARA CARGAR UNA CANCIÓN ESPECÍFICA EN EL REPRODUCTOR
+// 6. FUNCIÓN NUEVA: MOSTRAR LA PANTALLA DE RESPUESTA
+function revelarRespuesta() {
+    reproductor.pause(); // Detenemos la música
+    pausarCronometro();  // Detenemos el cronómetro
+
+    // Extraemos la canción actual de nuestra lista
+    const cancionActual = listaCanciones[indiceActual];
+
+    // Pintamos los datos usando los nombres exactos de tus campos en Firestore
+    txtNombreCancion.textContent = cancionActual.nombreCancion || "Desconocido";
+    txtAutor.textContent = cancionActual.autor || "Desconocido";
+
+    // Cambiamos las pantallas: ocultamos el juego y mostramos la respuesta
+    pantallaJuego.style.display = "none";
+    pantallaRespuesta.style.display = "block";
+}
+
+// 7. FUNCIÓN PARA CARGAR UNA NUEVA CANCIÓN (Prepara los controles ocultos)
 function cargarCancion(indice) {
     if (indice < listaCanciones.length) {
-        // Reiniciamos barra, textos y cronómetro para la nueva canción
+        // Volvemos a mostrar la pantalla de juego y ocultamos la de respuesta
+        pantallaRespuesta.style.display = "none";
+        pantallaJuego.style.display = "block";
+
+        // Reiniciamos barra, audios y tiempos
         reproductor.src = listaCanciones[indice].url;
         barraProgreso.value = 0;
         tiempoActualTxt.textContent = "0:00";
@@ -416,12 +443,11 @@ function cargarCancion(indice) {
         
         botonPlay.disabled = false;
         botonPlay.textContent = "Reproducir Música 🎵";
-        
-        // Habilitar el botón siguiente solo si quedan más canciones por delante
-        botonSiguiente.disabled = (indice === listaCanciones.length - 1);
+        botonSiguiente.disabled = false;
     } else {
-        // Si ya no hay más canciones en la lista
-        reproductor.pause();
+        // Fin de la lista de canciones
+        pantallaRespuesta.style.display = "none";
+        pantallaJuego.style.display = "block";
         reiniciarCronometro();
         botonPlay.textContent = "¡Fin del juego! 🏆";
         botonPlay.disabled = true;
@@ -430,32 +456,27 @@ function cargarCancion(indice) {
     }
 }
 
-// 7. EVENTO: EMPEZAR / PLAY / PAUSA
+// 8. EVENTO: EMPEZAR / PLAY / PAUSA
 botonPlay.addEventListener('click', async () => {
     try {
-        // PASO A: Si es la primera vez que se pulsa el botón, descargamos toda la colección 'guessSong'
         if (listaCanciones.length === 0) {
             botonPlay.textContent = "Cargando canciones...";
             
             const querySnapshot = await getDocs(collection(db, "GuessSong"));
             querySnapshot.forEach((doc) => {
-                // Guardamos los datos de cada documento en nuestra lista local
                 listaCanciones.push(doc.data());
             });
 
             if (listaCanciones.length === 0) {
                 botonPlay.textContent = "No hay canciones ❌";
-                alert("La colección 'guessSong' está vacía en Firestore.");
+                alert("La colección 'GuessSong' está vacía o mal escrita en Firestore.");
                 return;
             }
 
-            // Cargamos la primera canción (índice 0) y activamos el botón siguiente
             indiceActual = 0;
             cargarCancion(indiceActual);
-            botonSiguiente.disabled = (listaCanciones.length <= 1);
         }
 
-        // PASO B: Lógica normal de Play / Pausa
         if (reproductor.paused) {
             await reproductor.play();
             botonPlay.textContent = "Pausar ⏸️";
@@ -471,18 +492,22 @@ botonPlay.addEventListener('click', async () => {
     }
 });
 
-// 8. NUEVO EVENTO: BOTÓN SIGUIENTE
+// 9. EVENTO: BOTÓN REVELAR RESPUESTA (El antiguo botón Siguiente)
 botonSiguiente.addEventListener('click', () => {
-    indiceActual++; // Sumamos uno al contador para avanzar
-    cargarCancion(indiceActual);
+    revelarRespuesta();
 });
 
-// 9. EVENTOS DE LA BARRA DE PROGRESO
+// 10. NUEVO EVENTO: BOTÓN CONTINUAR (El botón de la pantalla de respuestas)
+botonContinuar.addEventListener('click', () => {
+    indiceActual++; // Pasamos al siguiente número de índice
+    cargarCancion(indiceActual); // Carga el juego con la siguiente canción
+});
+
+// 11. EVENTOS DE LA BARRA DE PROGRESO
 reproductor.addEventListener('timeupdate', () => {
     if (reproductor.duration) {
         const porcentaje = (reproductor.currentTime / reproductor.duration) * 100;
         barraProgreso.value = porcentaje;
-        tiempoActualTxt.textContent = "0:00"; // Nota: se actualiza con formatearTiempo si quieres ver minutos exactos
         tiempoActualTxt.textContent = formatearTiempo(reproductor.currentTime);
     }
 });
