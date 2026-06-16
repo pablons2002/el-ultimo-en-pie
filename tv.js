@@ -354,77 +354,149 @@ document.getElementById("nextGameBtn").onclick = async () => {
 // ========================
 // 2º Juego GuessSong
 // ========================
-const songs = [
-  { title: "Bloody valentine - Machine Gun Kelly", audioURL: "assets\audio\Bloody valentine - Machine Gun Kelly.mp3" },
-  { title: "Disobedient - Steven Universe, Kate Mucucci, Michaela Dietz", audioURL: "assets\audio\Disobedient - Steven Universe, Kate Mucucci, Michaela Dietz.mp3" },
-  { title: "Fade Into You - Mazzy Star", audioURL: "assets\audio\Fade Into You - Mazzy Star.mp3" },
-  { title: "Give it up to me - Sean Paul, Keyshia", audioURL: "assets\audio\Give it up to me - Sean Paul, Keyshia.mp3" },
-  { title: "In too deep - Sum41", audioURL: "assets\audio\In too deep - Sum41.mp3" },
-  { title: "Jardines de Marzo  - La bien querida", audioURL: "assets\audio\Jardines de Marzo  - La bien querida.mp3" },
-  { title: "Lovefool - The Cardigans", audioURL: "assets\audio\Lovefool - The Cardigans.mp3" },
-  { title: "Migraine - Twenty One Pilots", audioURL: "assets\audio\Migraine - Twenty One Pilots.mp3" },
-  { title: "She doesn't mind - Sean Paul", audioURL: "assets\audio\She doesn't mind - Sean Paul.mp3" },
-  { title: "Sui muri - Psicologi", audioURL: "assets\audio\Sui muri - Psicologi.mp3" },
-  { title: "Superestrella - Aitana", audioURL: "assets\audio\Superestrella - Aitana.mp3" },
-  { title: "Today - The Smashing Pumpkins", audioURL: "assets\audio\Today - The Smashing Pumpkins.mp3" },
-  { title: "Where The Hell Is My Husband - RAYE", audioURL: "assets\audio\Where The Hell Is My Husband - RAYE.mp3" },
-  { title: "Wishing well - Juice WRLD", audioURL: "assets\audio\Wishing well - Juice WRLD.mp3" },
-];
+// 3. CAPTURA DE ELEMENTOS DEL HTML
+const botonPlay = document.getElementById('btn-play');
+const botonSiguiente = document.getElementById('btn-siguiente');
+const reproductor = document.getElementById('mi-reproductor');
+const barraProgreso = document.getElementById('barra-progreso');
+const tiempoActualTxt = document.getElementById('tiempo-actual');
+const tiempoTotalTxt = document.getElementById('tiempo-total');
+const segundosCronoTxt = document.getElementById('segundos-crono');
 
+// 4. VARIABLES DE CONTROL DEL JUEGO Y CRONÓMETRO
+let listaCanciones = [];  // Aquí guardaremos todas las canciones de Firestore
+let indiceActual = 0;     // Para saber en qué canción vamos (0, 1, 2...)
+let tiempoRestante = 20;
+let IDIntervalo = null;
 
-async function renderTvGuessSong() {
-  try {
+// 5. FUNCIONES DEL CRONÓMETRO
+function iniciarCronometro() {
+    if (IDIntervalo !== null) return;
 
-    const songSnap = await getDoc(doc(window.db, "game", "currentSong")); //añadido documento currentSong en firebase
-    if (!songSnap.exists()) return;
-    const songData = songSnap.data();
+    IDIntervalo = setInterval(() => {
+        tiempoRestante--;
+        segundosCronoTxt.textContent = tiempoRestante;
 
-    const audioPlayer = document.getElementById("tvAudioPlayer"); //mira firebase el url del audio y cambia el audio si es diferente
-    if (audioPlayer.src !== songData.audioURL) {
-      audioPlayer.src = songData.audioURL;
-      audioPlayer.load();
-    }
-    //si se ha dado al botón de revelar resultado (revealed true) sale el nombre del título guardado en firebase, si no sale la pregunta.
-    const titleElement = document.getElementById("tvSongTitle");
-    titleElement.innerText = songData.revealed ? songData.title : "🎵 ¿De quién es esta canción? 🎵";
-
-    const container = document.getElementById("guessSongPlayersContainer");
-    container.innerHTML = "";
-
-    const playersSnap = await getDocs(query(collection(window.db, "players"), where("active", "==", true)));
-
-    playersSnap.forEach((playerDoc) => {
-      const p = playerDoc.data();
-      const docId = playerDoc.id;
-
-      // Pillamos el mapa 'attemptsSong'. Si no existe aún, se queda como objeto vacío {}
-      const att = p.attemptsSong || {};
-
-      const respuestaWho = songData.revealed ? (att.guessWho || "❌") : "❓ Sentenciado";
-      const respuestaSong = songData.revealed ? (att.guessSong || "❌ No sabe") : "✍️ Escribiendo...";
-
-      container.innerHTML += `
-        <div class="player-card" data-id="${docId}" data-name="${p.name}" data-score="${p.score || 0}">
-          <img src="${p.img}" class="avatar-img" style="width:50px; height:50px; border-radius:50%;">
-          <h3>${p.name}</h3>
-          <div class="answers-box">
-            <p><strong>Sospecha de:</strong> ${respuestaWho}</p>
-            <p><strong>Canción:</strong> "${respuestaSong}"</p>
-          </div>
-          
-          <div class="presenter-controls" style="display: ${songData.revealed ? 'block' : 'none'}">
-            <button onclick="sumarPuntosGuessSong('${docId}', 3)">🎯 Ambos (+3)</button>
-            <button onclick="sumarPuntosGuessSong('${docId}', 2)">👤 Solo Quién (+2)</button>
-            <button onclick="sumarPuntosGuessSong('${docId}', 1)">🎵 Solo Canción (+1)</button>
-          </div>
-        </div>
-      `;
-    });
-  } catch (err) {
-    console.error(err);
-  }
-
+        if (tiempoRestante <= 0) {
+            clearInterval(IDIntervalo);
+            IDIntervalo = null;
+            reproductor.pause();
+            botonPlay.textContent = "¡Tiempo agotado! ⏱️";
+            alert("¡Se acabó el tiempo para esta canción!");
+        }
+    }, 1000);
 }
+
+function pausarCronometro() {
+    clearInterval(IDIntervalo);
+    IDIntervalo = null;
+}
+
+function reiniciarCronometro() {
+    pausarCronometro();
+    tiempoRestante = 20;
+    segundosCronoTxt.textContent = tiempoRestante;
+}
+
+function formatearTiempo(segundos) {
+    if (isNaN(segundos)) return "0:00";
+    const min = Math.floor(segundos / 60);
+    const seg = Math.floor(segundos % 60);
+    return `${min}:${seg < 10 ? '0' : ''}${seg}`;
+}
+
+// 6. FUNCIÓN PARA CARGAR UNA CANCIÓN ESPECÍFICA EN EL REPRODUCTOR
+function cargarCancion(indice) {
+    if (indice < listaCanciones.length) {
+        // Reiniciamos barra, textos y cronómetro para la nueva canción
+        reproductor.src = listaCanciones[indice].url;
+        barraProgreso.value = 0;
+        tiempoActualTxt.textContent = "0:00";
+        reiniciarCronometro();
+        
+        botonPlay.disabled = false;
+        botonPlay.textContent = "Reproducir Música 🎵";
+        
+        // Habilitar el botón siguiente solo si quedan más canciones por delante
+        botonSiguiente.disabled = (indice === listaCanciones.length - 1);
+    } else {
+        // Si ya no hay más canciones en la lista
+        reproductor.pause();
+        reiniciarCronometro();
+        botonPlay.textContent = "¡Fin del juego! 🏆";
+        botonPlay.disabled = true;
+        botonSiguiente.disabled = true;
+        alert("¡Has terminado todas las canciones disponibles!");
+    }
+}
+
+// 7. EVENTO: EMPEZAR / PLAY / PAUSA
+botonPlay.addEventListener('click', async () => {
+    try {
+        // PASO A: Si es la primera vez que se pulsa el botón, descargamos toda la colección 'guessSong'
+        if (listaCanciones.length === 0) {
+            botonPlay.textContent = "Cargando canciones...";
+            
+            const querySnapshot = await getDocs(collection(db, "GuessSong"));
+            querySnapshot.forEach((doc) => {
+                // Guardamos los datos de cada documento en nuestra lista local
+                listaCanciones.push(doc.data());
+            });
+
+            if (listaCanciones.length === 0) {
+                botonPlay.textContent = "No hay canciones ❌";
+                alert("La colección 'guessSong' está vacía en Firestore.");
+                return;
+            }
+
+            // Cargamos la primera canción (índice 0) y activamos el botón siguiente
+            indiceActual = 0;
+            cargarCancion(indiceActual);
+            botonSiguiente.disabled = (listaCanciones.length <= 1);
+        }
+
+        // PASO B: Lógica normal de Play / Pausa
+        if (reproductor.paused) {
+            await reproductor.play();
+            botonPlay.textContent = "Pausar ⏸️";
+            iniciarCronometro();
+        } else {
+            reproductor.pause();
+            botonPlay.textContent = "Reproducir Música 🎵";
+            pausarCronometro();
+        }
+
+    } catch (error) {
+        console.error("Error en el juego:", error);
+    }
+});
+
+// 8. NUEVO EVENTO: BOTÓN SIGUIENTE
+botonSiguiente.addEventListener('click', () => {
+    indiceActual++; // Sumamos uno al contador para avanzar
+    cargarCancion(indiceActual);
+});
+
+// 9. EVENTOS DE LA BARRA DE PROGRESO
+reproductor.addEventListener('timeupdate', () => {
+    if (reproductor.duration) {
+        const porcentaje = (reproductor.currentTime / reproductor.duration) * 100;
+        barraProgreso.value = porcentaje;
+        tiempoActualTxt.textContent = "0:00"; // Nota: se actualiza con formatearTiempo si quieres ver minutos exactos
+        tiempoActualTxt.textContent = formatearTiempo(reproductor.currentTime);
+    }
+});
+
+reproductor.addEventListener('loadedmetadata', () => {
+    tiempoTotalTxt.textContent = formatearTiempo(reproductor.duration);
+});
+
+barraProgreso.addEventListener('input', () => {
+    if (reproductor.duration) {
+        const nuevoSegundo = (barraProgreso.value / 100) * reproductor.duration;
+        reproductor.currentTime = nuevoSegundo;
+    }
+});
 
 
 // ==============================

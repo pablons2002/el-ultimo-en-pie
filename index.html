@@ -120,26 +120,22 @@
 
 
   <!-- Juego 2º GuessSong-->
-  <div id="screenGuessSong" class="screen" style="display: none;">
-
-    <div class="game-header">
-      <h1 class="game-title">🎵 GUESS THE SONG 🎵</h1>
-      <h2 id="tvSongTitle" class="song-status">🎵 ¿De quién es esta canción? 🎵</h2>
+  <div style="text-align: center; margin: 20px; font-family: sans-serif;">
+    <div id="contenedor-crono" style="font-size: 24px; font-weight: bold; margin-bottom: 10px; color: #e74c3c;">
+        Tiempo restante: <span id="segundos-crono">20</span>s
     </div>
 
-    <div class="audio-zone">
-      <audio id="tvAudioPlayer" controls class="tv-player"></audio>
+    <button id="btn-play">Empezar Juego 🎮</button>
+    
+    <button id="btn-siguiente" disabled>Siguiente Canción ➡️</button>
+    
+    <div style="margin-top: 15px; display: flex; justify-content: center; align-items: center; gap: 10px;">
+        <span id="tiempo-actual">0:00</span>
+        <input type="range" id="barra-progreso" value="0" min="0" max="100" style="width: 300px; cursor: pointer;">
+        <span id="tiempo-total">0:00</span>
     </div>
 
-    <div class="tv-controls">
-      <button id="revealAttemptsBtn" class="btn-reveal">👁️ Revelar Respuestas</button>
-    </div>
-
-    <hr class="separator">
-
-    <div id="guessSongPlayersContainer" class="players-grid">
-    </div>
-    <button onclick="goToRanking()"> Ranking</button>
+    <audio id="mi-reproductor"></audio>
   </div>
 
   <!-- Juego 3º GlassTower-->
