@@ -33,7 +33,6 @@ const screenMapMobile = {
   screenRoulette: "screenRanking",
   screenGlassTower: "screenRanking"
 };
-
 function showScreen(screen) {
   // traducir solo en móvil
   if (screenMapMobile[screen]) {
@@ -93,87 +92,24 @@ async function selectPlayer(id, name) {
   const userNameHeader = document.getElementById("userNameHeader");
   if (userNameHeader) userNameHeader.innerText = name;
 
-  const playerNameEl = document.getElementById("playerName");
-  if (playerNameEl) playerNameEl.innerText = name;
-
   // 3. Actualizar Firebase para poner active en true y asignar la pantalla inicial
   try {
     const playerRef = doc(window.db, "players", id);
     await updateDoc(playerRef, {
       active: true,
-      pantallaActual: "screenWaiting" // Le decimos a la base de datos que empiece en espera
     });
   } catch (e) {
     console.warn('No se pudo marcar jugador activo en Firestore:', e);
   }
 
   // 4. Cambiar la UI localmente para pasar a la pantalla de espera
-  const selectScreen = document.getElementById("screenSelect");
-  if (selectScreen) selectScreen.style.display = "none";
+  showScreen("screenWaiting")
 
-  const waitingScreen = document.getElementById("screenWaiting");
-  if (waitingScreen) waitingScreen.style.display = "block";
-
-  // 5. 🔥 ENLAZAR MÓVIL CON SU DOCUMENTO INDIVIDUAL
-  conectarEscuchaPantalla(id);
-
-  // Tu función original
   if (typeof listenToRankingAndScore === "function") {
     listenToRankingAndScore();
   }
 }
 window.selectPlayer = selectPlayer;
-
-// ==============================================================
-// 🔄 ESCUCHA ACTIVA DEL DOCUMENTO DEL PLAYER (Para cambios de pantalla)
-// ==============================================================
-function conectarEscuchaPantalla(idJugador) {
-  console.log("Móvil escuchando en tiempo real al jugador:", idJugador);
-
-  onSnapshot(doc(window.db, "players", idJugador), (snapshot) => {
-    if (snapshot.exists()) {
-      const datos = snapshot.data();
-      const proximaPantalla = datos.pantallaActual;
-
-      if (proximaPantalla) {
-        console.log("Orden de la TV recibida. Cambiando a:", proximaPantalla);
-        cambiarPantallaEnElMovil(proximaPantalla);
-      }
-    }
-  });
-}
-
-// ==============================================================
-// 🛠️ FUNCIÓN AUXILIAR PARA OCULTAR/MOSTRAR PANTALLAS EN EL MÓVIL
-// ==============================================================
-function cambiarPantallaEnElMovil(idPantallaObjetivo) {
-  // Ocultamos todas las pantallas que tengan la clase 'mobile-screen'
-  // (Asegúrate de ponerle class="mobile-screen" a tus divs screenSelect, screenWaiting, screenMobileIrrationalPrice, etc.)
-  const pantallas = document.querySelectorAll(".mobile-screen");
-  pantallas.forEach(p => p.style.display = "none");
-
-  // Mostramos la que nos pide Firebase
-  const pantallaActiva = document.getElementById(idPantallaObjetivo);
-  if (pantallaActiva) {
-    pantallaActiva.style.display = "block";
-
-    // Lógica especial si entramos al juego de las lentejas (reiniciar formulario)
-    if (idPantallaObjetivo === "screenMobileIrrationalPrice") {
-      if (document.getElementById("formContenedorPrice")) document.getElementById("formContenedorPrice").style.display = "block";
-      if (document.getElementById("esperaContenedorPrice")) document.getElementById("esperaContenedorPrice").style.display = "none";
-      if (document.getElementById("inputMovilLentejas")) document.getElementById("inputMovilLentejas").value = "";
-      const btn = document.getElementById("btnEnviarPrice");
-      if (btn) {
-        btn.disabled = false;
-        btn.innerText = "🚀 Enviar Respuesta";
-      }
-    }
-  } else {
-    console.error("No existe ningún elemento en el HTML con el ID: " + idPantallaObjetivo);
-  }
-}
-
-
 
 
 // =========================================================================
@@ -475,54 +411,4 @@ window.addEventListener("DOMContentLoaded", () => {
     window.miJugadorId = savedId;
     conectarEscuchaPantalla(savedId);
   }
-
-// 2. 💣 DETECTOR GLOBAL DE AUTODESTRUCCIÓN (Versión Blindada)
-  onSnapshot(doc(window.db, "game", "state"), (snapshot) => {
-    if (!snapshot.exists()) {
-      console.warn("⚠️ El documento game/state no existe en Firebase.");
-      return;
-    }
-
-    const datos = snapshot.data();
-    console.log("📡 Datos recibidos de game/state:", datos);
-
-    const tokenFirebase = datos.globalResetToken;
-    const jugadorLogueado = localStorage.getItem("playerId");
-
-    // SI NO HAY JUGADOR LOGUEADO en este móvil, no hace falta resetear nada
-    if (!jugadorLogueado) return;
-
-    if (tokenFirebase) {
-      const ultimoTokenLocal = localStorage.getItem("miUltimoResetToken");
-
-      console.log(`Bomba detectada. Token FB: ${tokenFirebase} | Token Local: ${ultimoTokenLocal}`);
-
-      // Si el número de la tele es diferente al que recuerda el móvil: ¡BOMBA!
-      if (tokenFirebase.toString() !== String(ultimoTokenLocal)) {
-        console.log("💣 ¡LA CONDICIÓN ES CORRECTA! Reseteando todo ahora mismo...");
-
-        // 1. Guardamos el token para evitar bucles infinitos
-        localStorage.setItem("miUltimoResetToken", tokenFirebase.toString());
-
-        // 2. Borramos la pantalla para que no se vea el "Esperando..."
-        document.body.innerHTML = `
-          <div style="text-align:center; margin-top:100px; font-family:sans-serif; color:#666;">
-            <p style="font-size: 2.5rem; animation: spin 1s linear infinite;">🔄</p>
-            <p style="font-size: 1.2rem;">Reiniciando juego por orden de la TV...</p>
-          </div>
-        `;
-
-        // 3. Vaciamos por completo el almacenamiento local
-        localStorage.removeItem("playerId");
-        localStorage.removeItem("playerName");
-        window.miJugadorId = null;
-
-        // 4. Forzamos la recarga inmediata del navegador
-        console.log("Ejecutando window.location.reload()...");
-        window.location.reload();
-      }
-    } else {
-      console.warn("⚠️ El campo 'globalResetToken' no existe o está vacío en game/state.");
-    }
-  });
 })
