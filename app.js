@@ -285,17 +285,16 @@ function worldGuessr() {
 
 // GuessSong
 
-// 4. CAPTURA DE LOS ELEMENTOS DEL HTML
+// 4. CAPTURA DE LOS ELEMENTOS DEL HTML Y ESCUCHA EN TIEMPO REAL
 function guessSong() {
   console.log("Iniciando juego de GuessSong en el móvil");
 
   const btnEnviar = document.getElementById("btnEnviarGuessSong");
-  
+  const miPlayerId = localStorage.getItem("playerId"); 
+
   if (btnEnviar) {
     btnEnviar.onclick = async () => {
       // 1. Recuperamos el ID del jugador desde SU localStorage
-      const miPlayerId = localStorage.getItem("playerId"); 
-      
       if (!miPlayerId) {
         alert("Error: No se encuentra tu ID de jugador. Reinicia la aplicación.");
         return;
@@ -303,12 +302,12 @@ function guessSong() {
 
       // 2. Pillamos los textos que ha escrito en los inputs del móvil
       const inputCancion = document.getElementById("inputMovilCancion");
-      const inputAutor = document.getElementById("inputMovilAutor"); // <- NUEVO INPUT
+      const inputAutor = document.getElementById("inputMovilAutor");
 
       const respuestaCancion = inputCancion ? inputCancion.value.trim() : "";
-      const respuestaAutor = inputAutor ? inputAutor.value.trim() : ""; // <- NUEVA VARIABLE
+      const respuestaAutor = inputAutor ? inputAutor.value.trim() : "";
 
-      // Validamos que al menos escriba algo en la canción (o puedes exigir ambos si quieres)
+      // Validamos que complete ambos campos
       if (!respuestaCancion || !respuestaAutor) {
         alert("🎵 Por favor, completa el nombre de la canción y el autor antes de enviar.");
         return;
@@ -322,7 +321,6 @@ function guessSong() {
         // 3. 🔥 MODIFICAMOS EL VALOR EN FIREBASE (Estructura de Mapa)
         const playerRef = doc(window.db, "players", miPlayerId);
         
-        // Usamos la notación "respuestasSong.campo" para actualizar dentro del mapa de forma segura
         await updateDoc(playerRef, {
           "respuestasSong.respuestaCancion": respuestaCancion,
           "respuestasSong.respuestaAutor": respuestaAutor
@@ -330,26 +328,57 @@ function guessSong() {
 
         console.log(`✅ Respuestas guardadas con éxito en respuestasSong para: ${miPlayerId}`);
 
-        // 4. Cambiamos la interfaz del móvil
+        // 4. Cambiamos la interfaz del móvil a la de espera
         const contenedorForm = document.getElementById("screenGuessSong");
         const contenedorEspera = document.getElementById("pantalla-espera");
 
-        if (contenedorForm) {
-          contenedorForm.style.display = "none";
-        }
-        if (contenedorEspera) {
-          contenedorEspera.style.display = "block";
-        }
+        if (contenedorForm) contenedorForm.style.display = "none";
+        if (contenedorEspera) contenedorEspera.style.display = "block";
 
       } catch (error) {
         console.error("❌ Error al enviar la respuesta a Firebase:", error);
         alert("Hubo un problema al enviar tu respuesta. Inténtalo de nuevo.");
         
-        // Reactivamos el botón si hay error para que puedan reintentar
+        // Reactivamos el botón si hay error
         btnEnviar.disabled = false;
         btnEnviar.innerText = "Enviar Respuesta 🚀";
       }
     };
+  }
+
+  // ==========================================
+  // 🔥 ESCUCHADOR EN TIEMPO REAL PARA EL RESETEO
+  // ==========================================
+  if (miPlayerId) {
+    onSnapshot(doc(window.db, "players", miPlayerId), (docSnapshot) => {
+      if (docSnapshot.exists()) {
+        const datosJugador = docSnapshot.data();
+        
+        // Si el mapa 'respuestasSong' NO existe (porque la tele lo eliminó con deleteField)
+        if (!datosJugador.respuestasSong) {
+          console.log("🧹 Ronda nueva detectada. Limpiando interfaz del móvil...");
+
+          // 1. Limpiamos las cajas de texto de la ronda anterior
+          const inputCancion = document.getElementById("inputMovilCancion");
+          const inputAutor = document.getElementById("inputMovilAutor");
+          if (inputCancion) inputCancion.value = "";
+          if (inputAutor) inputAutor.value = "";
+
+          // 2. Reactivamos el botón de enviar
+          if (btnEnviar) {
+            btnEnviar.disabled = false;
+            btnEnviar.innerText = "Enviar Respuesta 🚀";
+          }
+
+          // 3. Mostramos el formulario original y ocultamos el mensaje azul de espera
+          const contenedorForm = document.getElementById("screenGuessSong");
+          const contenedorEspera = document.getElementById("pantalla-espera");
+          
+          if (contenedorForm) contenedorForm.style.display = "block";
+          if (contenedorEspera) contenedorEspera.style.display = "none";
+        }
+      }
+    });
   }
 }
 

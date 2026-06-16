@@ -549,7 +549,7 @@ botonSiguiente.addEventListener('click', () => {
     revelarRespuesta();
 });
 
-// 11. EVENTO: BOTÓN SIGUIENTE CANCIÓN (Borra inputs en Firebase y avanza)
+// 11. EVENTO: BOTÓN SIGUIENTE CANCIÓN (Borra mapa en Firebase y avanza)
 botonContinuar.addEventListener('click', async () => {
     botonContinuar.disabled = true;
     botonContinuar.textContent = "Limpiando sala...";
@@ -558,14 +558,15 @@ botonContinuar.addEventListener('click', async () => {
         // Obtenemos todos los jugadores para reiniciar sus respuestas en Firestore
         const querySnapshot = await getDocs(collection(db, "players"));
         
-        // Ejecutamos la limpieza de forma secuencial segura
+        // Ejecutamos la limpieza borrando el mapa respuestasSong por completo
         for (const jugadorDoc of querySnapshot.docs) {
             const jugadorRef = doc(db, "players", jugadorDoc.id);
             await updateDoc(jugadorRef, {
-                respuestaCancion: "",
-                respuestaAutor: ""
+                // Eliminamos el mapa entero para resetear el estado del jugador
+                respuestasSong: deleteField() 
             });
         }
+        console.log("✅ Base de datos reseteada para la nueva ronda.");
     } catch (e) {
         console.error("Error al limpiar respuestas en Firestore:", e);
     }
