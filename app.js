@@ -555,8 +555,6 @@ function simbolZone() {
 
 
 
-
-
 // ======================
 // Escucha la autodestrucción de la TV y resetea el localStorage
 // ======================
@@ -569,54 +567,4 @@ window.addEventListener("DOMContentLoaded", () => {
     window.miJugadorId = savedId;
     conectarEscuchaPantalla(savedId);
   }
-
-  // 2. 💣 DETECTOR GLOBAL DE AUTODESTRUCCIÓN (Versión Blindada)
-  onSnapshot(doc(window.db, "game", "state"), (snapshot) => {
-    if (!snapshot.exists()) {
-      console.warn("⚠️ El documento game/state no existe en Firebase.");
-      return;
-    }
-
-    const datos = snapshot.data();
-    console.log("📡 Datos recibidos de game/state:", datos);
-
-    const tokenFirebase = datos.globalResetToken;
-    const jugadorLogueado = localStorage.getItem("playerId");
-
-    // SI NO HAY JUGADOR LOGUEADO en este móvil, no hace falta resetear nada
-    if (!jugadorLogueado) return;
-
-    if (tokenFirebase) {
-      const ultimoTokenLocal = localStorage.getItem("miUltimoResetToken");
-
-      console.log(`Bomba detectada. Token FB: ${tokenFirebase} | Token Local: ${ultimoTokenLocal}`);
-
-      // Si el número de la tele es diferente al que recuerda el móvil: ¡BOMBA!
-      if (tokenFirebase.toString() !== String(ultimoTokenLocal)) {
-        console.log("💣 ¡LA CONDICIÓN ES CORRECTA! Reseteando todo ahora mismo...");
-
-        // 1. Guardamos el token para evitar bucles infinitos
-        localStorage.setItem("miUltimoResetToken", tokenFirebase.toString());
-
-        // 2. Borramos la pantalla para que no se vea el "Esperando..."
-        document.body.innerHTML = `
-          <div style="text-align:center; margin-top:100px; font-family:sans-serif; color:#666;">
-            <p style="font-size: 2.5rem; animation: spin 1s linear infinite;">🔄</p>
-            <p style="font-size: 1.2rem;">Reiniciando juego por orden de la TV...</p>
-          </div>
-        `;
-
-        // 3. Vaciamos por completo el almacenamiento local
-        localStorage.removeItem("playerId");
-        localStorage.removeItem("playerName");
-        window.miJugadorId = null;
-
-        // 4. Forzamos la recarga inmediata del navegador
-        console.log("Ejecutando window.location.reload()...");
-        window.location.reload();
-      }
-    } else {
-      console.warn("⚠️ El campo 'globalResetToken' no existe o está vacío en game/state.");
-    }
-  });
 })
