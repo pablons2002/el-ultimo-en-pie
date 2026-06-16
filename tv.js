@@ -26,7 +26,7 @@ onSnapshot(q, (snapshot) => {
 // ==================================
 // El orden en el que se jugarán los juegos del concurso
 // ==================================
-const games = ["WorldGuessr", "GuessSong", "GlassTower", "IrrationalPrice", "NumbersAndLetters", "TruthOrLie", "TheLiar", "LastTheorem"];
+const games = ["WorldGuessr", "GuessSong", "GlassTower", "IrrationalPrice", "SymbolZone", "NumbersAndLetters", "TruthOrLie", "TheLiar", "LastTheorem"];
 
 // ======================
 // Función para que la TV cambie de pantalla y juego 
@@ -64,6 +64,7 @@ function showScreenTV(screen) {
   document.getElementById("screenGuessSong").style.display = "none";
   document.getElementById("screenGlassTower").style.display = "none";
   document.getElementById("screenIrrationalPrice").style.display = "none";
+  document.getElementById("screenSymbolZone").style.display = "none";
   document.getElementById(screen).style.display = "block"
 }
 
@@ -92,7 +93,7 @@ let currentScreen = null;
 
 document.getElementById("spinBtn").onclick = async () => {
   //  girarRuleta(); // falta implementar esta función para mostrar la ruleta y animarla
-  await sleep(5000); // tiempo de duración de la animación de la ruleta, ((ajustar))
+  await sleep(0); // tiempo de duración de la animación de la ruleta, ((ajustar))
   const snap = await getDoc(ref);
   const data = snap.data();
   const gameSelected = data.game;
@@ -726,6 +727,273 @@ window.calcularGanadoresPrice = function () {
 
 
 
+// =========================================================================
+// BOTÓN NUEVO: Sumar puntuaciones en Firebase y mostrar los puntos sumados
+// =========================================================================
+window.pointsIrrationalPrice = async function () {
+  // 1. Verificamos si el presentador ya pulsó el botón de calcular antes
+  if (jugadoresConRespuesta.length === 0 || jugadoresConRespuesta[0].diferencia === undefined) {
+    alert("❌ Primero debes pulsar en '🧮 Revelar y Calcular Ganadores' para saber las posiciones.");
+    return;
+  }
+
+  const tablaPuntos = [10, 8, 6, 5, 4, 3, 2, 1];
+  const resultadoDiv = document.getElementById("tvResultadoPrice");
+
+  // 2. Modificamos el HTML en la TV para añadir la columna de puntos sumados
+  let htmlResultados = "<h4 style='margin:0 0 10px 0; color:#00e676;'>🏆 ¡Puntos Sumados con Éxito!:</h4><ol style='padding-left:20px; margin:0;'>";
+
+  console.log("🚀 Subiendo puntuaciones de Irrational Price a Firebase...");
+
+  // 3. Creamos una copia local para evitar que el onSnapshot actualice jugadoresConRespuesta
+  // mientras aún estamos procesando la suma de puntos.
+  const respuestasParaSumar = jugadoresConRespuesta.slice();
+
+  for (let index = 0; index < respuestasParaSumar.length; index++) {
+    const j = respuestasParaSumar[index];
+    const puntosAAsignar = tablaPuntos[index] || 0; // Si hay más de 8 jugadores, se llevan 0 pts
+
+    const detalleDiferencia = j.diferencia === 0 ? "¡EXACTO! 🎯" : `(dif: ${j.diferencia})`;
+
+    // Aquí generamos la línea de la tabla mostrando los puntos sumados en verde claro
+    htmlResultados += `
+      <li style='margin-bottom:8px;'>
+        <strong>${j.name}</strong> puso <strong>${j.guess}</strong> 
+        <span style='color:#aaa; font-size:0.85rem;'>${detalleDiferencia}</span>
+        <strong style='color:#00e676; margin-left: 15px;'>[+${puntosAAsignar} pts asignados]</strong>
+      </li>`;
+
+    // 4. Conexión y guardado en Firestore
+    try {
+      const playerRef = doc(window.db, "players", j.id);
+
+      // Sumamos los puntos de forma atómica y limpiamos el guess en el mismo update.
+      await updateDoc(playerRef, {
+        score: increment(puntosAAsignar),
+        lentejasGuess: null
+      });
+
+      console.log(`✨ Guardado en BD: ${j.name} +${puntosAAsignar} pts`);
+    } catch (error) {
+      console.error(`❌ Error al subir datos de ${j.name}:`, error);
+    }
+  }
+
+  htmlResultados += "</ol>";
+  resultadoDiv.innerHTML = htmlResultados; // Actualizamos la lista en la tele de forma visual
+
+  alert("🏆 ¡Las puntuaciones se han sumado y la tabla se ha actualizado!");
+};
+
+
+// ==========================================
+// Juego 5º: Symbol Zone
+// ==========================================
+
+let rondaActualSymbol = 1;
+let tiempoRestanteSymbol = 60; // 1 minuto en segundos
+let intervaloCronometroSymbol = null;
+let listaJugadoresSymbol = []; // Guarda { id, name, equivocado: true/false }
+
+function symbolZone() {
+  console.log("🔺 Iniciando juego SymbolZone en la TV");
+
+  // Reiniciar estado inicial si entra al juego de primeras
+  rondaActualSymbol = 1;
+  reiniciarRondaInterfaceSymbol();
+
+  // Escuchar a los jugadores activos al cargar la pantalla
+  onSnapshot(query(collection(window.db, "players"), where("active", "==", true)), (snapshot) => {
+    const contenedorLista = document.getElementById("tvListaJugadoresSymbol");
+    if (!contenedorLista) return;
+
+    // 1. Vaciamos la lista vieja
+    listaJugadoresSymbol = [];
+    contenedorLista.innerHTML = "";
+
+    // 2. Metemos los jugadores directos de Firebase. Todos empiezan en 'false' (en verde, salvados)
+    snapshot.forEach((playerDoc) => {
+      const p = playerDoc.data();
+      
+      listaJugadoresSymbol.push({
+        id: playerDoc.id,
+        name: p.name,
+        equivocado: false // Por defecto, nadie está equivocado al empezar
+      });
+    });
+
+    // 3. Los pintamos en la pantalla
+    pintarPanelJugadoresSymbol();
+  });
+}
+symbolZone();
+// FUNCIÓN PARA DIBUJAR LOS JUGADORES EN EL PANEL
+function pintarPanelJugadoresSymbol() {
+  const contenedorLista = document.getElementById("tvListaJugadoresSymbol");
+  if (!contenedorLista) return;
+
+  contenedorLista.innerHTML = "";
+
+  listaJugadoresSymbol.forEach((jugador, index) => {
+    const card = document.createElement("div");
+    card.style.padding = "15px";
+    card.style.borderRadius = "8px";
+    card.style.textAlign = "center";
+    card.style.fontWeight = "bold";
+    card.style.cursor = "pointer";
+    card.style.transition = "0.2s";
+    card.style.userSelect = "none";
+
+    // Si está marcado como equivocado se pinta rojo, si no verde (salvado provisional)
+    if (jugador.equivocado) {
+      card.style.background = "#d32f2f";
+      card.style.color = "white";
+      card.style.border = "2px solid #ff6666";
+      card.innerHTML = `❌<br>${jugador.name}<br><span style='font-size:0.8rem;opacity:0.8;'>0 pts</span>`;
+    } else {
+      card.style.background = "#2e7d32";
+      card.style.color = "white";
+      card.style.border = "2px solid #66bb6a";
+      card.innerHTML = `✅<br>${jugador.name}<br><span style='font-size:0.8rem;opacity:0.8;'>+2 pts</span>`;
+    }
+
+    // Al hacer clic, alternamos su estado de acierto/error
+    card.onclick = () => {
+      listaJugadoresSymbol[index].equivocado = !listaJugadoresSymbol[index].equivocado;
+      pintarPanelJugadoresSymbol(); // Refrescar visualmente la pantalla
+    };
+
+    contenedorLista.appendChild(card);
+  });
+}
+
+// CONTROLADOR DEL CRONÓMETRO (Iniciar / Pausar)
+window.controlarTiempoSymbol = function (accion) {
+  const elReloj = document.getElementById("tvCronometroSymbol");
+
+  if (accion === "iniciar") {
+    if (intervaloCronometroSymbol) return; // Evitar duplicar intervalos
+
+    intervaloCronometroSymbol = setInterval(() => {
+      if (tiempoRestanteSymbol <= 0) {
+        clearInterval(intervaloCronometroSymbol);
+        intervaloCronometroSymbol = null;
+        if (elReloj) elReloj.style.color = "#ff3d00"; // Se pone rojo al acabar
+        alert("⏰ ¡Tiempo agotado! Turno de revisar los símbolos.");
+        return;
+      }
+
+      tiempoRestanteSymbol--;
+
+      // Formatear los segundos a formato MM:SS
+      const minutos = String(Math.floor(tiempoRestanteSymbol / 60)).padStart(2, '0');
+      const segundos = String(tiempoRestanteSymbol % 60).padStart(2, '0');
+      if (elReloj) elReloj.innerText = `${minutos}:${segundos}`;
+    }, 1000);
+
+  } else if (accion === "pausar") {
+    clearInterval(intervaloCronometroSymbol);
+    intervaloCronometroSymbol = null;
+  }
+ else if (accion === "acabar") {
+  clearInterval(intervaloCronometroSymbol);
+  intervaloCronometroSymbol = null;
+  tiempoRestanteSymbol = 0;
+  if (elReloj) {
+    elReloj.innerText = "00:00";
+    elReloj.style.color = "#ff3d00";
+  }
+  alert("⏰ ¡Tiempo finalizado manualmente por el presentador!");
+}
+};
+
+// BOTÓN: GUARDAR RONDA Y APLICAR PUNTOS (+2 a los no marcados)
+window.pointsSymbolZone = async function () {
+  if (listaJugadoresSymbol.length === 0) return alert("No hay jugadores en la partida.");
+
+  console.log(`🚀 Repartiendo puntos de la Ronda ${rondaActualSymbol}...`);
+
+  for (let i = 0; i < listaJugadoresSymbol.length; i++) {
+    const j = listaJugadoresSymbol[i];
+
+    // Si NO está marcado como equivocado, suma 2 puntos. Si falló, suma 0.
+    const puntosAAsignar = j.equivocado ? 0 : 2;
+
+    try {
+      const playerRef = doc(window.db, "players", j.id);
+
+      // Traer puntuación acumulada actual
+      const snapshotActual = await getDocs(query(collection(window.db, "players")));
+      let scoreActual = 0;
+      snapshotActual.forEach((d) => {
+        if (d.id === j.id) scoreActual = d.data().score ?? 0;
+      });
+
+      // Guardar el nuevo total en Firebase
+      await updateDoc(playerRef, {
+        score: scoreActual + puntosAAsignar
+      });
+
+      console.log(`✨ ${j.name} procesado: +${puntosAAsignar} pts.`);
+    } catch (error) {
+      console.error(`❌ Error guardando puntos para ${j.name}:`, error);
+    }
+  }
+
+  alert(`🏆 ¡Puntos de la Ronda ${rondaActualSymbol} aplicados con éxito!`);
+};
+
+// BOTÓN: PASAR DE RONDA Y REINICIAR EL MINUTO
+window.siguienteRondaSymbol = function () {
+  if (rondaActualSymbol >= 5) {
+    alert("🏁 ¡Ya has completado las 5 rondas de SymbolZone!");
+    return;
+  }
+
+  rondaActualSymbol++;
+  reiniciarRondaInterfaceSymbol();
+  alert(`🔺 Iniciando Ronda ${rondaActualSymbol}. ¡Cambiad las pinzas de la espalda!`);
+};
+
+// FUNCIÓN AUXILIAR PARA REINICIAR CONTADORES DE RONDA
+function reiniciarRondaInterfaceSymbol() {
+  // Parar el reloj antiguo si seguía corriendo
+  clearInterval(intervaloCronometroSymbol);
+  intervaloCronometroSymbol = null;
+
+  // Valores por defecto (1 minuto)
+  tiempoRestanteSymbol = 60;
+
+  // Actualizar textos en la UI
+  const elReloj = document.getElementById("tvCronometroSymbol");
+  if (elReloj) {
+    elReloj.innerText = "01:00";
+    elReloj.style.color = "#fff";
+  }
+
+  const elTextoRonda = document.getElementById("tvRondaSymbol");
+  if (elTextoRonda) elTextoRonda.innerText = `Ronda ${rondaActualSymbol} / 5`;
+
+  // Limpiar las marcas de fallado de la ronda anterior para que todos empiecen limpios
+  listaJugadoresSymbol.forEach(j => j.equivocado = false);
+  pintarPanelJugadoresSymbol();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // ==========================================
 // Selector de Navegación Rápida del Header
@@ -735,8 +1003,8 @@ window.navegacionRapidaJuegos = function (idPantalla) {
 
   try {
     // Cambia a la pantalla seleccionada con tus funciones
-    setScreen(idPantalla);
-    showScreenTV(idPantalla);
+    setScreen("screen" + idPantalla, idPantalla);
+    showScreenTV("screen" + idPantalla);
 
     // Reseteamos el menú para que vuelva a poner "🎮 Saltar a..."
     document.getElementById("selectorJuegosRapidos").value = "";
@@ -745,6 +1013,12 @@ window.navegacionRapidaJuegos = function (idPantalla) {
     console.error("Error al saltar a la pantalla " + idPantalla + ":", error);
   }
 };
+
+
+
+
+
+
 
 
 // =====================
@@ -759,10 +1033,7 @@ async function resetGame() {
     // 1. Reset estado global
     await setScreen("screenSelect", null);
     showScreenTV("screenSelect");
-    
-    await updateDoc(doc(window.db, "game", "state"), {
-      globalResetToken: Date.now()
-    });
+
     // 2. Reset TODOS los jugadores
     const snap = await getDocs(collection(window.db, "players"));
     const promises = [];
@@ -773,7 +1044,8 @@ async function resetGame() {
       const datosUpdate = {
         score: 0,
         active: false,
-        vasosTimes: { round1: 0, round2: 0 }
+        vasosTimes: { round1: 0, round2: 0 },
+        lentejasGuess: null
       };
 
       if (playerData.attemptsSong !== undefined) {
