@@ -287,57 +287,118 @@ function worldGuessr() {
 
 // 4. CAPTURA DE LOS ELEMENTOS DEL HTML
 function guessSong() {
-  const inputCancion = document.getElementById('input-cancion');
-  const inputAutor = document.getElementById('input-autor');
-  const botonEnviar = document.getElementById('btn-enviar');
-  const pantallaEscribir = document.getElementById('pantalla-escribir');
-  const pantallaEspera = document.getElementById('pantalla-espera');
+  console.log("Iniciando juego de GuessSong en el móvil");
 
-  // 5. LOGICA DEL BOTÓN ENVIAR
-  botonEnviar.addEventListener('click', async () => {
-    // Extraemos el texto de los inputs quitando espacios sobrantes
-    const cancion = inputCancion.value.trim();
-    const autor = inputAutor.value.trim();
+  const btnEnviar = document.getElementById("btnEnviarGuessSong");
+  
+  if (btnEnviar) {
+    btnEnviar.onclick = async () => {
+      // 1. Recuperamos el ID del jugador desde SU localStorage
+      const miPlayerId = localStorage.getItem("playerId"); 
+      
+      if (!miPlayerId) {
+        alert("Error: No se encuentra tu ID de jugador. Reinicia la aplicación.");
+        return;
+      }
 
-    // Validación elemental: evitar enviar campos totalmente vacíos
-    if (!cancion && !autor) {
-      alert("Por favor, escribe al menos una respuesta antes de enviar.");
-      return;
-    }
+      // 2. Pillamos el texto que ha escrito en el input del móvil
+      const inputMovil = document.getElementById("inputMovilCancion");
+      const respuestaUsuario = inputMovil ? inputMovil.value.trim() : "";
 
-    try {
-      // Bloqueamos el botón para evitar que el usuario pulse varias veces seguidas
-      botonEnviar.disabled = true;
-      botonEnviar.textContent = "Guardando en Firebase...";
+      // MODIFICADO: Ahora validamos que simplemente no esté vacío (ya que es texto, no un número)
+      if (!respuestaUsuario) {
+        alert("🎵 Por favor, escribe el nombre de la canción antes de enviar.");
+        return;
+      }
 
-      // Creamos la referencia exacta hacia el documento 'p1' dentro de la colección 'players'
-      const jugadorRef = doc(window.db, "players", "p1");
+      try {
+        // Desactivamos el botón para evitar doble envío
+        btnEnviar.disabled = true;
+        btnEnviar.innerText = "⏳ Enviando...";
 
-      // Modificamos directamente los dos campos en la base de datos
-      await updateDoc(jugadorRef, {
-        respuestaCancion: cancion,
-        respuestaAutor: autor
-      });
+        // 3. 🔥 MODIFICAMOS EL VALOR EN FIREBASE
+        const playerRef = doc(window.db, "players", miPlayerId);
+        await updateDoc(playerRef, {
+          respuestaCancion: respuestaUsuario
+        });
 
-      console.log("¡Campos actualizados correctamente en Firestore!");
+        console.log(`✅ Respuesta (${respuestaUsuario}) guardada con éxito para: ${miPlayerId}`);
 
-      // Si la base de datos responde con éxito, cambiamos las pantallas visuales del móvil
-      if (pantallaEscribir) pantallaEscribir.style.display = "none";
-      if (pantallaEspera) pantallaEspera.style.display = "block";
+        // 4. Cambiamos la interfaz del móvil (IDs corregidos según tu HTML)
+        const contenedorForm = document.getElementById("screenGuessSong");
+        const contenedorEspera = document.getElementById("pantalla-espera");
 
-    } catch (error) {
-      // En caso de fallo de red, de permisos o configuración, saltará este aviso detallado
-      console.error("Error al escribir en Firestore:", error);
+        if (contenedorForm) {
+          contenedorForm.style.display = "none";
+        }
+        if (contenedorEspera) {
+          contenedorEspera.style.display = "block";
+        }
 
-      // Desbloqueamos el botón para que el usuario pueda volver a intentar
-      botonEnviar.disabled = false;
-      botonEnviar.textContent = "Enviar Respuesta 🚀";
-
-      // Alerta informativa con el motivo técnico del fallo
-      alert("❌ No se pudo guardar la respuesta.\nMotivo: " + error.message);
-    }
-  });
+      } catch (error) {
+        console.error("❌ Error al enviar la respuesta a Firebase:", error);
+        alert("Hubo un problema al enviar tu respuesta. Inténtalo de nuevo.");
+        
+        // Reactivamos el botón si hay error para que puedan reintentar
+        btnEnviar.disabled = false;
+        btnEnviar.innerText = "Enviar Respuesta 🚀";
+      }
+    };
+  }
 }
+
+// Lógica para el juego El precio Irracional
+  console.log("Iniciando juego de GuessSong en el móvil");
+
+  const btnEnviar = document.getElementById("btnEnviarGuessSong");
+  
+  if (btnEnviar) {
+    btnEnviar.onclick = async () => {
+      // 1. Recuperamos el ID del jugador desde SU localStorage
+      const miPlayerId = localStorage.getItem("playerId"); 
+      
+      if (!miPlayerId) {
+        alert("Error: No se encuentra tu ID de jugador. Reinicia la aplicación.");
+        return;
+      }
+
+      // 2. Pillamos el número que ha escrito en el input del móvil
+      const inputMovil = document.getElementById("inputMovilCancion");
+      const respuestaUsuario = inputMovil ? inputMovil.value.trim() : "";
+
+      try {
+        // Desactivamos el botón para que no pulse 2 veces seguidas por los nervios
+        btnEnviar.disabled = true;
+        btnEnviar.innerText = "⏳ Enviando...";
+
+        // 3. 🔥 MODIFICAMOS EL VALOR EN FIREBASE CORRESPONDIENTE A SU ID
+        // Cambiamos 'lentejasGuess' dentro de SU propio documento en la colección 'players'
+        const playerRef = doc(window.db, "players", miPlayerId);
+        await updateDoc(playerRef, {
+          respuestaCancion: respuestaUsuario
+        });
+
+        console.log(`✅ Respuesta (${respuestaUsuario}) guardada con éxito para el jugador: ${miPlayerId}`);
+
+        /*
+        // 4. Cambiamos la interfaz del móvil para avisarle de que ya hemos recibido el dato
+        if (document.getElementById("formContenedorPrice")) {
+          document.getElementById("formContenedorPrice").style.display = "none";
+        }
+        if (document.getElementById("esperaContenedorPrice")) {
+          document.getElementById("esperaContenedorPrice").style.display = "block";
+        }
+        */
+
+      } catch (error) {
+        console.error("❌ Error al enviar la respuesta a Firebase:", error);
+        alert("Hubo un problema al enviar tu respuesta. Inténtalo de nuevo.");
+        btnEnviar.disabled = false;
+        btnEnviar.innerText = "🚀 Enviar Respuesta";
+      }
+    };
+  }
+
 
 function glassTower() {
   /*
