@@ -434,7 +434,7 @@ async function revelarRespuesta() {
     pantallaRespuesta.style.display = "block";
 }
 
-// 7. FASE 2 DE LA RESPUESTA: EVENTO PARA CARGAR Y MOSTRAR QUÉ PUSO CADA JUGADOR
+// 7. FASE 2 DE LA RESPUESTA: EVENTO PARA CARGAR LAS RESPUESTAS Y ASIGNAR PUNTOS AL SCORE
 btnVerRespuestas.addEventListener('click', async () => {
     btnVerRespuestas.style.display = "none"; // Escondemos este botón intermedio
     listaRespuestasUI.innerHTML = "";        // Limpiamos respuestas de rondas anteriores
@@ -445,26 +445,100 @@ btnVerRespuestas.addEventListener('click', async () => {
         
         querySnapshot.forEach((jugadorDoc) => {
             const datosJugador = jugadorDoc.data();
+            const idJugador = jugadorDoc.id; // ID del documento del jugador
             
-            // 1. Accedemos al mapa respuestasSong (si no existe, creamos un objeto vacío por seguridad)
+            // Accedemos al mapa respuestasSong
             const respuestasSong = datosJugador.respuestasSong || {};
             
             const cancionRespondida = respuestasSong.respuestaCancion ? respuestasSong.respuestaCancion.trim() : "";
             const autorRespondido = respuestasSong.respuestaAutor ? respuestasSong.respuestaAutor.trim() : "";
 
-            // 2. Solo creamos la etiqueta si el usuario escribió algo en el mapa de su móvil
+            // Solo creamos la fila si el usuario escribió algo
             if (cancionRespondida || autorRespondido) {
                 const li = document.createElement('li');
-                li.style.padding = "10px 0";
-                li.style.borderBottom = "1px dashed #eee";
-                li.style.fontSize = "18px"; // Un poquito más grande para que se vea bien en la tele
                 
-                // Si falta alguno de los dos campos por rellenar, ponemos el emoji de incógnita
+                // Estilos para alinear texto a la izquierda y botones a la derecha
+                li.style.display = "flex";
+                li.style.justifyContent = "between";
+                li.style.alignItems = "center";
+                li.style.padding = "12px 10px";
+                li.style.borderBottom = "1px dashed #eee";
+                li.style.fontSize = "18px";
+                
                 const cancionMostrar = cancionRespondida || "❓";
                 const autorMostrar = autorRespondido || "❓";
                 
-                // 3. Pintamos el nombre del jugador junto a sus datos estructurados
-                li.innerHTML = `👤 <strong>${datosJugador.name || "Jugador Anónimo"}:</strong> "${cancionMostrar}" de <em>${autorMostrar}</em>`;
+                // Creamos la parte del texto (añadimos también una pequeña guía visual de su score actual)
+                const scoreActual = datosJugador.score || 0;
+                const contenedorTexto = document.createElement('div');
+                contenedorTexto.innerHTML = `👤 <strong>${datosJugador.name || "Jugador Anónimo"}:</strong> "${cancionMostrar}" de <em>${autorMostrar}</em> <span style="font-size: 14px; color: #7f8c8d; margin-left: 10px;">(Score: ${scoreActual} pts)</span>`;
+                
+                // Creamos el contenedor de los botones de puntuación
+                const contenedorBotones = document.createElement('div');
+                contenedorBotones.style.display = "flex";
+                contenedorBotones.style.gap = "8px"; 
+                contenedorBotones.style.marginLeft = "auto"; // Empuja los botones a la derecha
+                
+                // Array con los botones 0, 1 y 2
+                const puntuaciones = [0, 1, 2];
+                
+                puntuaciones.forEach((puntos) => {
+                    const btnPuntos = document.createElement('button');
+                    btnPuntos.textContent = puntos;
+                    
+                    // Estilos visuales de los botones
+                    btnPuntos.style.padding = "6px 14px";
+                    btnPuntos.style.fontSize = "16px";
+                    btnPuntos.style.fontWeight = "bold";
+                    btnPuntos.style.cursor = "pointer";
+                    btnPuntos.style.borderRadius = "6px";
+                    btnPuntos.style.border = "1px solid #ccc";
+                    btnPuntos.style.background = "#f8f9fa";
+                    btnPuntos.style.transition = "all 0.2s";
+
+                    btnPuntos.onmouseover = () => { if(!btnPuntos.disabled) btnPuntos.style.background = "#e2e8f0"; };
+                    btnPuntos.onmouseout = () => { if(!btnPuntos.disabled) btnPuntos.style.background = "#f8f9fa"; };
+                    
+                    // 🔥 ACCIÓN PRINCIPAL: SUMAR PUNTOS AL CLICK
+                    btnPuntos.onclick = async () => {
+                        console.log(`Añadiendo ${puntos} puntos al score de ${datosJugador.name}`);
+                        
+                        try {
+                            const jugadorRef = doc(db, "players", idJugador);
+                            
+                            // Sumamos los nuevos puntos al score que ya tenía (si no tiene, empieza en 0)
+                            const scoreAcumulado = (datosJugador.score || 0) + puntos;
+                            
+                            await updateDoc(jugadorRef, {
+                                score: scoreAcumulado
+                            });
+
+                            // Bloqueamos los 3 botones de este jugador para evitar doble puntuación en la misma canción
+                            contenedorBotones.querySelectorAll('button').forEach((b) => {
+                                b.disabled = true;
+                                b.style.cursor = "default";
+                                b.style.opacity = "0.5";
+                            });
+
+                            // Destacamos en verde y con texto blanco el botón que elegiste
+                            btnPuntos.style.background = "#2ecc71";
+                            btnPuntos.style.color = "white";
+                            btnPuntos.style.borderColor = "#27ae60";
+                            btnPuntos.style.opacity = "1";
+
+                            console.log(`✅ Firebase actualizado. Nuevo score para ${idJugador}: ${scoreAcumulado}`);
+
+                        } catch (err) {
+                            console.error("Error al actualizar el score en Firebase:", err);
+                            alert("No se pudo guardar la puntuación. Revisa la conexión.");
+                        }
+                    };
+                    
+                    contenedorBotones.appendChild(btnPuntos);
+                });
+                
+                li.appendChild(contenedorTexto);
+                li.appendChild(contenedorBotones);
                 listaRespuestasUI.appendChild(li);
             }
         });
@@ -473,7 +547,6 @@ btnVerRespuestas.addEventListener('click', async () => {
         alert("No se pudieron cargar las respuestas. Revisa la consola.");
     }
 
-    // Desplegamos el contenedor que tiene la lista y el botón final de "Siguiente"
     contenedorRespuestasUsuarios.style.display = "block";
 });
 
