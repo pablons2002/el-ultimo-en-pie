@@ -361,7 +361,7 @@ document.getElementById("nextGameBtn").onclick = async () => {
 const botonPlay = document.getElementById('btn-play');
 const botonSiguiente = document.getElementById('btn-siguiente');
 const reproductor = document.getElementById('mi-reproductor');
-const barraProgreso = document.getElementById('barra-progreso');
+const barraProgreso = document.getElementById('barra-progreso'); // Ajustado según tu estándar
 const tiempoActualTxt = document.getElementById('tiempo-actual');
 const tiempoTotalTxt = document.getElementById('tiempo-total');
 const segundosCronoTxt = document.getElementById('segundos-crono');
@@ -382,17 +382,16 @@ let listaCanciones = [];  // Array con todas las canciones de Firestore
 let indiceActual = 0;     // Posición de la canción actual
 let tiempoRestante = 10;  // Tiempo límite por canción
 let IDIntervalo = null;   // ID del temporizador
+let juegoTerminado = false; // Controla si el juego ha llegado al final
 
 // 5. FUNCIONES DE CONTROL DEL CRONÓMETRO
 function iniciarCronometro() {
     if (IDIntervalo !== null) return;
 
-    // AGREGADO: 'async' antes de los parámetros () de la función del setInterval
     IDIntervalo = setInterval(async () => {
         tiempoRestante--;
         segundosCronoTxt.textContent = tiempoRestante;
 
-        // Si se acaba el tiempo, detenemos y mostramos la solución
         if (tiempoRestante <= 0) {
             clearInterval(IDIntervalo);
             IDIntervalo = null;
@@ -426,7 +425,6 @@ async function reiniciarCronometro() {
     }
 }
 
-// Transforma segundos flotantes a formato MM:SS
 function formatearTiempo(segundos) {
     if (isNaN(segundos)) return "0:00";
     const min = Math.floor(segundos / 60);
@@ -443,7 +441,6 @@ async function revelarRespuesta() {
     txtNombreCancion.textContent = cancionActual.nombreCancion || "Desconocido";
     txtAutor.textContent = cancionActual.autor || "Desconocido";
 
-    // Ocultamos el bloque de usuarios por ahora y aseguramos que el botón de ver respuestas aparezca
     contenedorRespuestasUsuarios.style.display = "none";
     btnVerRespuestas.style.display = "inline-block";
 
@@ -451,7 +448,7 @@ async function revelarRespuesta() {
     pantallaRespuesta.style.display = "block";
 
     // ==========================================================
-    // 🔥 NUEVO: EVALUACIÓN AUTOMÁTICA DEL BONO "P" ó "I"
+    // 🔥 EVALUACIÓN DEL BONO "P/I" ASIGNADO A 'scoreSong'
     // ==========================================================
     const ownerCorrecto = cancionActual.owner ? cancionActual.owner.trim() : "";
     
@@ -459,25 +456,21 @@ async function revelarRespuesta() {
         console.log(`🤖 Evaluando respuestas P/I. El valor correcto es: "${ownerCorrecto}"`);
         
         try {
-            // Traemos todos los jugadores activos
             const querySnapshot = await getDocs(collection(window.db, "players"));
             
-            // Usamos un bucle para revisar uno por uno
             for (const jugadorDoc of querySnapshot.docs) {
                 const datosJugador = jugadorDoc.data();
                 const respuestasSong = datosJugador.respuestasSong || {};
                 const respuestaJugadorPI = respuestasSong.respuestaPI ? respuestasSong.respuestaPI.trim() : "";
 
-                // Si el jugador marcó la opción correcta (P o I)
                 if (respuestaJugadorPI === ownerCorrecto) {
-                    console.log(`🎯 ¡Acierto! ${datosJugador.name || "Jugador"} acertó la opción P/I (${respuestaJugadorPI}). Sumando 1 punto...`);
+                    console.log(`🎯 ¡Acierto! ${datosJugador.name || "Jugador"} acertó P/I. Sumando 1 punto a scoreSong...`);
                     
                     const jugadorRef = doc(window.db, "players", jugadorDoc.id);
-                    const scoreActual = datosJugador.score || 0;
+                    const scoreSongActual = datosJugador.scoreSong || 0; // Usando el nuevo campo
 
-                    // Le sumamos 1 punto directo en Firebase
                     await updateDoc(jugadorRef, {
-                        score: scoreActual + 1
+                        scoreSong: scoreSongActual + 1
                     });
                 }
             }
@@ -485,37 +478,29 @@ async function revelarRespuesta() {
         } catch (error) {
             console.error("❌ Error al procesar el bono automático P/I:", error);
         }
-    } else {
-        console.warn("⚠️ Advertencia: Esta canción no tiene un campo 'owner' definido en la colección GuessSong.");
     }
 }
 
-// 7. FASE 2 DE LA RESPUESTA: EVENTO PARA CARGAR LAS RESPUESTAS Y ASIGNAR PUNTOS AL SCORE
+// 7. FASE 2 DE LA RESPUESTA: EVENTO PARA CARGAR LAS RESPUESTAS Y ASIGNAR PUNTOS A 'scoreSong'
 btnVerRespuestas.addEventListener('click', async () => {
-    btnVerRespuestas.style.display = "none"; // Escondemos este botón intermedio
-    listaRespuestasUI.innerHTML = "";        // Limpiamos respuestas de rondas anteriores
+    btnVerRespuestas.style.display = "none"; 
+    listaRespuestasUI.innerHTML = "";        
 
     try {
-        // Consultamos la colección 'players' en Firestore
-        const querySnapshot = await getDocs(collection(db, "players"));
+        const querySnapshot = await getDocs(collection(window.db, "players"));
         
         querySnapshot.forEach((jugadorDoc) => {
             const datosJugador = jugadorDoc.data();
-            const idJugador = jugadorDoc.id; // ID del documento del jugador
-            
-            // Accedemos al mapa respuestasSong
+            const idJugador = jugadorDoc.id; 
             const respuestasSong = datosJugador.respuestasSong || {};
             
             const cancionRespondida = respuestasSong.respuestaCancion ? respuestasSong.respuestaCancion.trim() : "";
             const autorRespondido = respuestasSong.respuestaAutor ? respuestasSong.respuestaAutor.trim() : "";
 
-            // Solo creamos la fila si el usuario escribió algo
             if (cancionRespondida || autorRespondido) {
                 const li = document.createElement('li');
-                
-                // Estilos para alinear texto a la izquierda y botones a la derecha
                 li.style.display = "flex";
-                li.style.justifyContent = "between";
+                li.style.justifyContent = "space-between";
                 li.style.alignItems = "center";
                 li.style.padding = "12px 10px";
                 li.style.borderBottom = "1px dashed #eee";
@@ -524,25 +509,22 @@ btnVerRespuestas.addEventListener('click', async () => {
                 const cancionMostrar = cancionRespondida || "❓";
                 const autorMostrar = autorRespondido || "❓";
                 
-                // Creamos la parte del texto (añadimos también una pequeña guía visual de su score actual)
-                const scoreActual = datosJugador.score || 0;
+                // 🔥 LEER E IMPRIMIR 'scoreSong' EN LA UI DE RESPUESTAS
+                const scoreSongActual = datosJugador.scoreSong || 0;
                 const contenedorTexto = document.createElement('div');
-                contenedorTexto.innerHTML = `👤 <strong>${datosJugador.name || "Jugador Anónimo"}:</strong> "${cancionMostrar}" de <em>${autorMostrar}</em> <span style="font-size: 14px; color: #7f8c8d; margin-left: 10px;">(Score: ${scoreActual} pts)</span>`;
+                contenedorTexto.innerHTML = `👤 <strong>${datosJugador.name || "Jugador"}:</strong> "${cancionMostrar}" de <em>${autorMostrar}</em> <span style="font-size: 14px; color: #3498db; margin-left: 10px; font-weight: bold;">(Song Score: ${scoreSongActual} pts)</span>`;
                 
-                // Creamos el contenedor de los botones de puntuación
                 const contenedorBotones = document.createElement('div');
                 contenedorBotones.style.display = "flex";
                 contenedorBotones.style.gap = "8px"; 
-                contenedorBotones.style.marginLeft = "auto"; // Empuja los botones a la derecha
+                contenedorBotones.style.marginLeft = "auto"; 
                 
-                // Array con los botones 0, 1 y 2
                 const puntuaciones = [0, 1, 2];
                 
                 puntuaciones.forEach((puntos) => {
                     const btnPuntos = document.createElement('button');
                     btnPuntos.textContent = puntos;
                     
-                    // Estilos visuales de los botones
                     btnPuntos.style.padding = "6px 14px";
                     btnPuntos.style.fontSize = "16px";
                     btnPuntos.style.fontWeight = "bold";
@@ -555,38 +537,34 @@ btnVerRespuestas.addEventListener('click', async () => {
                     btnPuntos.onmouseover = () => { if(!btnPuntos.disabled) btnPuntos.style.background = "#e2e8f0"; };
                     btnPuntos.onmouseout = () => { if(!btnPuntos.disabled) btnPuntos.style.background = "#f8f9fa"; };
                     
-                    // 🔥 ACCIÓN PRINCIPAL: SUMAR PUNTOS AL CLICK
+                    // 🔥 SUMAR PUNTOS A 'scoreSong' AL PULSAR BOTÓN MANUAL
                     btnPuntos.onclick = async () => {
-                        console.log(`Añadiendo ${puntos} puntos al score de ${datosJugador.name}`);
-                        
                         try {
-                            const jugadorRef = doc(db, "players", idJugador);
+                            const jugadorRef = doc(window.db, "players", idJugador);
                             
-                            // Sumamos los nuevos puntos al score que ya tenía (si no tiene, empieza en 0)
-                            const scoreAcumulado = (datosJugador.score || 0) + puntos;
+                            // Re-leemos para no pisar el punto automático del bono P/I
+                            const snapActualizado = await getDoc(jugadorRef);
+                            const scoreSongBase = snapActualizado.exists() ? (snapActualizado.data().scoreSong || 0) : 0;
+                            const scoreSongAcumulado = scoreSongBase + puntos;
                             
                             await updateDoc(jugadorRef, {
-                                score: scoreAcumulado
+                                scoreSong: scoreSongAcumulado
                             });
 
-                            // Bloqueamos los 3 botones de este jugador para evitar doble puntuación en la misma canción
                             contenedorBotones.querySelectorAll('button').forEach((b) => {
                                 b.disabled = true;
                                 b.style.cursor = "default";
                                 b.style.opacity = "0.5";
                             });
 
-                            // Destacamos en verde y con texto blanco el botón que elegiste
                             btnPuntos.style.background = "#2ecc71";
                             btnPuntos.style.color = "white";
                             btnPuntos.style.borderColor = "#27ae60";
                             btnPuntos.style.opacity = "1";
 
-                            console.log(`✅ Firebase actualizado. Nuevo score para ${idJugador}: ${scoreAcumulado}`);
-
+                            console.log(`✅ scoreSong actualizado para ${idJugador}: ${scoreSongAcumulado}`);
                         } catch (err) {
-                            console.error("Error al actualizar el score en Firebase:", err);
-                            alert("No se pudo guardar la puntuación. Revisa la conexión.");
+                            console.error("Error al actualizar scoreSong en Firebase:", err);
                         }
                     };
                     
@@ -600,7 +578,6 @@ btnVerRespuestas.addEventListener('click', async () => {
         });
     } catch (error) {
         console.error("Error al traer respuestas de los jugadores:", error);
-        alert("No se pudieron cargar las respuestas. Revisa la consola.");
     }
 
     contenedorRespuestasUsuarios.style.display = "block";
@@ -609,12 +586,10 @@ btnVerRespuestas.addEventListener('click', async () => {
 // 8. FUNCIÓN PARA CARGAR LA SIGUIENTE CANCIÓN LOCAL
 function cargarCancion(indice) {
     if (indice < listaCanciones.length) {
-        // Regresamos a la interfaz de reproducción y ocultamos las tarjetas de respuestas
         pantallaRespuesta.style.display = "none";
         contenedorRespuestasUsuarios.style.display = "none";
         pantallaJuego.style.display = "block";
 
-        // Reiniciamos elementos multimedia
         reproductor.src = listaCanciones[indice].url;
         barraProgreso.value = 0;
         tiempoActualTxt.textContent = "0:00";
@@ -624,25 +599,44 @@ function cargarCancion(indice) {
         botonPlay.textContent = "Reproducir Música 🎵";
         botonSiguiente.disabled = false;
     } else {
-        // Si no quedan más canciones en el array
         pantallaRespuesta.style.display = "none";
         pantallaJuego.style.display = "block";
         reiniciarCronometro();
-        botonPlay.textContent = "¡Fin del juego! 🏆";
-        botonPlay.disabled = true;
+        
+        juegoTerminado = true; 
+        botonPlay.textContent = "Ver Ranking Final 🏆";
+        botonPlay.disabled = false; 
         botonSiguiente.disabled = true;
-        alert("¡Has terminado todas las canciones disponibles!");
+        
+        alert("¡Has terminado todas las canciones disponibles! Pulsa el botón para ver el Ranking.");
     }
 }
 
-// 9. EVENTO: INICIAR JUEGO / PLAY / PAUSA
+// 9. EVENTO: INICIAR JUEGO / PLAY / PAUSA / RANKING
 botonPlay.addEventListener('click', async () => {
+    if (juegoTerminado) {
+        console.log("📊 Ejecutando goToRanking()...");
+        goToRanking();
+        return; 
+    }
+
     try {
-        // Descarga inicial de canciones solo en el primer clic de la partida
+        // 🔥 AL EMPEZAR EL JUEGO (PRIMER CLIC): INICIALIZAR LAS CANCIONES Y EL CAMPO 'scoreSong'
         if (listaCanciones.length === 0) {
-            botonPlay.textContent = "Cargando canciones...";
+            botonPlay.textContent = "Iniciando juego...";
             
-            const querySnapshot = await getDocs(collection(db, "GuessSong"));
+            // 1. Crear el campo scoreSong: 0 para todos los jugadores en la BD
+            const queryJugadores = await getDocs(collection(window.db, "players"));
+            for (const jugadorDoc of queryJugadores.docs) {
+                const jugadorRef = doc(window.db, "players", jugadorDoc.id);
+                await updateDoc(jugadorRef, {
+                    scoreSong: 0 // Se inicializa limpio al arrancar el juego
+                });
+            }
+            console.log("🧹 Todos los scoreSong de los jugadores han sido inicializados en 0.");
+
+            // 2. Descargar canciones de la base de datos
+            const querySnapshot = await getDocs(collection(window.db, "GuessSong"));
             querySnapshot.forEach((doc) => {
                 listaCanciones.push(doc.data());
             });
@@ -657,7 +651,7 @@ botonPlay.addEventListener('click', async () => {
             cargarCancion(indiceActual);
         }
 
-        // Interruptor Play / Pausa estándar
+        // Interruptor Play / Pausa normal durante la ronda
         if (reproductor.paused) {
             await reproductor.play();
             botonPlay.textContent = "Pausar ⏸️";
@@ -684,18 +678,15 @@ botonContinuar.addEventListener('click', async () => {
     botonContinuar.textContent = "Limpiando sala...";
 
     try {
-        // Obtenemos todos los jugadores para reiniciar sus respuestas en Firestore
-        const querySnapshot = await getDocs(collection(db, "players"));
+        const querySnapshot = await getDocs(collection(window.db, "players"));
         
-        // Ejecutamos la limpieza borrando el mapa respuestasSong por completo
         for (const jugadorDoc of querySnapshot.docs) {
-            const jugadorRef = doc(db, "players", jugadorDoc.id);
+            const jugadorRef = doc(window.db, "players", jugadorDoc.id);
             await updateDoc(jugadorRef, {
-                // Eliminamos el mapa entero para resetear el estado del jugador
-                respuestasSong: deleteField() 
+                respuestasSong: deleteField() // Se borra solo el mapa, se conserva 'scoreSong' intacto
             });
         }
-        console.log("✅ Base de datos reseteada para la nueva ronda.");
+        console.log("✅ Respuestas limpias para la nueva ronda.");
     } catch (e) {
         console.error("Error al limpiar respuestas en Firestore:", e);
     }
@@ -703,29 +694,8 @@ botonContinuar.addEventListener('click', async () => {
     botonContinuar.disabled = false;
     botonContinuar.textContent = "Siguiente Canción ➡️";
 
-    // Pasamos al siguiente índice de la lista y cargamos los paneles
     indiceActual++; 
     cargarCancion(indiceActual); 
-});
-
-// 12. EVENTOS AUTOMÁTICOS DE LA BARRA DE PROGRESO (Estilo Spotify)
-reproductor.addEventListener('timeupdate', () => {
-    if (reproductor.duration) {
-        const porcentaje = (reproductor.currentTime / reproductor.duration) * 100;
-        barraProgreso.value = porcentaje;
-        tiempoActualTxt.textContent = formatearTiempo(reproductor.currentTime);
-    }
-});
-
-reproductor.addEventListener('loadedmetadata', () => {
-    tiempoTotalTxt.textContent = formatearTiempo(reproductor.duration);
-});
-
-barraProgreso.addEventListener('input', () => {
-    if (reproductor.duration) {
-        const nuevoSegundo = (barraProgreso.value / 100) * reproductor.duration;
-        reproductor.currentTime = nuevoSegundo;
-    }
 });
 
 
