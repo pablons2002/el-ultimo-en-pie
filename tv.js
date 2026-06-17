@@ -375,18 +375,20 @@ const btnVerRespuestas = document.getElementById('btn-ver-respuestas');
 const contenedorRespuestasUsuarios = document.getElementById('contenedor-respuestas-usuarios');
 const listaRespuestasUI = document.getElementById('lista-respuestas-jugadores');
 const botonContinuar = document.getElementById('btn-continuar');
+const gameRef = doc(window.db, "game", "songState");
 
 // 4. VARIABLES DE CONTROL DEL JUEGO Y CRONÓMETRO
 let listaCanciones = [];  // Array con todas las canciones de Firestore
 let indiceActual = 0;     // Posición de la canción actual
-let tiempoRestante = 20;  // Tiempo límite por canción
+let tiempoRestante = 10;  // Tiempo límite por canción
 let IDIntervalo = null;   // ID del temporizador
 
 // 5. FUNCIONES DE CONTROL DEL CRONÓMETRO
 function iniciarCronometro() {
     if (IDIntervalo !== null) return;
 
-    IDIntervalo = setInterval(() => {
+    // AGREGADO: 'async' antes de los parámetros () de la función del setInterval
+    IDIntervalo = setInterval(async () => {
         tiempoRestante--;
         segundosCronoTxt.textContent = tiempoRestante;
 
@@ -394,7 +396,14 @@ function iniciarCronometro() {
         if (tiempoRestante <= 0) {
             clearInterval(IDIntervalo);
             IDIntervalo = null;
-            revelarRespuesta(); 
+            revelarRespuesta();
+            
+            try {
+                await updateDoc(gameRef, { state: false }); 
+                console.log("🔒 Tiempo agotado: state cambiado a false");
+            } catch (error) {
+                console.error("Error al actualizar state (false):", error);
+            }
         }
     }, 1000);
 }
@@ -404,10 +413,17 @@ function pausarCronometro() {
     IDIntervalo = null;
 }
 
-function reiniciarCronometro() {
+async function reiniciarCronometro() {
     pausarCronometro();
-    tiempoRestante = 20;
+    tiempoRestante = 10;
     segundosCronoTxt.textContent = tiempoRestante;
+    
+    try {
+        await updateDoc(gameRef, { state: true }); 
+        console.log("🔓 Cronómetro reiniciado: state cambiado a true");
+    } catch (error) {
+        console.error("Error al actualizar state (true):", error);
+    }
 }
 
 // Transforma segundos flotantes a formato MM:SS

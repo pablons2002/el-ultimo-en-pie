@@ -231,31 +231,26 @@ function guessSong() {
 
   if (btnEnviar) {
     btnEnviar.onclick = async () => {
-      // 1. Recuperamos el ID del jugador desde SU localStorage
       if (!miPlayerId) {
         alert("Error: No se encuentra tu ID de jugador. Reinicia la aplicación.");
         return;
       }
 
-      // 2. Pillamos los textos que ha escrito en los inputs del móvil
       const inputCancion = document.getElementById("inputMovilCancion");
       const inputAutor = document.getElementById("inputMovilAutor");
 
       const respuestaCancion = inputCancion ? inputCancion.value.trim() : "";
       const respuestaAutor = inputAutor ? inputAutor.value.trim() : "";
 
-      // Validamos que complete ambos campos
       if (!respuestaCancion || !respuestaAutor) {
         alert("🎵 Por favor, completa el nombre de la canción y el autor antes de enviar.");
         return;
       }
 
       try {
-        // Desactivamos el botón para evitar doble envío
         btnEnviar.disabled = true;
         btnEnviar.innerText = "⏳ Enviando...";
 
-        // 3. 🔥 MODIFICAMOS EL VALOR EN FIREBASE (Estructura de Mapa)
         const playerRef = doc(window.db, "players", miPlayerId);
         
         await updateDoc(playerRef, {
@@ -265,7 +260,6 @@ function guessSong() {
 
         console.log(`✅ Respuestas guardadas con éxito en respuestasSong para: ${miPlayerId}`);
 
-        // 4. Cambiamos la interfaz del móvil a la de espera
         const contenedorForm = document.getElementById("screenGuessSong");
         const contenedorEspera = document.getElementById("pantalla-espera");
 
@@ -276,47 +270,68 @@ function guessSong() {
         console.error("❌ Error al enviar la respuesta a Firebase:", error);
         alert("Hubo un problema al enviar tu respuesta. Inténtalo de nuevo.");
         
-        // Reactivamos el botón si hay error
         btnEnviar.disabled = false;
         btnEnviar.innerText = "Enviar Respuesta 🚀";
       }
     };
   }
 
-  // ==========================================
-  // 🔥 ESCUCHADOR EN TIEMPO REAL PARA EL RESETEO
-  // ==========================================
+  // ==========================================================
+  // 🔥 ESCUCHADOR 1: RESETEO DE DATOS DEL JUGADOR (Ronda nueva)
+  // ==========================================================
   if (miPlayerId) {
     onSnapshot(doc(window.db, "players", miPlayerId), (docSnapshot) => {
       if (docSnapshot.exists()) {
         const datosJugador = docSnapshot.data();
         
-        // Si el mapa 'respuestasSong' NO existe (porque la tele lo eliminó con deleteField)
+        // Si el mapa 'respuestasSong' NO existe (porque la tele lo eliminó)
         if (!datosJugador.respuestasSong) {
-          console.log("🧹 Ronda nueva detectada. Limpiando interfaz del móvil...");
+          console.log("🧹 Datos de respuesta eliminados. Limpiando inputs...");
 
-          // 1. Limpiamos las cajas de texto de la ronda anterior
           const inputCancion = document.getElementById("inputMovilCancion");
           const inputAutor = document.getElementById("inputMovilAutor");
           if (inputCancion) inputCancion.value = "";
           if (inputAutor) inputAutor.value = "";
 
-          // 2. Reactivamos el botón de enviar
           if (btnEnviar) {
             btnEnviar.disabled = false;
             btnEnviar.innerText = "Enviar Respuesta 🚀";
           }
-
-          // 3. Mostramos el formulario original y ocultamos el mensaje azul de espera
-          const contenedorForm = document.getElementById("screenGuessSong");
-          const contenedorEspera = document.getElementById("pantalla-espera");
-          
-          if (contenedorForm) contenedorForm.style.display = "block";
-          if (contenedorEspera) contenedorEspera.style.display = "none";
         }
       }
     });
   }
+
+  // ==========================================================
+  // 🔥 ESCUCHADOR 2: CONTROL GLOBAL DE INTERFAZ (Tiempo / Estados)
+  // ==========================================================
+  onSnapshot(doc(window.db, "game", "songState"), (docSnapshot) => {
+    if (docSnapshot.exists()) {
+      const datosJuego = docSnapshot.data();
+      
+      const contenedorForm = document.getElementById("screenGuessSong");
+      const contenedorEspera = document.getElementById("pantalla-espera");
+      const contenedorTiempoAgotado = document.getElementById("pantalla-tiempo-agotado");
+
+      if (datosJuego.state === false) {
+        // --- TIEMPO AGOTADO ---
+        console.log("🛑 Tiempo agotado. Mostrando pantalla de bloqueo...");
+        if (contenedorForm) contenedorForm.style.display = "none";
+        if (contenedorEspera) contenedorEspera.style.display = "none";
+        if (contenedorTiempoAgotado) contenedorTiempoAgotado.style.display = "block";
+        
+      } else if (datosJuego.state === true) {
+        // --- ¡NUEVA CANCIÓN / TIEMPO ACTIVO! ---
+        console.log("🎵 Nueva canción en marcha. Mostrando formulario...");
+        
+        // Comprobamos si el jugador ya tiene respuestas en esta ronda (por si se reconecta)
+        // Pero para asegurar el reseteo visual de la mayoría, mostramos el formulario:
+        if (contenedorForm) contenedorForm.style.display = "block";
+        if (contenedorEspera) contenedorEspera.style.display = "none";
+        if (contenedorTiempoAgotado) contenedorTiempoAgotado.style.display = "none";
+      }
+    }
+  });
 }
 
 // Lógica para el juego El precio Irracional
