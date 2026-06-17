@@ -615,9 +615,86 @@ function cargarCancion(indice) {
 // 9. EVENTO: INICIAR JUEGO / PLAY / PAUSA / RANKING
 botonPlay.addEventListener('click', async () => {
     if (juegoTerminado) {
-        console.log("📊 Ejecutando goToRanking()...");
-        goToRanking();
-        return; 
+    console.log("📊 Iniciando recuento final y reparto de puntos de música...");
+    
+    // Escala de puntos estándar
+    const tablaPuntos = [10, 8, 6, 5, 4, 3, 2, 1];
+
+    try {
+        // 1. OBTENER JUGADORES FORZANDO LECTURA DIRECTA DEL SERVIDOR (Evita datos obsoletos de caché)
+        // Nota: Asegúrate de tener 'getDocsFromServer' importado de firebase/firestore si 'getDocs' sigue usando caché.
+        // Como alternativa limpia, hacemos una pequeña espera de 500ms para que Firestore asimile los últimos clics manuales.
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        const querySnapshot = await getDocs(collection(window.db, "players"));
+        const listaJugadores = [];
+
+        querySnapshot.forEach((jugadorDoc) => {
+            const datos = jugadorDoc.data();
+            if (datos.active === true) {
+                const scoreSongConvertido = Number(datos.scoreSong) || 0;
+                
+                // 🔍 TEST CONSOLA: Veremos exactamente qué tiene guardado cada documento en la base de datos
+                console.log(`📡 Servidor -> Jugador: ${datos.name || "Sin nombre"} | ID: ${jugadorDoc.id} | scoreSong: ${scoreSongConvertido}`);
+
+                listaJugadores.push({
+                    id: jugadorDoc.id,
+                    name: datos.name || "Sin nombre",
+                    scoreSong: scoreSongConvertido
+                });
+            }
+        });
+
+        // 2. CONTROL DE SEGURIDAD
+        if (listaJugadores.length === 0) {
+            console.warn("⚠️ No se encontraron jugadores activos.");
+            goToRanking();
+            return;
+        }
+
+        // 3. ORDENAR DE MAYOR A MENOR SCORESONG
+        listaJugadores.sort((a, b) => b.scoreSong - a.scoreSong);
+        console.log("📋 Lista final ordenada para reparto:", JSON.parse(JSON.stringify(listaJugadores)));
+
+        // 4. BUCLE DE REPARTO CON CONTENEDOR SEGURO DE POSICIÓN
+        let trackerPosicion = 0; 
+
+        for (let i = 0; i < listaJugadores.length; i++) {
+            const jugadorActual = listaJugadores[i];
+
+            // Si no es el primero y empata con el anterior, hereda la posición del anterior
+            if (i > 0 && jugadorActual.scoreSong === listaJugadores[i - 1].scoreSong) {
+                console.log(`🤝 ${jugadorActual.name} empata con ${listaJugadores[i - 1].name} (${jugadorActual.scoreSong} pts)`);
+            } else {
+                // Si no hay empate, el tracker se sincroniza exactamente con el índice actual
+                trackerPosicion = i;
+            }
+
+            // Buscamos los puntos exactos en la tabla
+            const puntosAAgregar = tablaPuntos[trackerPosicion] || 0;
+
+            if (puntosAAgregar > 0) {
+                console.log(`🏅 [REPARTO REAL] Asignando +${puntosAAgregar} pts globales a ${jugadorActual.name} por sus ${jugadorActual.scoreSong} aciertos.`);
+                
+                const jugadorRef = doc(window.db, "players", jugadorActual.id);
+                
+                // Subida directa e individual al score general de Firestore
+                await updateDoc(jugadorRef, {
+                    score: increment(puntosAAgregar)
+                });
+            }
+        }
+        console.log("✅ Fin del reparto de puntos en la base de datos.");
+
+    } catch (error) {
+        console.error("❌ Error crítico en el reparto de puntos:", error);
+        alert("Hubo un problema al procesar las puntuaciones finales.");
+    }
+
+    // 5. SALIDA A PANTALLA RANKING
+    console.log("📊 Ejecutando goToRanking()...");
+    goToRanking();
+    return;
     }
 
     try {
