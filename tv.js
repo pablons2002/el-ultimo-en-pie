@@ -434,7 +434,7 @@ function formatearTiempo(segundos) {
     return `${min}:${seg < 10 ? '0' : ''}${seg}`;
 }
 
-// 6. FASE 1 DE LA RESPUESTA: MOSTRAR TÍTULO Y AUTOR LIMPIOS
+// 6. FASE 1 DE LA RESPUESTA: MOSTRAR TÍTULO, AUTOR LIMPIOS Y EVALUAR "P / I"
 async function revelarRespuesta() {
     reproductor.pause(); 
     pausarCronometro();  
@@ -449,6 +449,45 @@ async function revelarRespuesta() {
 
     pantallaJuego.style.display = "none";
     pantallaRespuesta.style.display = "block";
+
+    // ==========================================================
+    // 🔥 NUEVO: EVALUACIÓN AUTOMÁTICA DEL BONO "P" ó "I"
+    // ==========================================================
+    const ownerCorrecto = cancionActual.owner ? cancionActual.owner.trim() : "";
+    
+    if (ownerCorrecto) {
+        console.log(`🤖 Evaluando respuestas P/I. El valor correcto es: "${ownerCorrecto}"`);
+        
+        try {
+            // Traemos todos los jugadores activos
+            const querySnapshot = await getDocs(collection(window.db, "players"));
+            
+            // Usamos un bucle para revisar uno por uno
+            for (const jugadorDoc of querySnapshot.docs) {
+                const datosJugador = jugadorDoc.data();
+                const respuestasSong = datosJugador.respuestasSong || {};
+                const respuestaJugadorPI = respuestasSong.respuestaPI ? respuestasSong.respuestaPI.trim() : "";
+
+                // Si el jugador marcó la opción correcta (P o I)
+                if (respuestaJugadorPI === ownerCorrecto) {
+                    console.log(`🎯 ¡Acierto! ${datosJugador.name || "Jugador"} acertó la opción P/I (${respuestaJugadorPI}). Sumando 1 punto...`);
+                    
+                    const jugadorRef = doc(window.db, "players", jugadorDoc.id);
+                    const scoreActual = datosJugador.score || 0;
+
+                    // Le sumamos 1 punto directo en Firebase
+                    await updateDoc(jugadorRef, {
+                        score: scoreActual + 1
+                    });
+                }
+            }
+            console.log("✅ Evaluación de bono P/I completada con éxito.");
+        } catch (error) {
+            console.error("❌ Error al procesar el bono automático P/I:", error);
+        }
+    } else {
+        console.warn("⚠️ Advertencia: Esta canción no tiene un campo 'owner' definido en la colección GuessSong.");
+    }
 }
 
 // 7. FASE 2 DE LA RESPUESTA: EVENTO PARA CARGAR LAS RESPUESTAS Y ASIGNAR PUNTOS AL SCORE

@@ -52,32 +52,40 @@
 
   <!-- 2º Juego SongGuessr-->
   <div id="screenGuessSong" style="max-width: 400px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-      <h2 style="margin-top: 0; color: #2c3e50;">¿Te la sabes? 🤔</h2>
-      <p style="color: #7f8c8d; font-size: 14px; margin-bottom: 25px;">Escribe los datos de la canción que suena en la tele:</p>
-      
-      <div style="margin-bottom: 15px; text-align: left;">
-          <label for="inputMovilCancion" style="display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px;">Canción:</label>
-          <input type="text" id="inputMovilCancion" placeholder="Ej: Bohemian Rhapsody" style="width: 100%; padding: 12px; font-size: 16px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box;">
-      </div>
+    <h2 style="margin-top: 0; color: #2c3e50;">¿Te la sabes? 🤔</h2>
+    <p style="color: #7f8c8d; font-size: 14px; margin-bottom: 25px;">Escribe los datos de la canción que suena en la tele:</p>
+    
+    <div style="margin-bottom: 15px; text-align: left;">
+        <label for="inputMovilCancion" style="display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px;">Canción:</label>
+        <input type="text" id="inputMovilCancion" placeholder="Ej: Bohemian Rhapsody" style="width: 100%; padding: 12px; font-size: 16px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box;">
+    </div>
 
-      <div style="margin-bottom: 25px; text-align: left;">
-          <label for="inputMovilAutor" style="display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px;">Autor / Artista:</label>
-          <input type="text" id="inputMovilAutor" placeholder="Ej: Queen" style="width: 100%; padding: 12px; font-size: 16px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box;">
-      </div>
+    <div style="margin-bottom: 20px; text-align: left;">
+        <label for="inputMovilAutor" style="display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px;">Autor / Artista:</label>
+        <input type="text" id="inputMovilAutor" placeholder="Ej: Queen" style="width: 100%; padding: 12px; font-size: 16px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box;">
+    </div>
 
-      <button id="btnEnviarGuessSong" style="background: #3498db; color: white; border: none; padding: 14px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; transition: background 0.2s;">
-          Enviar Respuesta 🚀
-      </button>
-  </div>
+    <div style="margin-bottom: 25px; text-align: left;">
+        <label style="display: block; font-weight: bold; margin-bottom: 8px; font-size: 14px;">Selecciona una opción (P / I):</label>
+        <div style="display: flex; gap: 15px;">
+            <button type="button" id="btnOpcionP" style="flex: 1; padding: 12px; font-size: 18px; font-weight: bold; border: 2px solid #ccc; background: white; color: #333; border-radius: 8px; cursor: pointer; transition: all 0.2s;">P</button>
+            <button type="button" id="btnOpcionI" style="flex: 1; padding: 12px; font-size: 18px; font-weight: bold; border: 2px solid #ccc; background: white; color: #333; border-radius: 8px; cursor: pointer; transition: all 0.2s;">I</button>
+        </div>
+    </div>
 
-  <div id="pantalla-espera" style="display: none; max-width: 400px; margin: 0 auto; background: #e8f4fd; padding: 25px; border-radius: 12px; border: 1px solid #bee3f8;">
-      <h3 style="color: #2b6cb0; margin-top: 0;">¡Respuesta enviada correctamente! 🎉</h3>
-      <p style="color: #4a5568; line-height: 1.5; margin-bottom: 0;">Tu propuesta ya está guardada en la base de datos.<br>Ahora mira a la tele para ver si has acertado 📺</p>
-  </div>
+    <button id="btnEnviarGuessSong" style="background: #3498db; color: white; border: none; padding: 14px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; transition: background 0.2s;">
+        Enviar Respuesta 🚀
+    </button>
+</div>
 
-  <div id="pantalla-tiempo-agotado" style="display: none; text-align: center; padding: 20px;">
-    <h2>🛑 ¡Se acabó el tiempo!</h2>
-    <p>No has enviado tu respuesta a tiempo para esta canción. ¡Más rápido en la siguiente ronda!</p>
+<div id="pantalla-espera" style="display: none; max-width: 400px; margin: 0 auto; background: #e8f4fd; padding: 25px; border-radius: 12px; border: 1px solid #bee3f8;">
+    <h3 style="color: #2b6cb0; margin-top: 0;">¡Respuesta enviada correctamente! 🎉</h3>
+    <p style="color: #4a5568; line-height: 1.5; margin-bottom: 0;"><br>Ahora mira a la tele para ver si has acertado 📺</p>
+</div>
+
+<div id="pantalla-tiempo-agotado" style="display: none; max-width: 400px; margin: 0 auto; background: #fff5f5; padding: 25px; border-radius: 12px; border: 1px solid #fed7d7; text-align: center;">
+    <h2 style="color: #e53e3e; margin-top: 0;">🛑 ¡Se acabó el tiempo!</h2>
+    <p style="color: #4a5568; line-height: 1.5; margin-bottom: 0;">No has enviado tu respuesta a tiempo para esta canción.<br>¡Sé más rápido en la siguiente ronda! ⚡</p>
 </div>
 
   <!-- 3º Juego GlassTower-->

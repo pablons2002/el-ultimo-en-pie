@@ -229,6 +229,39 @@ function guessSong() {
   const btnEnviar = document.getElementById("btnEnviarGuessSong");
   const miPlayerId = localStorage.getItem("playerId"); 
 
+  // Variables para gestionar los nuevos botones P e I
+  const btnP = document.getElementById("btnOpcionP");
+  const btnI = document.getElementById("btnOpcionI");
+  let seleccionPI = ""; // Aquí guardaremos "P" o "I"
+
+  // --- LÓGICA DE SELECCIÓN DE BOTONES P / I ---
+  if (btnP && btnI) {
+    btnP.onclick = () => {
+      seleccionPI = "P";
+      // Pintamos P de azul y desmarcamos I
+      btnP.style.background = "#3498db";
+      btnP.style.color = "white";
+      btnP.style.borderColor = "#3498db";
+      
+      btnI.style.background = "white";
+      btnI.style.color = "#333";
+      btnI.style.borderColor = "#ccc";
+    };
+
+    btnI.onclick = () => {
+      seleccionPI = "I";
+      // Pintamos I de azul y desmarcamos P
+      btnI.style.background = "#3498db";
+      btnI.style.color = "white";
+      btnI.style.borderColor = "#3498db";
+      
+      btnP.style.background = "white";
+      btnP.style.color = "#333";
+      btnP.style.borderColor = "#ccc";
+    };
+  }
+
+  // --- BOTÓN ENVIAR ---
   if (btnEnviar) {
     btnEnviar.onclick = async () => {
       if (!miPlayerId) {
@@ -242,8 +275,14 @@ function guessSong() {
       const respuestaCancion = inputCancion ? inputCancion.value.trim() : "";
       const respuestaAutor = inputAutor ? inputAutor.value.trim() : "";
 
+      // Validamos que complete canción, autor Y que haya elegido P o I
       if (!respuestaCancion || !respuestaAutor) {
         alert("🎵 Por favor, completa el nombre de la canción y el autor antes de enviar.");
+        return;
+      }
+
+      if (!seleccionPI) {
+        alert("⚠️ Por favor, selecciona una opción: 'P' o 'I' antes de enviar.");
         return;
       }
 
@@ -253,9 +292,11 @@ function guessSong() {
 
         const playerRef = doc(window.db, "players", miPlayerId);
         
+        // Enviamos los 3 datos al mapa dentro de Firebase
         await updateDoc(playerRef, {
           "respuestasSong.respuestaCancion": respuestaCancion,
-          "respuestasSong.respuestaAutor": respuestaAutor
+          "respuestasSong.respuestaAutor": respuestaAutor,
+          "respuestasSong.respuestaPI": seleccionPI // <-- NUEVO CAMPO EN FIREBASE
         });
 
         console.log(`✅ Respuestas guardadas con éxito en respuestasSong para: ${miPlayerId}`);
@@ -284,14 +325,21 @@ function guessSong() {
       if (docSnapshot.exists()) {
         const datosJugador = docSnapshot.data();
         
-        // Si el mapa 'respuestasSong' NO existe (porque la tele lo eliminó)
         if (!datosJugador.respuestasSong) {
-          console.log("🧹 Datos de respuesta eliminados. Limpiando inputs...");
+          console.log("🧹 Datos de respuesta eliminados. Limpiando inputs y botones...");
 
+          // 1. Limpiamos inputs de texto
           const inputCancion = document.getElementById("inputMovilCancion");
           const inputAutor = document.getElementById("inputMovilAutor");
           if (inputCancion) inputCancion.value = "";
           if (inputAutor) inputAutor.value = "";
+
+          // 2. Limpiamos la selección y reseteamos el diseño de los botones P / I
+          seleccionPI = "";
+          if (btnP && btnI) {
+            btnP.style.background = "white"; btnP.style.color = "#333"; btnP.style.borderColor = "#ccc";
+            btnI.style.background = "white"; btnI.style.color = "#333"; btnI.style.borderColor = "#ccc";
+          }
 
           if (btnEnviar) {
             btnEnviar.disabled = false;
@@ -314,18 +362,13 @@ function guessSong() {
       const contenedorTiempoAgotado = document.getElementById("pantalla-tiempo-agotado");
 
       if (datosJuego.state === false) {
-        // --- TIEMPO AGOTADO ---
         console.log("🛑 Tiempo agotado. Mostrando pantalla de bloqueo...");
         if (contenedorForm) contenedorForm.style.display = "none";
         if (contenedorEspera) contenedorEspera.style.display = "none";
         if (contenedorTiempoAgotado) contenedorTiempoAgotado.style.display = "block";
         
       } else if (datosJuego.state === true) {
-        // --- ¡NUEVA CANCIÓN / TIEMPO ACTIVO! ---
         console.log("🎵 Nueva canción en marcha. Mostrando formulario...");
-        
-        // Comprobamos si el jugador ya tiene respuestas en esta ronda (por si se reconecta)
-        // Pero para asegurar el reseteo visual de la mayoría, mostramos el formulario:
         if (contenedorForm) contenedorForm.style.display = "block";
         if (contenedorEspera) contenedorEspera.style.display = "none";
         if (contenedorTiempoAgotado) contenedorTiempoAgotado.style.display = "none";
