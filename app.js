@@ -207,8 +207,12 @@ function handleState(state) {
   console.log("Estoy en handleState:", state.screen);
   showScreen(state.screen);
 
-  const game = games[state.game];
+  const nonGameScreens = ["screenRoulette", "screenRanking", "screenSelect", "screenWaiting"];
+  if (nonGameScreens.includes(state.screen)) {
+    return;
+  }
 
+  const game = games[state.game];
   if (game) game();
 };
 
