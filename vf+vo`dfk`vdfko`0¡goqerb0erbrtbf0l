@@ -1,0 +1,95 @@
+*   [33m83fca3c[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Merge branch 'main' of https://github.com/pablons2002/el-ultimo-en-pie
+[31m|[m[32m\[m  
+[31m|[m * [33me99f72a[m finishhhh
+[31m|[m * [33m38e6794[m El último teorema finalizado.
+[31m|[m * [33m2b9304f[m tele LastTheorem
+* [32m|[m [33m2338b1a[m Videos
+* [32m|[m [33m4ba2925[m TheLiar
+[32m|[m[32m/[m  
+* [33md37bc33[m Votación
+*   [33m0192e0a[m Merge branch 'main' of https://github.com/pablons2002/el-ultimo-en-pie
+[33m|[m[34m\[m  
+[33m|[m * [33m78c68d1[m guessSong finalizado!!!
+[33m|[m * [33mb6e94e9[m Terminado GuessSong
+[33m|[m * [33mebd4178[m Ya funciona el GuessSong
+[33m|[m * [33ma417b8b[m Casi completo faltan dos botones
+[33m|[m *   [33mda5cb83[m Merge branch 'main' of https://github.com/pablons2002/el-ultimo-en-pie
+[33m|[m [35m|[m[36m\[m  
+[33m|[m * [36m\[m   [33maf4cb79[m Merge branch 'pruebas'
+[33m|[m [1;31m|[m[1;32m\[m [36m\[m  
+[33m|[m [1;31m|[m * [36m|[m [33mfa86b2c[m[33m ([m[1;31morigin/pruebas[m[33m)[m guessSong casi terminado
+[33m|[m [1;31m|[m * [36m|[m [33m47ec364[m dar una respuesta por canción
+[33m|[m [1;31m|[m * [36m|[m [33m09d6e56[m ver respuestas
+[33m|[m [1;31m|[m * [36m|[m [33m4f2c0fa[m GuessSong con guardado en la firebase
+[33m|[m [1;31m|[m * [36m|[m [33mffbfd21[m cambios
+[33m|[m [1;31m|[m * [36m|[m [33m2a345c0[m pruebas con el móvil para guessSong
+[33m|[m [1;31m|[m * [36m|[m [33m35faaaa[m canciones con solución
+[33m|[m [1;31m|[m * [36m|[m [33ma97685c[m Canciones
+* [1;31m|[m [1;32m|[m [36m|[m [33mc3d107f[m Juego Cifras y Letras
+[36m|[m [1;31m|[m[36m_[m[1;32m|[m[36m/[m  
+[36m|[m[36m/[m[1;31m|[m [1;32m|[m   
+* [1;31m|[m [1;32m|[m [33m9808cc2[m Juego 5º SymbolZone
+[1;31m|[m[1;31m/[m [1;32m/[m  
+* [1;32m/[m [33m5220e48[m se quita lo de reset autodestr
+[1;32m|[m[1;32m/[m  
+* [33m1372cef[m Helena
+* [33me712946[m carta Pablo
+* [33mc88eaa1[m localStorage
+* [33md82f36a[m Juego Torre de vasos
+* [33mab5ce40[m canciones
+* [33m8bcd26d[m canciones
+* [33m8084877[m Canciones2
+* [33m13661c4[m añadir canciones
+* [33me60caca[m Yo QUE SE
+* [33m57bb167[m Alba
+* [33m54dbef9[m  carta Irene
+*   [33m0e73ea7[m Merge branch 'main' of https://github.com/pablons2002/el-ultimo-en-pie
+[1;33m|[m[1;34m\[m  
+[1;33m|[m * [33m42e21e8[m Inicio juego 2 GuessSong
+* [1;34m|[m [33m73d42eb[m casi últimas cartas de personajes hechas
+[1;34m|[m[1;34m/[m  
+*   [33m164b22f[m Merge branch 'main' of https://github.com/pablons2002/el-ultimo-en-pie
+[1;35m|[m[1;36m\[m  
+[1;35m|[m *   [33m41de420[m Merge branch 'main' of https://github.com/pablons2002/el-ultimo-en-pie
+[1;35m|[m [31m|[m[32m\[m  
+[1;35m|[m * [32m|[m [33mf8e7066[m Lógica Worldguesser con suma de puntos acabada.
+* [32m|[m [32m|[m [33ma9cb51b[m Ranking hecho
+[32m|[m [32m|[m[32m/[m  
+[32m|[m[32m/[m[32m|[m   
+* [32m|[m   [33m547c686[m Merge pull request #18 from jeje878/main
+[32m|[m[34m\[m [32m\[m  
+[32m|[m [34m|[m[32m/[m  
+[32m|[m[32m/[m[34m|[m   
+[32m|[m * [33m4f205bb[m cambios
+* [34m|[m   [33mad4d971[m Merge branch 'main' of https://github.com/pablons2002/el-ultimo-en-pie
+[35m|[m[36m\[m [34m\[m  
+[35m|[m * [34m|[m [33m3f237ca[m Merge pull request #16 from jeje878/main
+[35m|[m [1;31m|[m[34m\[m[34m|[m 
+[35m|[m [1;31m|[m * [33m98f9b5f[m Nuevos cambios
+[35m|[m * [1;32m|[m [33mbe4120e[m Merge pull request #14 from jeje878/main
+[35m|[m [1;33m|[m[1;32m\[m[1;32m|[m 
+[35m|[m [1;33m|[m * [33m33b611b[m cambios nuevos
+[35m|[m [1;33m|[m *   [33mdca4b1b[m Merge branch 'pablons2002:main' into main
+[35m|[m [1;33m|[m [1;35m|[m[1;33m\[m  
+[35m|[m [1;33m|[m [1;35m|[m[1;33m/[m  
+[35m|[m [1;33m|[m[1;33m/[m[1;35m|[m   
+[35m|[m [1;33m|[m * [33m8c5d50c[m Cambios de nombres y creación de nueva carpeta
+* [1;33m|[m [1;36m|[m [33m2cf633e[m Lógica worldguessr en tv
+[1;33m|[m[1;33m/[m [1;36m/[m  
+* [1;36m|[m [33mac9cc07[m Merge pull request #13 from jeje878/main
+[31m|[m[1;36m\[m[1;36m|[m 
+[31m|[m * [33me25aa09[m Imágenes de icono y cartas (primera parte)
+[31m|[m[31m/[m  
+* [33m21cada5[m Funcional hasta el inicio del 1º juego. Reseteo.
+* [33m9495a98[m Cambio de TV a principal, estructura básica de la página móvil.
+*   [33mf9c3122[m Merge pull request #1 from jeje878/main
+[33m|[m[34m\[m  
+[33m|[m *   [33m9629d7e[m Merge branch 'main' of https://github.com/jeje878/el-ultimo-en-pie
+[33m|[m [35m|[m[33m\[m  
+[33m|[m [35m|[m[33m/[m  
+[33m|[m[33m/[m[35m|[m   
+* [35m|[m [33mea521a0[m Bifurcar paralelamente
+[36m|[m * [33m4172b17[m He añadido una carpeta con las fotos de los dioses griegos
+[36m|[m[36m/[m  
+* [33mc6a138c[m División pantalla-móvil
+* [33ma5a0166[m inicio
