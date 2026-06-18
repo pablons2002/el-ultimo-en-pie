@@ -360,77 +360,425 @@ document.getElementById("nextGameBtn").onclick = async () => {
 // ========================
 // 2º Juego GuessSong
 // ========================
-const songs = [
-  { title: "Bloody valentine - Machine Gun Kelly", audioURL: "assets\audio\Bloody valentine - Machine Gun Kelly.mp3" },
-  { title: "Disobedient - Steven Universe, Kate Mucucci, Michaela Dietz", audioURL: "assets\audio\Disobedient - Steven Universe, Kate Mucucci, Michaela Dietz.mp3" },
-  { title: "Fade Into You - Mazzy Star", audioURL: "assets\audio\Fade Into You - Mazzy Star.mp3" },
-  { title: "Give it up to me - Sean Paul, Keyshia", audioURL: "assets\audio\Give it up to me - Sean Paul, Keyshia.mp3" },
-  { title: "In too deep - Sum41", audioURL: "assets\audio\In too deep - Sum41.mp3" },
-  { title: "Jardines de Marzo  - La bien querida", audioURL: "assets\audio\Jardines de Marzo  - La bien querida.mp3" },
-  { title: "Lovefool - The Cardigans", audioURL: "assets\audio\Lovefool - The Cardigans.mp3" },
-  { title: "Migraine - Twenty One Pilots", audioURL: "assets\audio\Migraine - Twenty One Pilots.mp3" },
-  { title: "She doesn't mind - Sean Paul", audioURL: "assets\audio\She doesn't mind - Sean Paul.mp3" },
-  { title: "Sui muri - Psicologi", audioURL: "assets\audio\Sui muri - Psicologi.mp3" },
-  { title: "Superestrella - Aitana", audioURL: "assets\audio\Superestrella - Aitana.mp3" },
-  { title: "Today - The Smashing Pumpkins", audioURL: "assets\audio\Today - The Smashing Pumpkins.mp3" },
-  { title: "Where The Hell Is My Husband - RAYE", audioURL: "assets\audio\Where The Hell Is My Husband - RAYE.mp3" },
-  { title: "Wishing well - Juice WRLD", audioURL: "assets\audio\Wishing well - Juice WRLD.mp3" },
-];
 
 
-async function renderTvGuessSong() {
-  try {
+// 3. CAPTURA DE ELEMENTOS DEL HTML
+const botonPlay = document.getElementById('btn-play');
+const botonSiguiente = document.getElementById('btn-siguiente');
+const reproductor = document.getElementById('mi-reproductor');
+const barraProgreso = document.getElementById('barra-progreso'); // Ajustado según tu estándar
+const tiempoActualTxt = document.getElementById('tiempo-actual');
+const tiempoTotalTxt = document.getElementById('tiempo-total');
+const segundosCronoTxt = document.getElementById('segundos-crono');
 
-    const songSnap = await getDoc(doc(window.db, "game", "currentSong")); //añadido documento currentSong en firebase
-    if (!songSnap.exists()) return;
-    const songData = songSnap.data();
+// Elementos de las pantallas de respuestas y revelación
+const pantallaJuego = document.getElementById('pantalla-juego');
+const pantallaRespuesta = document.getElementById('pantalla-respuesta');
+const txtNombreCancion = document.getElementById('txt-nombre-cancion');
+const txtAutor = document.getElementById('txt-autor');
+const btnVerRespuestas = document.getElementById('btn-ver-respuestas');
+const contenedorRespuestasUsuarios = document.getElementById('contenedor-respuestas-usuarios');
+const listaRespuestasUI = document.getElementById('lista-respuestas-jugadores');
+const botonContinuar = document.getElementById('btn-continuar');
+const gameRef = doc(window.db, "game", "songState");
 
-    const audioPlayer = document.getElementById("tvAudioPlayer"); //mira firebase el url del audio y cambia el audio si es diferente
-    if (audioPlayer.src !== songData.audioURL) {
-      audioPlayer.src = songData.audioURL;
-      audioPlayer.load();
-    }
-    //si se ha dado al botón de revelar resultado (revealed true) sale el nombre del título guardado en firebase, si no sale la pregunta.
-    const titleElement = document.getElementById("tvSongTitle");
-    titleElement.innerText = songData.revealed ? songData.title : "🎵 ¿De quién es esta canción? 🎵";
+// 4. VARIABLES DE CONTROL DEL JUEGO Y CRONÓMETRO
+let listaCanciones = [];  // Array con todas las canciones de Firestore
+let indiceActual = 0;     // Posición de la canción actual
+let tiempoRestante = 10;  // Tiempo límite por canción
+let IDIntervalo = null;   // ID del temporizador
+let juegoTerminado = false; // Controla si el juego ha llegado al final
 
-    const container = document.getElementById("guessSongPlayersContainer");
-    container.innerHTML = "";
+// 5. FUNCIONES DE CONTROL DEL CRONÓMETRO
+function iniciarCronometro() {
+    if (IDIntervalo !== null) return;
 
-    const playersSnap = await getDocs(query(collection(window.db, "players"), where("active", "==", true)));
+    IDIntervalo = setInterval(async () => {
+        tiempoRestante--;
+        segundosCronoTxt.textContent = tiempoRestante;
 
-    playersSnap.forEach((playerDoc) => {
-      const p = playerDoc.data();
-      const docId = playerDoc.id;
-
-      // Pillamos el mapa 'attemptsSong'. Si no existe aún, se queda como objeto vacío {}
-      const att = p.attemptsSong || {};
-
-      const respuestaWho = songData.revealed ? (att.guessWho || "❌") : "❓ Sentenciado";
-      const respuestaSong = songData.revealed ? (att.guessSong || "❌ No sabe") : "✍️ Escribiendo...";
-
-      container.innerHTML += `
-        <div class="player-card" data-id="${docId}" data-name="${p.name}" data-score="${p.score || 0}">
-          <img src="${p.img}" class="avatar-img" style="width:50px; height:50px; border-radius:50%;">
-          <h3>${p.name}</h3>
-          <div class="answers-box">
-            <p><strong>Sospecha de:</strong> ${respuestaWho}</p>
-            <p><strong>Canción:</strong> "${respuestaSong}"</p>
-          </div>
-          
-          <div class="presenter-controls" style="display: ${songData.revealed ? 'block' : 'none'}">
-            <button onclick="sumarPuntosGuessSong('${docId}', 3)">🎯 Ambos (+3)</button>
-            <button onclick="sumarPuntosGuessSong('${docId}', 2)">👤 Solo Quién (+2)</button>
-            <button onclick="sumarPuntosGuessSong('${docId}', 1)">🎵 Solo Canción (+1)</button>
-          </div>
-        </div>
-      `;
-    });
-  } catch (err) {
-    console.error(err);
-  }
-
+        if (tiempoRestante <= 0) {
+            clearInterval(IDIntervalo);
+            IDIntervalo = null;
+            revelarRespuesta();
+            
+            try {
+                await updateDoc(gameRef, { state: false }); 
+                console.log("🔒 Tiempo agotado: state cambiado a false");
+            } catch (error) {
+                console.error("Error al actualizar state (false):", error);
+            }
+        }
+    }, 1000);
 }
+
+function pausarCronometro() {
+    clearInterval(IDIntervalo);
+    IDIntervalo = null;
+}
+
+async function reiniciarCronometro() {
+    pausarCronometro();
+    tiempoRestante = 10;
+    segundosCronoTxt.textContent = tiempoRestante;
+    
+    try {
+        await updateDoc(gameRef, { state: true }); 
+        console.log("🔓 Cronómetro reiniciado: state cambiado a true");
+    } catch (error) {
+        console.error("Error al actualizar state (true):", error);
+    }
+}
+
+function formatearTiempo(segundos) {
+    if (isNaN(segundos)) return "0:00";
+    const min = Math.floor(segundos / 60);
+    const seg = Math.floor(segundos % 60);
+    return `${min}:${seg < 10 ? '0' : ''}${seg}`;
+}
+
+// 6. FASE 1 DE LA RESPUESTA: MOSTRAR TÍTULO, AUTOR LIMPIOS Y EVALUAR "P / I"
+async function revelarRespuesta() {
+    reproductor.pause(); 
+    pausarCronometro();  
+
+    const cancionActual = listaCanciones[indiceActual];
+    txtNombreCancion.textContent = cancionActual.nombreCancion || "Desconocido";
+    txtAutor.textContent = cancionActual.autor || "Desconocido";
+
+    contenedorRespuestasUsuarios.style.display = "none";
+    btnVerRespuestas.style.display = "inline-block";
+
+    pantallaJuego.style.display = "none";
+    pantallaRespuesta.style.display = "block";
+
+    // ==========================================================
+    // 🔥 EVALUACIÓN DEL BONO "P/I" ASIGNADO A 'scoreSong'
+    // ==========================================================
+    const ownerCorrecto = cancionActual.owner ? cancionActual.owner.trim() : "";
+    
+    if (ownerCorrecto) {
+        console.log(`🤖 Evaluando respuestas P/I. El valor correcto es: "${ownerCorrecto}"`);
+        
+        try {
+            const querySnapshot = await getDocs(collection(window.db, "players"));
+            
+            for (const jugadorDoc of querySnapshot.docs) {
+                const datosJugador = jugadorDoc.data();
+                const respuestasSong = datosJugador.respuestasSong || {};
+                const respuestaJugadorPI = respuestasSong.respuestaPI ? respuestasSong.respuestaPI.trim() : "";
+
+                if (respuestaJugadorPI === ownerCorrecto) {
+                    console.log(`🎯 ¡Acierto! ${datosJugador.name || "Jugador"} acertó P/I. Sumando 1 punto a scoreSong...`);
+                    
+                    const jugadorRef = doc(window.db, "players", jugadorDoc.id);
+                    const scoreSongActual = datosJugador.scoreSong || 0; // Usando el nuevo campo
+
+                    await updateDoc(jugadorRef, {
+                        scoreSong: scoreSongActual + 1
+                    });
+                }
+            }
+            console.log("✅ Evaluación de bono P/I completada con éxito.");
+        } catch (error) {
+            console.error("❌ Error al procesar el bono automático P/I:", error);
+        }
+    }
+}
+
+// 7. FASE 2 DE LA RESPUESTA: EVENTO PARA CARGAR LAS RESPUESTAS Y ASIGNAR PUNTOS A 'scoreSong'
+btnVerRespuestas.addEventListener('click', async () => {
+    btnVerRespuestas.style.display = "none"; 
+    listaRespuestasUI.innerHTML = "";        
+
+    try {
+        const querySnapshot = await getDocs(collection(window.db, "players"));
+        
+        querySnapshot.forEach((jugadorDoc) => {
+            const datosJugador = jugadorDoc.data();
+            const idJugador = jugadorDoc.id; 
+            const respuestasSong = datosJugador.respuestasSong || {};
+            
+            const cancionRespondida = respuestasSong.respuestaCancion ? respuestasSong.respuestaCancion.trim() : "";
+            const autorRespondido = respuestasSong.respuestaAutor ? respuestasSong.respuestaAutor.trim() : "";
+
+            if (cancionRespondida || autorRespondido) {
+                const li = document.createElement('li');
+                li.style.display = "flex";
+                li.style.justifyContent = "space-between";
+                li.style.alignItems = "center";
+                li.style.padding = "12px 10px";
+                li.style.borderBottom = "1px dashed #eee";
+                li.style.fontSize = "18px";
+                
+                const cancionMostrar = cancionRespondida || "❓";
+                const autorMostrar = autorRespondido || "❓";
+                
+                // 🔥 LEER E IMPRIMIR 'scoreSong' EN LA UI DE RESPUESTAS
+                const scoreSongActual = datosJugador.scoreSong || 0;
+                const contenedorTexto = document.createElement('div');
+                contenedorTexto.innerHTML = `👤 <strong>${datosJugador.name || "Jugador"}:</strong> "${cancionMostrar}" de <em>${autorMostrar}</em> <span style="font-size: 14px; color: #3498db; margin-left: 10px; font-weight: bold;">(Song Score: ${scoreSongActual} pts)</span>`;
+                
+                const contenedorBotones = document.createElement('div');
+                contenedorBotones.style.display = "flex";
+                contenedorBotones.style.gap = "8px"; 
+                contenedorBotones.style.marginLeft = "auto"; 
+                
+                const puntuaciones = [0, 1, 2];
+                
+                puntuaciones.forEach((puntos) => {
+                    const btnPuntos = document.createElement('button');
+                    btnPuntos.textContent = puntos;
+                    
+                    btnPuntos.style.padding = "6px 14px";
+                    btnPuntos.style.fontSize = "16px";
+                    btnPuntos.style.fontWeight = "bold";
+                    btnPuntos.style.cursor = "pointer";
+                    btnPuntos.style.borderRadius = "6px";
+                    btnPuntos.style.border = "1px solid #ccc";
+                    btnPuntos.style.background = "#f8f9fa";
+                    btnPuntos.style.transition = "all 0.2s";
+
+                    btnPuntos.onmouseover = () => { if(!btnPuntos.disabled) btnPuntos.style.background = "#e2e8f0"; };
+                    btnPuntos.onmouseout = () => { if(!btnPuntos.disabled) btnPuntos.style.background = "#f8f9fa"; };
+                    
+                    // 🔥 SUMAR PUNTOS A 'scoreSong' AL PULSAR BOTÓN MANUAL
+                    btnPuntos.onclick = async () => {
+                        try {
+                            const jugadorRef = doc(window.db, "players", idJugador);
+                            
+                            // Re-leemos para no pisar el punto automático del bono P/I
+                            const snapActualizado = await getDoc(jugadorRef);
+                            const scoreSongBase = snapActualizado.exists() ? (snapActualizado.data().scoreSong || 0) : 0;
+                            const scoreSongAcumulado = scoreSongBase + puntos;
+                            
+                            await updateDoc(jugadorRef, {
+                                scoreSong: scoreSongAcumulado
+                            });
+
+                            contenedorBotones.querySelectorAll('button').forEach((b) => {
+                                b.disabled = true;
+                                b.style.cursor = "default";
+                                b.style.opacity = "0.5";
+                            });
+
+                            btnPuntos.style.background = "#2ecc71";
+                            btnPuntos.style.color = "white";
+                            btnPuntos.style.borderColor = "#27ae60";
+                            btnPuntos.style.opacity = "1";
+
+                            console.log(`✅ scoreSong actualizado para ${idJugador}: ${scoreSongAcumulado}`);
+                        } catch (err) {
+                            console.error("Error al actualizar scoreSong en Firebase:", err);
+                        }
+                    };
+                    
+                    contenedorBotones.appendChild(btnPuntos);
+                });
+                
+                li.appendChild(contenedorTexto);
+                li.appendChild(contenedorBotones);
+                listaRespuestasUI.appendChild(li);
+            }
+        });
+    } catch (error) {
+        console.error("Error al traer respuestas de los jugadores:", error);
+    }
+
+    contenedorRespuestasUsuarios.style.display = "block";
+});
+
+// 8. FUNCIÓN PARA CARGAR LA SIGUIENTE CANCIÓN LOCAL
+function cargarCancion(indice) {
+    if (indice < listaCanciones.length) {
+        pantallaRespuesta.style.display = "none";
+        contenedorRespuestasUsuarios.style.display = "none";
+        pantallaJuego.style.display = "block";
+
+        reproductor.src = listaCanciones[indice].url;
+        barraProgreso.value = 0;
+        tiempoActualTxt.textContent = "0:00";
+        reiniciarCronometro();
+        
+        botonPlay.disabled = false;
+        botonPlay.textContent = "Reproducir Música 🎵";
+        botonSiguiente.disabled = false;
+    } else {
+        pantallaRespuesta.style.display = "none";
+        pantallaJuego.style.display = "block";
+        reiniciarCronometro();
+        
+        juegoTerminado = true; 
+        botonPlay.textContent = "Ver Ranking Final 🏆";
+        botonPlay.disabled = false; 
+        botonSiguiente.disabled = true;
+        
+        alert("¡Has terminado todas las canciones disponibles! Pulsa el botón para ver el Ranking.");
+    }
+}
+
+// 9. EVENTO: INICIAR JUEGO / PLAY / PAUSA / RANKING
+botonPlay.addEventListener('click', async () => {
+    if (juegoTerminado) {
+    console.log("📊 Iniciando recuento final y reparto de puntos de música...");
+    
+    // Escala de puntos estándar
+    const tablaPuntos = [10, 8, 6, 5, 4, 3, 2, 1];
+
+    try {
+        // 1. OBTENER JUGADORES FORZANDO LECTURA DIRECTA DEL SERVIDOR (Evita datos obsoletos de caché)
+        // Nota: Asegúrate de tener 'getDocsFromServer' importado de firebase/firestore si 'getDocs' sigue usando caché.
+        // Como alternativa limpia, hacemos una pequeña espera de 500ms para que Firestore asimile los últimos clics manuales.
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        const querySnapshot = await getDocs(collection(window.db, "players"));
+        const listaJugadores = [];
+
+        querySnapshot.forEach((jugadorDoc) => {
+            const datos = jugadorDoc.data();
+            if (datos.active === true) {
+                const scoreSongConvertido = Number(datos.scoreSong) || 0;
+                
+                // 🔍 TEST CONSOLA: Veremos exactamente qué tiene guardado cada documento en la base de datos
+                console.log(`📡 Servidor -> Jugador: ${datos.name || "Sin nombre"} | ID: ${jugadorDoc.id} | scoreSong: ${scoreSongConvertido}`);
+
+                listaJugadores.push({
+                    id: jugadorDoc.id,
+                    name: datos.name || "Sin nombre",
+                    scoreSong: scoreSongConvertido
+                });
+            }
+        });
+
+        // 2. CONTROL DE SEGURIDAD
+        if (listaJugadores.length === 0) {
+            console.warn("⚠️ No se encontraron jugadores activos.");
+            goToRanking();
+            return;
+        }
+
+        // 3. ORDENAR DE MAYOR A MENOR SCORESONG
+        listaJugadores.sort((a, b) => b.scoreSong - a.scoreSong);
+        console.log("📋 Lista final ordenada para reparto:", JSON.parse(JSON.stringify(listaJugadores)));
+
+        // 4. BUCLE DE REPARTO CON CONTENEDOR SEGURO DE POSICIÓN
+        let trackerPosicion = 0; 
+
+        for (let i = 0; i < listaJugadores.length; i++) {
+            const jugadorActual = listaJugadores[i];
+
+            // Si no es el primero y empata con el anterior, hereda la posición del anterior
+            if (i > 0 && jugadorActual.scoreSong === listaJugadores[i - 1].scoreSong) {
+                console.log(`🤝 ${jugadorActual.name} empata con ${listaJugadores[i - 1].name} (${jugadorActual.scoreSong} pts)`);
+            } else {
+                // Si no hay empate, el tracker se sincroniza exactamente con el índice actual
+                trackerPosicion = i;
+            }
+
+            // Buscamos los puntos exactos en la tabla
+            const puntosAAgregar = tablaPuntos[trackerPosicion] || 0;
+
+            if (puntosAAgregar > 0) {
+                console.log(`🏅 [REPARTO REAL] Asignando +${puntosAAgregar} pts globales a ${jugadorActual.name} por sus ${jugadorActual.scoreSong} aciertos.`);
+                
+                const jugadorRef = doc(window.db, "players", jugadorActual.id);
+                
+                // Subida directa e individual al score general de Firestore
+                await updateDoc(jugadorRef, {
+                    score: increment(puntosAAgregar)
+                });
+            }
+        }
+        console.log("✅ Fin del reparto de puntos en la base de datos.");
+
+    } catch (error) {
+        console.error("❌ Error crítico en el reparto de puntos:", error);
+        alert("Hubo un problema al procesar las puntuaciones finales.");
+    }
+
+    // 5. SALIDA A PANTALLA RANKING
+    console.log("📊 Ejecutando goToRanking()...");
+    goToRanking();
+    return;
+    }
+
+    try {
+        // 🔥 AL EMPEZAR EL JUEGO (PRIMER CLIC): INICIALIZAR LAS CANCIONES Y EL CAMPO 'scoreSong'
+        if (listaCanciones.length === 0) {
+            botonPlay.textContent = "Iniciando juego...";
+            
+            // 1. Crear el campo scoreSong: 0 para todos los jugadores en la BD
+            const queryJugadores = await getDocs(collection(window.db, "players"));
+            for (const jugadorDoc of queryJugadores.docs) {
+                const jugadorRef = doc(window.db, "players", jugadorDoc.id);
+                await updateDoc(jugadorRef, {
+                    scoreSong: 0 // Se inicializa limpio al arrancar el juego
+                });
+            }
+            console.log("🧹 Todos los scoreSong de los jugadores han sido inicializados en 0.");
+
+            // 2. Descargar canciones de la base de datos
+            const querySnapshot = await getDocs(collection(window.db, "GuessSong"));
+            querySnapshot.forEach((doc) => {
+                listaCanciones.push(doc.data());
+            });
+
+            if (listaCanciones.length === 0) {
+                botonPlay.textContent = "No hay canciones ❌";
+                alert("La colección 'GuessSong' está vacía o mal escrita en Firestore.");
+                return;
+            }
+
+            indiceActual = 0;
+            cargarCancion(indiceActual);
+        }
+
+        // Interruptor Play / Pausa normal durante la ronda
+        if (reproductor.paused) {
+            await reproductor.play();
+            botonPlay.textContent = "Pausar ⏸️";
+            iniciarCronometro();
+        } else {
+            reproductor.pause();
+            botonPlay.textContent = "Reproducir Música 🎵";
+            pausarCronometro();
+        }
+
+    } catch (error) {
+        console.error("Error en el flujo del botón Play:", error);
+    }
+});
+
+// 10. EVENTO: BOTÓN REVELAR RESPUESTA DURANTE LA MÚSICA
+botonSiguiente.addEventListener('click', () => {
+    revelarRespuesta();
+});
+
+// 11. EVENTO: BOTÓN SIGUIENTE CANCIÓN (Borra mapa en Firebase y avanza)
+botonContinuar.addEventListener('click', async () => {
+    botonContinuar.disabled = true;
+    botonContinuar.textContent = "Limpiando sala...";
+
+    try {
+        const querySnapshot = await getDocs(collection(window.db, "players"));
+        
+        for (const jugadorDoc of querySnapshot.docs) {
+            const jugadorRef = doc(window.db, "players", jugadorDoc.id);
+            await updateDoc(jugadorRef, {
+                respuestasSong: deleteField() // Se borra solo el mapa, se conserva 'scoreSong' intacto
+            });
+        }
+        console.log("✅ Respuestas limpias para la nueva ronda.");
+    } catch (e) {
+        console.error("Error al limpiar respuestas en Firestore:", e);
+    }
+
+    botonContinuar.disabled = false;
+    botonContinuar.textContent = "Siguiente Canción ➡️";
+
+    indiceActual++; 
+    cargarCancion(indiceActual); 
+});
 
 
 // ==============================
@@ -1405,3 +1753,5 @@ document.getElementById("selfDestruct").onclick = () => {
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+

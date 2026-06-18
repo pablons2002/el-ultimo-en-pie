@@ -219,28 +219,215 @@ function worldGuessr() {
   showScreen("screenWorldGuessr");
 }
 
+// GuessSong
+
+// 4. CAPTURA DE LOS ELEMENTOS DEL HTML Y ESCUCHA EN TIEMPO REAL
 function guessSong() {
-  window.enviarSospechoso = async (nombreSospechoso) => {
-    const miPlayerId = localStorage.getItem("myPlayerDocId"); // ej: "p1"
+  console.log("Iniciando juego de GuessSong en el móvil");
 
-    // Firebase crea el objeto 'attemptsSong' y la propiedad 'guessWho' automáticamente si no existen
-    await updateDoc(doc(window.db, "players", miPlayerId), {
-      "attemptsSong.guessWho": nombreSospechoso
+  const btnEnviar = document.getElementById("btnEnviarGuessSong");
+  const miPlayerId = localStorage.getItem("playerId"); 
+
+  // Variables para gestionar los nuevos botones P e I
+  const btnP = document.getElementById("btnOpcionP");
+  const btnI = document.getElementById("btnOpcionI");
+  let seleccionPI = ""; // Aquí guardaremos "P" o "I"
+
+  // --- LÓGICA DE SELECCIÓN DE BOTONES P / I ---
+  if (btnP && btnI) {
+    btnP.onclick = () => {
+      seleccionPI = "P";
+      // Pintamos P de azul y desmarcamos I
+      btnP.style.background = "#3498db";
+      btnP.style.color = "white";
+      btnP.style.borderColor = "#3498db";
+      
+      btnI.style.background = "white";
+      btnI.style.color = "#333";
+      btnI.style.borderColor = "#ccc";
+    };
+
+    btnI.onclick = () => {
+      seleccionPI = "I";
+      // Pintamos I de azul y desmarcamos P
+      btnI.style.background = "#3498db";
+      btnI.style.color = "white";
+      btnI.style.borderColor = "#3498db";
+      
+      btnP.style.background = "white";
+      btnP.style.color = "#333";
+      btnP.style.borderColor = "#ccc";
+    };
+  }
+
+  // --- BOTÓN ENVIAR ---
+  if (btnEnviar) {
+    btnEnviar.onclick = async () => {
+      if (!miPlayerId) {
+        alert("Error: No se encuentra tu ID de jugador. Reinicia la aplicación.");
+        return;
+      }
+
+      const inputCancion = document.getElementById("inputMovilCancion");
+      const inputAutor = document.getElementById("inputMovilAutor");
+
+      const respuestaCancion = inputCancion ? inputCancion.value.trim() : "";
+      const respuestaAutor = inputAutor ? inputAutor.value.trim() : "";
+
+      // Validamos que complete canción, autor Y que haya elegido P o I
+      if (!respuestaCancion || !respuestaAutor) {
+        alert("🎵 Por favor, completa el nombre de la canción y el autor antes de enviar.");
+        return;
+      }
+
+      if (!seleccionPI) {
+        alert("⚠️ Por favor, selecciona una opción: 'P' o 'I' antes de enviar.");
+        return;
+      }
+
+      try {
+        btnEnviar.disabled = true;
+        btnEnviar.innerText = "⏳ Enviando...";
+
+        const playerRef = doc(window.db, "players", miPlayerId);
+        
+        // Enviamos los 3 datos al mapa dentro de Firebase
+        await updateDoc(playerRef, {
+          "respuestasSong.respuestaCancion": respuestaCancion,
+          "respuestasSong.respuestaAutor": respuestaAutor,
+          "respuestasSong.respuestaPI": seleccionPI // <-- NUEVO CAMPO EN FIREBASE
+        });
+
+        console.log(`✅ Respuestas guardadas con éxito en respuestasSong para: ${miPlayerId}`);
+
+        const contenedorForm = document.getElementById("screenGuessSong");
+        const contenedorEspera = document.getElementById("pantalla-espera");
+
+        if (contenedorForm) contenedorForm.style.display = "none";
+        if (contenedorEspera) contenedorEspera.style.display = "block";
+
+      } catch (error) {
+        console.error("❌ Error al enviar la respuesta a Firebase:", error);
+        alert("Hubo un problema al enviar tu respuesta. Inténtalo de nuevo.");
+        
+        btnEnviar.disabled = false;
+        btnEnviar.innerText = "Enviar Respuesta 🚀";
+      }
+    };
+  }
+
+  // ==========================================================
+  // 🔥 ESCUCHADOR 1: RESETEO DE DATOS DEL JUGADOR (Ronda nueva)
+  // ==========================================================
+  if (miPlayerId) {
+    onSnapshot(doc(window.db, "players", miPlayerId), (docSnapshot) => {
+      if (docSnapshot.exists()) {
+        const datosJugador = docSnapshot.data();
+        
+        if (!datosJugador.respuestasSong) {
+          console.log("🧹 Datos de respuesta eliminados. Limpiando inputs y botones...");
+
+          // 1. Limpiamos inputs de texto
+          const inputCancion = document.getElementById("inputMovilCancion");
+          const inputAutor = document.getElementById("inputMovilAutor");
+          if (inputCancion) inputCancion.value = "";
+          if (inputAutor) inputAutor.value = "";
+
+          // 2. Limpiamos la selección y reseteamos el diseño de los botones P / I
+          seleccionPI = "";
+          if (btnP && btnI) {
+            btnP.style.background = "white"; btnP.style.color = "#333"; btnP.style.borderColor = "#ccc";
+            btnI.style.background = "white"; btnI.style.color = "#333"; btnI.style.borderColor = "#ccc";
+          }
+
+          if (btnEnviar) {
+            btnEnviar.disabled = false;
+            btnEnviar.innerText = "Enviar Respuesta 🚀";
+          }
+        }
+      }
     });
-  };
+  }
 
-  document.getElementById("sendSongBtn").onclick = async () => {
-    const miPlayerId = localStorage.getItem("myPlayerDocId");
-    const textoCancion = document.getElementById("mobileSongInput").value.trim();
-    if (!textoCancion) return;
+  // ==========================================================
+  // 🔥 ESCUCHADOR 2: CONTROL GLOBAL DE INTERFAZ (Tiempo / Estados)
+  // ==========================================================
+  onSnapshot(doc(window.db, "game", "songState"), (docSnapshot) => {
+    if (docSnapshot.exists()) {
+      const datosJuego = docSnapshot.data();
+      
+      const contenedorForm = document.getElementById("screenGuessSong");
+      const contenedorEspera = document.getElementById("pantalla-espera");
+      const contenedorTiempoAgotado = document.getElementById("pantalla-tiempo-agotado");
 
-    // Firebase mete 'guessSong' dentro de 'attempts' sin tocar 'guessWho'
-    await updateDoc(doc(window.db, "players", miPlayerId), {
-      "attemptsSong.guessSong": textoCancion
-    });
-  };
-  // Lógica para el juego Adivinar quién escucha la canción
+      if (datosJuego.state === false) {
+        console.log("🛑 Tiempo agotado. Mostrando pantalla de bloqueo...");
+        if (contenedorForm) contenedorForm.style.display = "none";
+        if (contenedorEspera) contenedorEspera.style.display = "none";
+        if (contenedorTiempoAgotado) contenedorTiempoAgotado.style.display = "block";
+        
+      } else if (datosJuego.state === true) {
+        console.log("🎵 Nueva canción en marcha. Mostrando formulario...");
+        if (contenedorForm) contenedorForm.style.display = "block";
+        if (contenedorEspera) contenedorEspera.style.display = "none";
+        if (contenedorTiempoAgotado) contenedorTiempoAgotado.style.display = "none";
+      }
+    }
+  });
 }
+
+// Lógica para el juego El precio Irracional
+  console.log("Iniciando juego de GuessSong en el móvil");
+
+  const btnEnviar = document.getElementById("btnEnviarGuessSong");
+  
+  if (btnEnviar) {
+    btnEnviar.onclick = async () => {
+      // 1. Recuperamos el ID del jugador desde SU localStorage
+      const miPlayerId = localStorage.getItem("playerId"); 
+      
+      if (!miPlayerId) {
+        alert("Error: No se encuentra tu ID de jugador. Reinicia la aplicación.");
+        return;
+      }
+
+      // 2. Pillamos el número que ha escrito en el input del móvil
+      const inputMovil = document.getElementById("inputMovilCancion");
+      const respuestaUsuario = inputMovil ? inputMovil.value.trim() : "";
+
+      try {
+        // Desactivamos el botón para que no pulse 2 veces seguidas por los nervios
+        btnEnviar.disabled = true;
+        btnEnviar.innerText = "⏳ Enviando...";
+
+        // 3. 🔥 MODIFICAMOS EL VALOR EN FIREBASE CORRESPONDIENTE A SU ID
+        // Cambiamos 'lentejasGuess' dentro de SU propio documento en la colección 'players'
+        const playerRef = doc(window.db, "players", miPlayerId);
+        await updateDoc(playerRef, {
+          respuestaCancion: respuestaUsuario
+        });
+
+        console.log(`✅ Respuesta (${respuestaUsuario}) guardada con éxito para el jugador: ${miPlayerId}`);
+
+        /*
+        // 4. Cambiamos la interfaz del móvil para avisarle de que ya hemos recibido el dato
+        if (document.getElementById("formContenedorPrice")) {
+          document.getElementById("formContenedorPrice").style.display = "none";
+        }
+        if (document.getElementById("esperaContenedorPrice")) {
+          document.getElementById("esperaContenedorPrice").style.display = "block";
+        }
+        */
+
+      } catch (error) {
+        console.error("❌ Error al enviar la respuesta a Firebase:", error);
+        alert("Hubo un problema al enviar tu respuesta. Inténtalo de nuevo.");
+        btnEnviar.disabled = false;
+        btnEnviar.innerText = "🚀 Enviar Respuesta";
+      }
+    };
+  }
+
 
 function glassTower() {
   /*
@@ -570,8 +757,6 @@ function theLiar() {
 function lastTheorem() {
   // Lógica para el juego El último teorema
 }
-
-
 
 
 
