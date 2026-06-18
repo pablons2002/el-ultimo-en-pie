@@ -47,6 +47,7 @@ function showScreen(screen) {
   document.getElementById("screenGuessSong").style.display = "none";
   document.getElementById("screenIrrationalPrice").style.display = "none";
   document.getElementById("screenNumbersAndLetters").style.display = "none";
+  document.getElementById("screenLastTheorem").style.display = "none";
   document.getElementById("screenVotes").style.display = "none";
   document.getElementById(screen).style.display = "block";
 }
@@ -863,10 +864,111 @@ function theLiar() {
   // Lógica para el juego El mentiroso
 }
 
-function lastTheorem() {
-  // Lógica para el juego El último teorema
-}
 
+function lastTheorem() {
+  console.log("🎮 Iniciando juego de El Último Teorema en el móvil");
+
+  const jugadorIdActual = localStorage.getItem("playerId");
+
+  if (!jugadorIdActual) {
+    alert("❌ Error: No se encuentra tu ID de jugador. Reinicia la aplicación.");
+    return;
+  }
+
+  // Referencias a los componentes del móvil
+  const inputNumber = document.getElementById("inputNumber");
+  const btnEnviarNumero = document.getElementById("btnEnviarNumero");
+  const statusMessage = document.getElementById("statusMessage");
+
+  const jugadorRef = doc(window.db, "players", jugadorIdActual);
+
+  // ========================================================
+  // 1. ESCUCHA EN TIEMPO REAL (RESET CUANDO LA TV PASA DE RONDA)
+  // ========================================================
+  onSnapshot(jugadorRef, (snapshot) => {
+    if (snapshot.exists()) {
+      const data = snapshot.data();
+      const tenbin = data.tenbin;
+
+      // SI EL JUGADOR HA MUERTO: Bloqueamos la interfaz por completo
+      if (tenbin && tenbin.isAlive === false) {
+        if (statusMessage) {
+          statusMessage.innerHTML = `<span style="color: #ff4a4a; font-weight: bold;">💀 ¡HAS MUERTO! 💀</span><br>Has alcanzado los -10 puntos y has sido eliminado.`;
+        }
+        if (inputNumber) inputNumber.style.display = "none";
+        if (btnEnviarNumero) btnEnviarNumero.style.display = "none";
+        return;
+      }
+
+      // NUEVA RONDA: Si la TV limpió el número (es null o vacío) -> DESBLOQUEAMOS EL MÓVIL
+      const numeroEnServidor = tenbin?.currentNumber;
+      if (numeroEnServidor === undefined || numeroEnServidor === null || numeroEnServidor === "") {
+        if (inputNumber) {
+          inputNumber.value = "";        // Vaciamos el campo anterior
+          inputNumber.disabled = false;  // Permitimos escribir de nuevo
+        }
+        if (btnEnviarNumero) {
+          btnEnviarNumero.disabled = false; // Habilitamos el botón
+          btnEnviarNumero.textContent = "Enviar Número";
+        }
+        if (statusMessage) {
+          statusMessage.textContent = "Introduce tu número para esta ronda (0 a 100):";
+        }
+      }
+    }
+  });
+
+  // ========================================================
+  // 2. LÓGICA DEL BOTÓN ENVIAR
+  // ========================================================
+  if (btnEnviarNumero) {
+    btnEnviarNumero.onclick = async () => {
+      const numeroIngresado = inputNumber.value.trim();
+
+      // Validaciones básicas antes de enviar
+      if (numeroIngresado === "") {
+        alert("Por favor, introduce un número antes de enviar.");
+        return;
+      }
+
+      const numero = Number(numeroIngresado);
+      if (isNaN(numero) || numero < 0 || numero > 100) {
+        alert("Por favor, introduce un número válido entre 0 y 100.");
+        return;
+      }
+
+      // Cuadro de confirmación para el jugador
+      const seguro = confirm(`¿Estás seguro de enviar el número ${numero}? No podrás cambiarlo en esta ronda.`);
+
+      if (seguro) {
+        // Bloqueamos temporalmente para evitar doble envío instantáneo
+        btnEnviarNumero.disabled = true;
+        btnEnviarNumero.textContent = "Enviando...";
+        inputNumber.disabled = true;
+
+        try {
+          // Guardar en la subpropiedad tenbin.currentNumber
+          await updateDoc(jugadorRef, {
+            "tenbin.currentNumber": numero
+          });
+
+          // Interfaz en modo espera
+          statusMessage.innerHTML = `<span style="color: #4aff4a; font-weight: bold;">¡Número ${numero} enviado con éxito!</span><br>⏳ Esperando que la TV muestre los resultados y pase de ronda...`;
+          btnEnviarNumero.textContent = "Número enviado";
+
+        } catch (error) {
+          console.error("Error al enviar el número a Firebase:", error);
+          alert("Hubo un error de conexión al enviar tu respuesta. Inténtalo de nuevo.");
+
+          // Reestablecer solo si falló el envío
+          btnEnviarNumero.disabled = false;
+          btnEnviarNumero.textContent = "Enviar Número";
+          inputNumber.disabled = false;
+        }
+      }
+    };
+  }
+}
 
 
 
