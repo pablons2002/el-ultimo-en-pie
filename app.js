@@ -47,6 +47,7 @@ function showScreen(screen) {
   document.getElementById("screenGuessSong").style.display = "none";
   document.getElementById("screenIrrationalPrice").style.display = "none";
   document.getElementById("screenNumbersAndLetters").style.display = "none";
+  document.getElementById("screenVotes").style.display = "none";
   document.getElementById(screen).style.display = "block";
 }
 // =====================
@@ -192,9 +193,9 @@ const games = {
   GuessSong: guessSong, //2º Juego Adivinar quién escucha la canción
   GlassTower: glassTower, //3º Juego Torre de Cristal 
   IrrationalPrice: irrationalPrice, //4º Juego El precio Irracional, el de las unidades de lentejas
-  SymbolZone: symbolZone, // 5º El de los símbolos en la espalda con pinzas y tienen que ir a su zona.
-  NumbersAndLetters: numbersAndLetters, //5º Juego Cifras y letras juego de operaciones
-  TruthOrLie: truthOrLie, //6º Juego: Verdad o invent, presentadores cuentan 3 historias, 1 de verdad.
+  Votes: votes, // 6º
+  SymbolZone: symbolZone, // 5º El de los símbolos en la espalda con pinzas y tienen que ir a su zona.s
+  NumbersAndLetters: numbersAndLetters, //6º Juego Cifras y letras juego de operaciones
   TheLiar: theLiar, //7º Juego: El mentiroso con material audiovisual
   LastTheorem: lastTheorem //8º Juego: El último teorema. Ya solo juegan 5 jugadores.
 };
@@ -226,7 +227,7 @@ function guessSong() {
   console.log("Iniciando juego de GuessSong en el móvil");
 
   const btnEnviar = document.getElementById("btnEnviarGuessSong");
-  const miPlayerId = localStorage.getItem("playerId"); 
+  const miPlayerId = localStorage.getItem("playerId");
 
   // Variables para gestionar los nuevos botones P e I
   const btnP = document.getElementById("btnOpcionP");
@@ -241,7 +242,7 @@ function guessSong() {
       btnP.style.background = "#3498db";
       btnP.style.color = "white";
       btnP.style.borderColor = "#3498db";
-      
+
       btnI.style.background = "white";
       btnI.style.color = "#333";
       btnI.style.borderColor = "#ccc";
@@ -253,7 +254,7 @@ function guessSong() {
       btnI.style.background = "#3498db";
       btnI.style.color = "white";
       btnI.style.borderColor = "#3498db";
-      
+
       btnP.style.background = "white";
       btnP.style.color = "#333";
       btnP.style.borderColor = "#ccc";
@@ -290,7 +291,7 @@ function guessSong() {
         btnEnviar.innerText = "⏳ Enviando...";
 
         const playerRef = doc(window.db, "players", miPlayerId);
-        
+
         // Enviamos los 3 datos al mapa dentro de Firebase
         await updateDoc(playerRef, {
           "respuestasSong.respuestaCancion": respuestaCancion,
@@ -309,7 +310,7 @@ function guessSong() {
       } catch (error) {
         console.error("❌ Error al enviar la respuesta a Firebase:", error);
         alert("Hubo un problema al enviar tu respuesta. Inténtalo de nuevo.");
-        
+
         btnEnviar.disabled = false;
         btnEnviar.innerText = "Enviar Respuesta 🚀";
       }
@@ -323,7 +324,7 @@ function guessSong() {
     onSnapshot(doc(window.db, "players", miPlayerId), (docSnapshot) => {
       if (docSnapshot.exists()) {
         const datosJugador = docSnapshot.data();
-        
+
         if (!datosJugador.respuestasSong) {
           console.log("🧹 Datos de respuesta eliminados. Limpiando inputs y botones...");
 
@@ -355,7 +356,7 @@ function guessSong() {
   onSnapshot(doc(window.db, "game", "songState"), (docSnapshot) => {
     if (docSnapshot.exists()) {
       const datosJuego = docSnapshot.data();
-      
+
       const contenedorForm = document.getElementById("screenGuessSong");
       const contenedorEspera = document.getElementById("pantalla-espera");
       const contenedorTiempoAgotado = document.getElementById("pantalla-tiempo-agotado");
@@ -365,7 +366,7 @@ function guessSong() {
         if (contenedorForm) contenedorForm.style.display = "none";
         if (contenedorEspera) contenedorEspera.style.display = "none";
         if (contenedorTiempoAgotado) contenedorTiempoAgotado.style.display = "block";
-        
+
       } else if (datosJuego.state === true) {
         console.log("🎵 Nueva canción en marcha. Mostrando formulario...");
         if (contenedorForm) contenedorForm.style.display = "block";
@@ -377,56 +378,56 @@ function guessSong() {
 }
 
 // Lógica para el juego El precio Irracional
-  console.log("Iniciando juego de GuessSong en el móvil");
+console.log("Iniciando juego de GuessSong en el móvil");
 
-  const btnEnviar = document.getElementById("btnEnviarGuessSong");
-  
-  if (btnEnviar) {
-    btnEnviar.onclick = async () => {
-      // 1. Recuperamos el ID del jugador desde SU localStorage
-      const miPlayerId = localStorage.getItem("playerId"); 
-      
-      if (!miPlayerId) {
-        alert("Error: No se encuentra tu ID de jugador. Reinicia la aplicación.");
-        return;
+const btnEnviar = document.getElementById("btnEnviarGuessSong");
+
+if (btnEnviar) {
+  btnEnviar.onclick = async () => {
+    // 1. Recuperamos el ID del jugador desde SU localStorage
+    const miPlayerId = localStorage.getItem("playerId");
+
+    if (!miPlayerId) {
+      alert("Error: No se encuentra tu ID de jugador. Reinicia la aplicación.");
+      return;
+    }
+
+    // 2. Pillamos el número que ha escrito en el input del móvil
+    const inputMovil = document.getElementById("inputMovilCancion");
+    const respuestaUsuario = inputMovil ? inputMovil.value.trim() : "";
+
+    try {
+      // Desactivamos el botón para que no pulse 2 veces seguidas por los nervios
+      btnEnviar.disabled = true;
+      btnEnviar.innerText = "⏳ Enviando...";
+
+      // 3. 🔥 MODIFICAMOS EL VALOR EN FIREBASE CORRESPONDIENTE A SU ID
+      // Cambiamos 'lentejasGuess' dentro de SU propio documento en la colección 'players'
+      const playerRef = doc(window.db, "players", miPlayerId);
+      await updateDoc(playerRef, {
+        respuestaCancion: respuestaUsuario
+      });
+
+      console.log(`✅ Respuesta (${respuestaUsuario}) guardada con éxito para el jugador: ${miPlayerId}`);
+
+      /*
+      // 4. Cambiamos la interfaz del móvil para avisarle de que ya hemos recibido el dato
+      if (document.getElementById("formContenedorPrice")) {
+        document.getElementById("formContenedorPrice").style.display = "none";
       }
-
-      // 2. Pillamos el número que ha escrito en el input del móvil
-      const inputMovil = document.getElementById("inputMovilCancion");
-      const respuestaUsuario = inputMovil ? inputMovil.value.trim() : "";
-
-      try {
-        // Desactivamos el botón para que no pulse 2 veces seguidas por los nervios
-        btnEnviar.disabled = true;
-        btnEnviar.innerText = "⏳ Enviando...";
-
-        // 3. 🔥 MODIFICAMOS EL VALOR EN FIREBASE CORRESPONDIENTE A SU ID
-        // Cambiamos 'lentejasGuess' dentro de SU propio documento en la colección 'players'
-        const playerRef = doc(window.db, "players", miPlayerId);
-        await updateDoc(playerRef, {
-          respuestaCancion: respuestaUsuario
-        });
-
-        console.log(`✅ Respuesta (${respuestaUsuario}) guardada con éxito para el jugador: ${miPlayerId}`);
-
-        /*
-        // 4. Cambiamos la interfaz del móvil para avisarle de que ya hemos recibido el dato
-        if (document.getElementById("formContenedorPrice")) {
-          document.getElementById("formContenedorPrice").style.display = "none";
-        }
-        if (document.getElementById("esperaContenedorPrice")) {
-          document.getElementById("esperaContenedorPrice").style.display = "block";
-        }
-        */
-
-      } catch (error) {
-        console.error("❌ Error al enviar la respuesta a Firebase:", error);
-        alert("Hubo un problema al enviar tu respuesta. Inténtalo de nuevo.");
-        btnEnviar.disabled = false;
-        btnEnviar.innerText = "🚀 Enviar Respuesta";
+      if (document.getElementById("esperaContenedorPrice")) {
+        document.getElementById("esperaContenedorPrice").style.display = "block";
       }
-    };
-  }
+      */
+
+    } catch (error) {
+      console.error("❌ Error al enviar la respuesta a Firebase:", error);
+      alert("Hubo un problema al enviar tu respuesta. Inténtalo de nuevo.");
+      btnEnviar.disabled = false;
+      btnEnviar.innerText = "🚀 Enviar Respuesta";
+    }
+  };
+}
 
 
 function glassTower() {
@@ -661,7 +662,7 @@ function numbersAndLetters() {
     });
   };
 
-    iniciarMovilCifrasYLetras();
+  iniciarMovilCifrasYLetras();
 }
 
 // 3. EXPOSICIÓN GLOBAL DE FUNCIONES DE CONTROL (Fuera de la caja para que los botones las vean)
@@ -746,8 +747,116 @@ window.enviarFormulaAlPresentador = async function () {
   }
 };
 
-function truthOrLie() {
-  // Lógica para el juego Verdad o invent
+function votes() {
+  // --- LOGICA DE VOTACIÓN PARA EL MÓVIL ---
+
+  window.inicializarVotacionMovil = function () {
+    const miIdLocal = localStorage.getItem("playerId");
+    const miNombreLocal = localStorage.getItem("playerName");
+
+    if (!miIdLocal) {
+      console.error("Votación Móvil: No se encuentra el ID del jugador local registrado.");
+      return;
+    }
+
+    const contenedorLista = document.getElementById("moListaParaVotar");
+    const bloqueConfirmacion = document.getElementById("moMensajeVotoEnviado");
+
+    // Escuchamos en tiempo real la lista de jugadores activos
+    onSnapshot(query(collection(window.db, "players"), where("active", "==", true)), (snapshot) => {
+      console.log("Ya estoy aquí")
+      if (!contenedorLista) return;
+
+      let compañerosAptos = [];
+      let yaHeVotado = false;
+
+      snapshot.forEach((docSnap) => {
+        const datos = docSnap.data();
+        const idJugador = docSnap.id;
+
+        // 1. CONTROL EXCLUSIÓN: Si es mi propio ID, reviso si ya voté y no me meto en la lista
+        if (idJugador === miIdLocal) {
+          if (datos.votoEnviado && datos.votoEnviado !== "") {
+            yaHeVotado = true;
+          }
+        }
+        // 2. Si es un rival, lo guardamos para construir los botones
+        else {
+          compañerosAptos.push({
+            id: idJugador,
+            name: datos.name
+          });
+        }
+      });
+
+      // --- INTERFAZ ESTADO 1: YA HA EMITIDO EL VOTO ---
+      if (yaHeVotado) {
+        contenedorLista.style.display = "none";
+        if (bloqueConfirmacion) bloqueConfirmacion.style.display = "block";
+        return;
+      }
+
+      // --- INTERFAZ ESTADO 2: PANEL ABIERTO PARA ELEGIR ---
+      contenedorLista.style.display = "flex";
+      if (bloqueConfirmacion) bloqueConfirmacion.style.display = "none";
+      contenedorLista.innerHTML = "";
+
+      if (compañerosAptos.length === 0) {
+        contenedorLista.innerHTML = `<p style="color: #666; font-style: italic;">No hay otros compañeros conectados...</p>`;
+        return;
+      }
+
+      // Crear un botón interactivo por cada rival de la sala
+      compañerosAptos.forEach((rival) => {
+        const botonVoto = document.createElement("button");
+        botonVoto.innerText = `👤 ${rival.name}`;
+
+        // Estilos del botón
+        botonVoto.style.background = "#222";
+        botonVoto.style.color = "white";
+        botonVoto.style.border = "1px solid #333";
+        botonVoto.style.padding = "14px";
+        botonVoto.style.borderRadius = "8px";
+        botonVoto.style.fontSize = "1.1rem";
+        botonVoto.style.fontWeight = "bold";
+        botonVoto.style.cursor = "pointer";
+        botonVoto.style.textAlign = "left";
+        botonVoto.style.transition = "all 0.2s ease";
+
+        // Evento Hover visual simple
+        botonVoto.onmouseenter = () => botonVoto.style.borderColor = "#e91e63";
+        botonVoto.onmouseleave = () => botonVoto.style.borderColor = "#333";
+
+        // EVENTO CLICK: El móvil envía el voto a Firebase
+        botonVoto.onclick = async () => {
+          const confirmar = confirm(`¿Estás seguro de que quieres votar a ${rival.name}? No podrás cambiarlo.`);
+          if (!confirmar) return;
+
+          try {
+            // Deshabilitamos el botón para evitar clics dobles fantasmas
+            botonVoto.disabled = true;
+            botonVoto.innerText = "⏳ Enviando voto...";
+
+            // Actualizamos el documento del jugador local guardando a quién ha votado
+            const miReferencia = doc(window.db, "players", miIdLocal);
+            await updateDoc(miReferencia, {
+              votoEnviado: rival.name // Enviamos el nombre, que es lo que procesa la TV
+            });
+
+            console.log(`Voto registrado con éxito hacia: ${rival.name}`);
+          } catch (error) {
+            console.error("Error al procesar el voto desde el móvil:", error);
+            alert("Hubo un error al enviar el voto. Inténtalo de nuevo.");
+            botonVoto.disabled = false;
+            botonVoto.innerText = `👤 ${rival.name}`;
+          }
+        };
+
+        contenedorLista.appendChild(botonVoto);
+      });
+    });
+  };
+  window.inicializarVotacionMovil();
 }
 
 function theLiar() {

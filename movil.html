@@ -51,42 +51,56 @@
   </div>
 
   <!-- 2º Juego SongGuessr-->
-  <div id="screenGuessSong" style="max-width: 400px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+  <div id="screenGuessSong"
+    style="max-width: 400px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
     <h2 style="margin-top: 0; color: #2c3e50;">¿Te la sabes? 🤔</h2>
-    <p style="color: #7f8c8d; font-size: 14px; margin-bottom: 25px;">Escribe los datos de la canción que suena en la tele:</p>
-    
+    <p style="color: #7f8c8d; font-size: 14px; margin-bottom: 25px;">Escribe los datos de la canción que suena en la
+      tele:</p>
+
     <div style="margin-bottom: 15px; text-align: left;">
-        <label for="inputMovilCancion" style="display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px;">Canción:</label>
-        <input type="text" id="inputMovilCancion" placeholder="Ej: Bohemian Rhapsody" style="width: 100%; padding: 12px; font-size: 16px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box;">
+      <label for="inputMovilCancion"
+        style="display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px;">Canción:</label>
+      <input type="text" id="inputMovilCancion" placeholder="Ej: Bohemian Rhapsody"
+        style="width: 100%; padding: 12px; font-size: 16px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box;">
     </div>
 
     <div style="margin-bottom: 20px; text-align: left;">
-        <label for="inputMovilAutor" style="display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px;">Autor / Artista:</label>
-        <input type="text" id="inputMovilAutor" placeholder="Ej: Queen" style="width: 100%; padding: 12px; font-size: 16px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box;">
+      <label for="inputMovilAutor" style="display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px;">Autor
+        / Artista:</label>
+      <input type="text" id="inputMovilAutor" placeholder="Ej: Queen"
+        style="width: 100%; padding: 12px; font-size: 16px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box;">
     </div>
 
     <div style="margin-bottom: 25px; text-align: left;">
-        <label style="display: block; font-weight: bold; margin-bottom: 8px; font-size: 14px;">Selecciona una opción (P / I):</label>
-        <div style="display: flex; gap: 15px;">
-            <button type="button" id="btnOpcionP" style="flex: 1; padding: 12px; font-size: 18px; font-weight: bold; border: 2px solid #ccc; background: white; color: #333; border-radius: 8px; cursor: pointer; transition: all 0.2s;">P</button>
-            <button type="button" id="btnOpcionI" style="flex: 1; padding: 12px; font-size: 18px; font-weight: bold; border: 2px solid #ccc; background: white; color: #333; border-radius: 8px; cursor: pointer; transition: all 0.2s;">I</button>
-        </div>
+      <label style="display: block; font-weight: bold; margin-bottom: 8px; font-size: 14px;">Selecciona una opción (P /
+        I):</label>
+      <div style="display: flex; gap: 15px;">
+        <button type="button" id="btnOpcionP"
+          style="flex: 1; padding: 12px; font-size: 18px; font-weight: bold; border: 2px solid #ccc; background: white; color: #333; border-radius: 8px; cursor: pointer; transition: all 0.2s;">P</button>
+        <button type="button" id="btnOpcionI"
+          style="flex: 1; padding: 12px; font-size: 18px; font-weight: bold; border: 2px solid #ccc; background: white; color: #333; border-radius: 8px; cursor: pointer; transition: all 0.2s;">I</button>
+      </div>
     </div>
 
-    <button id="btnEnviarGuessSong" style="background: #3498db; color: white; border: none; padding: 14px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; transition: background 0.2s;">
-        Enviar Respuesta 🚀
+    <button id="btnEnviarGuessSong"
+      style="background: #3498db; color: white; border: none; padding: 14px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; transition: background 0.2s;">
+      Enviar Respuesta 🚀
     </button>
-</div>
+  </div>
 
-<div id="pantalla-espera" style="display: none; max-width: 400px; margin: 0 auto; background: #e8f4fd; padding: 25px; border-radius: 12px; border: 1px solid #bee3f8;">
+  <div id="pantalla-espera"
+    style="display: none; max-width: 400px; margin: 0 auto; background: #e8f4fd; padding: 25px; border-radius: 12px; border: 1px solid #bee3f8;">
     <h3 style="color: #2b6cb0; margin-top: 0;">¡Respuesta enviada correctamente! 🎉</h3>
-    <p style="color: #4a5568; line-height: 1.5; margin-bottom: 0;"><br>Ahora mira a la tele para ver si has acertado 📺</p>
-</div>
+    <p style="color: #4a5568; line-height: 1.5; margin-bottom: 0;"><br>Ahora mira a la tele para ver si has acertado 📺
+    </p>
+  </div>
 
-<div id="pantalla-tiempo-agotado" style="display: none; max-width: 400px; margin: 0 auto; background: #fff5f5; padding: 25px; border-radius: 12px; border: 1px solid #fed7d7; text-align: center;">
+  <div id="pantalla-tiempo-agotado"
+    style="display: none; max-width: 400px; margin: 0 auto; background: #fff5f5; padding: 25px; border-radius: 12px; border: 1px solid #fed7d7; text-align: center;">
     <h2 style="color: #e53e3e; margin-top: 0;">🛑 ¡Se acabó el tiempo!</h2>
-    <p style="color: #4a5568; line-height: 1.5; margin-bottom: 0;">No has enviado tu respuesta a tiempo para esta canción.<br>¡Sé más rápido en la siguiente ronda! ⚡</p>
-</div>
+    <p style="color: #4a5568; line-height: 1.5; margin-bottom: 0;">No has enviado tu respuesta a tiempo para esta
+      canción.<br>¡Sé más rápido en la siguiente ronda! ⚡</p>
+  </div>
 
   <!-- 3º Juego GlassTower-->
   <!--Si hay tiempo meter algo de este estilo, si no no hace falta
@@ -116,6 +130,7 @@
   <!-- 4º Juego Precio Irracional-->
 
   <div id="screenIrrationalPrice" style="display:none; text-align:center; padding: 20px;">
+
     <h2>🫙 El Precio Irracional</h2>
     <p>Mira la TV. ¿Cuántas lentejas crees que hay dentro del tarro?</p>
 
@@ -135,51 +150,80 @@
     </div>
   </div>
 
-  <!-- 6º Juego Cifras y letras-->
-  <!-- Pantalla Móvil: Cifras y Letras -->
-  <div id="screenNumbersAndLetters" class="screen-movil"
-  style="background: #121212; color: white; padding: 20px; font-family: sans-serif; text-align: center; display: none;">
+  <!-- 5º Juego -->
+  <div id="screenVotes" class="mobile-screen"
+    style="display: none; background: #111; color: white; padding: 20px; font-family: sans-serif; text-align: center;">
 
-  <h2 style="color: #00e676; margin-bottom: 5px;">🔢 Cifras y Letras</h2>
-  <p id="movilInstruccionesCifras" style="color: #aaa; font-size: 0.9rem; margin-top: 0;">Espera a que el presentador genere el reto...</p>
-
-  <div style="background: #1a1a1a; padding: 10px; border-radius: 8px; border: 1px solid #00e676; margin-bottom: 15px;">
-    <span style="color: #aaa; font-size: 0.85rem; display: block;">OBJETIVO:</span>
-    <strong id="movilObjetivoCifras" style="font-size: 2.5rem; color: #00e676;">---</strong>
-  </div>
-
-  <div id="movilPantallaFormula"
-    style="background: #000; min-height: 50px; padding: 12px; border-radius: 6px; border: 1px solid #333; font-family: monospace; font-size: 1.3rem; color: #ffc107; word-break: break-all; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-    Escribe tu fórmula...
-  </div>
-
-  <div style="display: flex; flex-direction: column; gap: 12px;">
-
-    <div style="color: #aaa; text-align: left; font-size: 0.85rem;">Tus números disponibles:</div>
-    <div id="movilBotonesNumeros" style="display: flex; gap: 8px; justify-content: space-between;">
-      </div>
-
-    <div style="color: #aaa; text-align: left; font-size: 0.85rem; margin-top: 5px;">Operadores:</div>
-    <div id="movilBotonesOperadores">
-      </div>
-
-    <div style="display: flex; gap: 8px; margin-top: 5px;">
-      <button onclick="window.borrarUltimoCifras()"
-        style="flex: 1; background: #e65100; color: white; font-size: 1.1rem; font-weight: bold; border: none; padding: 12px; border-radius: 6px; cursor: pointer;">
-        ← Borrar
-      </button>
-      <button onclick="window.borrarTodoCifras()"
-        style="flex: 1; background: #c62828; color: white; font-size: 1.1rem; font-weight: bold; border: none; padding: 12px; border-radius: 6px; cursor: pointer;">
-        🗑️ Limpiar Todo
-      </button>
+    <div style="margin-bottom: 25px;">
+      <div style="font-size: 3.5rem; margin-bottom: 10px;">🗳️</div>
+      <h2 style="color: #e91e63; margin: 0; font-size: 1.8rem;">Fase de Votación</h2>
+      <p style="color: #aaa; font-size: 0.95rem; margin-top: 5px;">
+        Selecciona a un compañero de la lista. <br>
+        <strong>Tu voto es anónimo</strong> hasta que el presentador lo revele.
+      </p>
     </div>
 
-    <button id="btnEnviarCifras" onclick="window.enviarFormulaAlPresentador()"
-      style="background: #00e676; color: black; font-size: 1.3rem; font-weight: bold; border: none; padding: 15px; border-radius: 6px; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 6px rgba(0,230,118,0.2);">
-      🚀 Enviar Fórmula
-    </button>
+    <div id="moListaParaVotar"
+      style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; max-height: 320px; overflow-y: auto; padding: 5px;">
+      <p style="color: #666; font-style: italic;">Buscando compañeros disponibles...</p>
+    </div>
+
+    <div id="moMensajeVotoEnviado"
+      style="display: none; background: rgba(0, 230, 118, 0.15); border: 1px solid #00e676; padding: 15px; border-radius: 8px; color: #00e676; font-weight: bold;">
+      🔒 Voto enviado con éxito. <br>
+      <span style="font-size: 0.85rem; color: #aaa; font-weight: normal;">Espera a que el presentador cierre la urna en
+        la TV.</span>
+    </div>
+
   </div>
-</div>
+
+  <!-- 7º Juego Cifras y letras-->
+  <!-- Pantalla Móvil: Cifras y Letras -->
+  <div id="screenNumbersAndLetters" class="screen-movil"
+    style="background: #121212; color: white; padding: 20px; font-family: sans-serif; text-align: center; display: none;">
+
+    <h2 style="color: #00e676; margin-bottom: 5px;">🔢 Cifras y Letras</h2>
+    <p id="movilInstruccionesCifras" style="color: #aaa; font-size: 0.9rem; margin-top: 0;">Espera a que el presentador
+      genere el reto...</p>
+
+    <div
+      style="background: #1a1a1a; padding: 10px; border-radius: 8px; border: 1px solid #00e676; margin-bottom: 15px;">
+      <span style="color: #aaa; font-size: 0.85rem; display: block;">OBJETIVO:</span>
+      <strong id="movilObjetivoCifras" style="font-size: 2.5rem; color: #00e676;">---</strong>
+    </div>
+
+    <div id="movilPantallaFormula"
+      style="background: #000; min-height: 50px; padding: 12px; border-radius: 6px; border: 1px solid #333; font-family: monospace; font-size: 1.3rem; color: #ffc107; word-break: break-all; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+      Escribe tu fórmula...
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+
+      <div style="color: #aaa; text-align: left; font-size: 0.85rem;">Tus números disponibles:</div>
+      <div id="movilBotonesNumeros" style="display: flex; gap: 8px; justify-content: space-between;">
+      </div>
+
+      <div style="color: #aaa; text-align: left; font-size: 0.85rem; margin-top: 5px;">Operadores:</div>
+      <div id="movilBotonesOperadores">
+      </div>
+
+      <div style="display: flex; gap: 8px; margin-top: 5px;">
+        <button onclick="window.borrarUltimoCifras()"
+          style="flex: 1; background: #e65100; color: white; font-size: 1.1rem; font-weight: bold; border: none; padding: 12px; border-radius: 6px; cursor: pointer;">
+          ← Borrar
+        </button>
+        <button onclick="window.borrarTodoCifras()"
+          style="flex: 1; background: #c62828; color: white; font-size: 1.1rem; font-weight: bold; border: none; padding: 12px; border-radius: 6px; cursor: pointer;">
+          🗑️ Limpiar Todo
+        </button>
+      </div>
+
+      <button id="btnEnviarCifras" onclick="window.enviarFormulaAlPresentador()"
+        style="background: #00e676; color: black; font-size: 1.3rem; font-weight: bold; border: none; padding: 15px; border-radius: 6px; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 6px rgba(0,230,118,0.2);">
+        🚀 Enviar Fórmula
+      </button>
+    </div>
+  </div>
 </body>
 
 </html>

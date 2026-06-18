@@ -26,7 +26,7 @@ onSnapshot(q, (snapshot) => {
 // ==================================
 // El orden en el que se jugarán los juegos del concurso
 // ==================================
-const games = ["WorldGuessr", "GuessSong", "GlassTower", "IrrationalPrice", "SymbolZone", "NumbersAndLetters", "TruthOrLie", "TheLiar", "LastTheorem"];
+const games = ["WorldGuessr", "GuessSong", "GlassTower", "IrrationalPrice", "Votes", "SymbolZone", "NumbersAndLetters",  "TheLiar", "LastTheorem"];
 
 // ======================
 // Función para que la TV cambie de pantalla y juego 
@@ -66,6 +66,7 @@ function showScreenTV(screen) {
   document.getElementById("screenIrrationalPrice").style.display = "none";
   document.getElementById("screenSymbolZone").style.display = "none";
   document.getElementById("screenNumbersAndLetters").style.display = "none";
+  document.getElementById("screenVotes").style.display = "none";
   document.getElementById(screen).style.display = "block"
 
   if (screen === "screenNumbersAndLetters") {
@@ -1138,9 +1139,182 @@ window.pointsIrrationalPrice = async function () {
   alert("🏆 ¡Las puntuaciones se han sumado y la tabla se ha actualizado!");
 };
 
+// ==========================================
+// Juego 5º Votes
+// ==========================================
+// --- VARIABLES GLOBALES NUEVAS PARA EL JUEGO DE VOTACIÓN ---
+let jugadoresVotacion = [];  // Datos locales de los votos recibidos
+let votosVisibles = false;   // Estado de privacidad en la TV
+
+// 1. INICIALIZAR LA ESCUCHA DE LA VOTACIÓN EN TIEMPO REAL
+async function iniciarEscuchaVotaciones() {
+  if (document.readyState === "loading") {
+    await new Promise((resolve) => document.addEventListener("DOMContentLoaded", resolve, { once: true }));
+  }
+
+  onSnapshot(query(collection(window.db, "players"), where("active", "==", true)), (snapshot) => {
+    const contenedor = document.getElementById("tvListaVotos");
+    if (!contenedor) return;
+
+    // Si ya hemos aplicado puntos y cerrado, no sobreescribir el diseño final
+    if (contenedor.getAttribute("data-votado-final") === "true") return;
+
+    jugadoresVotacion = [];
+    contenedor.innerHTML = "";
+
+    snapshot.forEach((playerDoc) => {
+      const p = playerDoc.data();
+      // Asumimos que el móvil guardará en 'votoEnviado' el ID o Nombre del jugador elegido
+      jugadoresVotacion.push({
+        id: playerDoc.id,
+        name: p.name,
+        votoEnviado: p.votoEnviado || "" 
+      });
+    });
+
+    // Pintar los resultados en la urna de la TV
+    jugadoresVotacion.forEach((j) => {
+      const item = document.createElement("div");
+      item.style.padding = "12px";
+      item.style.background = "#222";
+      item.style.borderRadius = "6px";
+      item.style.border = j.votoEnviado ? "1px solid #e91e63" : "1px solid #444";
+      item.style.marginBottom = "8px";
+
+      if (j.votoEnviado) {
+        // MODO ANÓNIMO: Muestra que votó, pero no a quién
+        if (!votosVisibles) {
+          item.innerHTML = `<strong>🗳️ ${j.name}:</strong> <span style="color: #e91e63; font-weight: bold;">¡Voto emitido en la urna! 🔒</span>`;
+        } 
+        // MODO VISIBLE: Destapa el pastel
+        else {
+          item.innerHTML = `<strong>👤 ${j.name}:</strong> Ha votado a 👉 <code style="color: #00e676; font-size:1.1rem; font-family:sans-serif;">${j.votoEnviado}</code>`;
+        }
+      } else {
+        item.innerHTML = `<strong>⏳ ${j.name}:</strong> <span style="color: #666; font-style: italic;">Pensando su voto...</span>`;
+      }
+      contenedor.appendChild(item);
+    });
+  });
+}
+iniciarEscuchaVotaciones();
+
+// 2. BOTÓN PRESENTADOR: ABRIR O REINICIAR VOTACIONES
+window.abrirVotacion = async function () {
+  votosVisibles = false;
+  const contenedor = document.getElementById("tvListaVotos");
+  if (contenedor) contenedor.removeAttribute("data-votado-final");
+  
+  document.getElementById("tvEstadoPrivacidad").innerText = "ANÓNIMA";
+  document.getElementById("tvEstadoPrivacidad").style.color = "#ffc107";
+
+  alert("🔓 Votación abierta. Los móviles se están actualizando...");
+
+  // Limpiar los campos de voto en Firebase para que los móviles se desbloqueen
+  for (let j of jugadoresVotacion) {
+    try {
+      await updateDoc(doc(window.db, "players", j.id), { votoEnviado: "" });
+    } catch (e) {
+      console.error("Error al resetear voto de " + j.name, e);
+    }
+  }
+};
+
+// 3. BOTÓN PRESENTADOR: REVELAR QUIÉN VOTÓ A QUIÉN
+window.revelarVotos = function () {
+  votosVisibles = true;
+  
+  // Cambiar el cartel de la TV
+  const privacidadEtiqueta = document.getElementById("tvEstadoPrivacidad");
+  privacidadEtiqueta.innerText = "VISIBLE";
+  privacidadEtiqueta.style.color = "#00e676";
+
+  // Forzar el rediseño inmediato leyendo los datos actuales en memoria
+  const contenedor = document.getElementById("tvListaVotos");
+  if (!contenedor) return;
+  contenedor.innerHTML = "";
+
+  jugadoresVotacion.forEach((j) => {
+    const item = document.createElement("div");
+    item.style.padding = "12px";
+    item.style.background = "#222";
+    item.style.borderRadius = "6px";
+    item.style.border = j.votoEnviado ? "1px solid #00e676" : "1px solid #444";
+    item.style.marginBottom = "8px";
+
+    if (j.votoEnviado) {
+      item.innerHTML = `<strong>👤 ${j.name}:</strong> Ha votado a 👉 <strong style="color: #ffc107;">${j.votoEnviado}</strong>`;
+    } else {
+      item.innerHTML = `<strong>⏳ ${j.name}:</strong> <span style="color: #666; font-style: italic;">No llegó a votar</span>`;
+    }
+    contenedor.appendChild(item);
+  });
+};
+
+// 4. BOTÓN PRESENTADOR: CALCULAR EL RECUENTO GENERAL Y SUMAR +2 A FIREBASE
+window.finalizarYSumarVotos = async function () {
+  // Asegurarnos de que estén visibles antes de cerrar
+  window.revelarVotos();
+
+  const contenedor = document.getElementById("tvListaVotos");
+  contenedor.setAttribute("data-votado-final", "true");
+
+  // Crear un diccionario para contar cuántos votos ha recibido cada persona
+  let recuentoDeVotos = {};
+  jugadoresVotacion.forEach(j => { recuentoDeVotos[j.name] = 0; });
+
+  // Contar
+  jugadoresVotacion.forEach(j => {
+    if (j.votoEnviado && recuentoDeVotos[j.votoEnviado] !== undefined) {
+      recuentoDeVotos[j.votoEnviado]++;
+    }
+  });
+
+  contenedor.innerHTML = "<h3 style='color:#00e676; margin:0 0 15px 0; text-align:center;'>🏆 Escrutinio Final (+2 Pts por Voto):</h3>";
+
+  // Repartir los puntos en Firebase leyendo la nube
+  for (let j of jugadoresVotacion) {
+    const votosRecibidos = recuentoDeVotos[j.name] || 0;
+    const puntosGanadosGlobales = votosRecibidos * 2;
+
+    // Pintar la tarjeta de resultados en la TV
+    const fila = document.createElement("div");
+    fila.style.padding = "10px";
+    fila.style.background = votosRecibidos > 0 ? "rgba(0, 230, 118, 0.15)" : "#222";
+    fila.style.borderLeft = votosRecibidos > 0 ? "4px solid #00e676" : "4px solid #444";
+    fila.style.marginBottom = "8px";
+    fila.style.display = "flex";
+    fila.style.justifyContent = "space-between";
+    fila.innerHTML = `
+      <span><strong>${j.name}</strong> (Recibió ${votosRecibidos} 🗳️)</span>
+      <strong style="color:#00e676;">+${puntosGanadosGlobales} Pts Globales</strong>
+    `;
+    contenedor.appendChild(fila);
+
+    // Guardar en la base de datos real
+    if (puntosGanadosGlobales > 0) {
+      try {
+        const playerRef = doc(window.db, "players", j.id);
+        const snap = await getDocs(query(collection(window.db, "players")));
+        let currentScore = 0;
+        snap.forEach(d => { if (d.id === j.id) currentScore = d.data().score ?? 0; });
+
+        await updateDoc(playerRef, {
+          score: currentScore + puntosGanadosGlobales
+        });
+      } catch (err) {
+        console.error("Error sumando votos reales a " + j.name, err);
+      }
+    }
+  }
+
+  alert("🏁 ¡Votos procesados y cargados al Score global con éxito!");
+};
+
+
 
 // ==========================================
-// Juego 5º: Symbol Zone
+// Juego 6º: Symbol Zone
 // ==========================================
 
 let rondaActualSymbol = 1;
