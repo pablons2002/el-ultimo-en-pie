@@ -67,6 +67,7 @@ function showScreenTV(screen) {
   document.getElementById("screenSymbolZone").style.display = "none";
   document.getElementById("screenNumbersAndLetters").style.display = "none";
   document.getElementById("screenVotes").style.display = "none";
+  document.getElementById("screenTheLiar").style.display = "none";
   document.getElementById(screen).style.display = "block"
 
   if (screen === "screenNumbersAndLetters") {
@@ -74,7 +75,14 @@ function showScreenTV(screen) {
   }
 }
 
-
+// ======================
+// QR generator
+// ======================
+new QRCode(document.getElementById("qrcode"), {
+    text: "https://pablons2002.github.io/el-ultimo-en-pie/movil.html",
+    width: 250,
+    height: 250
+});
 
 // =====================
 // Botón para empezar el concurso desde la TV. Pasa a la ruleta (falta), que lleva al Worldguessr. Aquí hay que ver cómo hacer la ruleta si meterla en cada juego o ponerla en screenGame.
@@ -1843,7 +1851,177 @@ window.validarRespuestasCifras = async function () {
 
 
 
+// ==========================
+// JUego 8º The liar
+// ==========================
+// --- VARIABLES GLOBALES DEL JUEGO EL MENTIROSO ---
+let listaSospechososRonda = []; // Guardará los 4 objetos de jugadores elegidos
+let indiceVerdadero = -1;       // Posición (0 al 3) del que dice la verdad
 
+// 1. EXTRAER 4 JUGADORES ACTIVOS AL AZAR Y ASIGNAR QUIÉN DICE LA VERDAD
+window.elegirSospechososAlAzar = async function () {
+  try {
+    // Resetear visuales anteriores
+    window.nuevaRondaMentiroso();
+
+    const contenedor = document.getElementById("tvSospechososContenedor");
+    
+    // Traer todos los jugadores activos de Firebase
+    const snap = await getDocs(query(collection(window.db, "players"), where("active", "==", true)));
+    let todosLosActivos = [];
+    
+    snap.forEach(d => {
+      todosLosActivos.push({ id: d.id, ...d.data() });
+    });
+
+    if (todosLosActivos.length < 4) {
+      return alert(`¡Necesitas al menos 4 jugadores activos en la sala! Actualmente hay: ${todosLosActivos.length}`);
+    }
+
+    // Seleccionar 4 al azar sin repetir
+    listaSospechososRonda = [];
+    for (let i = 0; i < 4; i++) {
+      const randomIdx = Math.floor(Math.random() * todosLosActivos.length);
+      const elegido = todosLosActivos.splice(randomIdx, 1)[0];
+      listaSospechososRonda.push(elegido);
+    }
+
+    // Elegir cuál de los 4 será el único que dice la verdad
+    indiceVerdadero = Math.floor(Math.random() * 4);
+    console.log("Sospechosos:", listaSospechososRonda, "Índice verdadero:", indiceVerdadero);
+
+    // Pintar los 4 paneles en la TV
+    contenedor.innerHTML = "";
+    listaSospechososRonda.forEach((jugador, index) => {
+      const card = document.createElement("div");
+      card.id = `cardSospechoso-${index}`;
+      card.style.background = "#1e293b";
+      card.style.padding = "15px";
+      card.style.borderRadius = "8px";
+      card.style.textAlign = "center";
+      card.style.border = "2px solid #334155";
+      card.style.display = "flex";
+      card.style.flexDirection = "column";
+      card.style.justifyContent = "space-between";
+      card.style.gap = "10px";
+
+      card.innerHTML = `
+        <div>
+          <div style="font-size: 1.2rem; font-weight: bold; color: #fff; margin-bottom: 4px;">${jugador.name}</div>
+          <div id="rol-${index}" style="color: #38bdf8; font-weight: bold; font-size: 0.9rem; letter-spacing: 1px;">🤫 SOSPECHOSO</div>
+        </div>
+        
+        <button onclick="sumarPuntosManualMentiroso('${jugador.id}', '${jugador.name}', this)" style="background: #22c55e; color: white; border: none; padding: 6px 10px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">
+          ➕ Asignar Puntos
+        </button>
+      `;
+      contenedor.appendChild(card);
+    });
+
+  } catch (error) {
+    console.error("Error al generar sospechosos:", error);
+  }
+};
+
+// 2. REVELAR QUIÉN DICE LA VERDAD Y MOSTRAR FOTO/VÍDEO
+window.revelarVerdadMentiroso = function () {
+  if (listaSospechososRonda.length === 0) return alert("Primero debes elegir a los 4 sospechosos.");
+
+  const ganador = listaSospechososRonda[indiceVerdadero];
+
+  // Actualizar cartel de solución
+  const cartelSolucion = document.getElementById("tvSolucionMentiroso");
+  cartelSolucion.innerText = `¡${ganador.name} DICE LA VERDAD!`;
+  cartelSolucion.style.color = "#22c55e";
+
+  // Cambiar colores de las tarjetas en la TV (Verde el real, Rojo apagado los mentirosos)
+  listaSospechososRonda.forEach((j, index) => {
+    const card = document.getElementById(`cardSospechoso-${index}`);
+    const rolTexto = document.getElementById(`rol-${index}`);
+
+    if (index === indiceVerdadero) {
+      if (card) card.style.borderColor = "#22c55e";
+      if (card) card.style.background = "rgba(34, 197, 94, 0.1)";
+      if (rolTexto) {
+        rolTexto.innerText = "😇 DICE LA VERDAD";
+        rolTexto.style.color = "#22c55e";
+      }
+    } else {
+      if (card) card.style.borderColor = "#ef4444";
+      if (card) card.style.opacity = "0.6";
+      if (rolTexto) {
+        rolTexto.innerText = "🤥 MENTIROSO";
+        rolTexto.style.color = "#ef4444";
+      }
+    }
+  });
+
+  // Mostrar el contenedor multimedia (Desbloquear imagen/vídeo)
+  document.getElementById("tvMultimediaOculta").style.display = "none";
+  document.getElementById("tvMultimediaMentiroso").style.display = "block";
+};
+
+// 3. ASIGNAR PUNTOS MANUALMENTE DIRECTO A FIREBASE
+window.sumarPuntosManualMentiroso = async function (idJugador, nombreJugador, boton) {
+  // Preguntar al presentador cuántos puntos quiere darle tras la defensa
+  const strPuntos = prompt(`¿Cuántos puntos quieres sumarle a ${nombreJugador} por su defensa?`, "5");
+  if (strPuntos === null) return; // Cancelado
+  
+  const puntosASumar = parseInt(strPuntos, 10);
+  if (isNaN(puntosASumar)) return alert("Por favor, introduce un número válido.");
+
+  try {
+    boton.disabled = true;
+    boton.innerText = "⏳ Guardando...";
+
+    const playerRef = doc(window.db, "players", idJugador);
+    
+    // Leer los puntos actuales del jugador en la BD
+    const snap = await getDocs(query(collection(window.db, "players")));
+    let scoreGlobalActual = 0;
+    snap.forEach(d => { if (d.id === idJugador) scoreGlobalActual = d.data().score ?? 0; });
+
+    // Guardar la suma en Firebase
+    await updateDoc(playerRef, {
+      score: scoreGlobalActual + puntosASumar
+    });
+
+    boton.innerText = `✅ +${puntosASumar} Pts`;
+    boton.style.background = "#15803d";
+    console.log(`Puntos asignados con éxito: +${puntosASumar} a ${nombreJugador}`);
+
+  } catch (err) {
+    console.error("Error al asignar puntos manualmente:", err);
+    alert("No se pudieron guardar los puntos.");
+    boton.disabled = false;
+    boton.innerText = "➕ Asignar Puntos";
+  }
+};
+
+// 4. LIMPIAR LA INTERFAZ PARA UNA NUEVA RONDA
+window.nuevaRondaMentiroso = function () {
+  listaSospechososRonda = [];
+  indiceVerdadero = -1;
+
+  // Restaurar elementos informativos
+  document.getElementById("tvSolucionMentiroso").innerText = "OCULTO";
+  document.getElementById("tvSolucionMentiroso").style.color = "#ffc107";
+  
+  // Ocultar multimedia
+  document.getElementById("tvMultimediaMentiroso").style.display = "none";
+  document.getElementById("tvMultimediaOculta").style.display = "flex";
+
+  // Re-renderizar placeholders limpios
+  const contenedor = document.getElementById("tvSospechososContenedor");
+  if (contenedor) {
+    contenedor.innerHTML = `
+      <div style="background: #1e293b; padding: 20px; border-radius: 8px; text-align: center; color: #64748b; border: 1px dashed #334155;">Esperando...</div>
+      <div style="background: #1e293b; padding: 20px; border-radius: 8px; text-align: center; color: #64748b; border: 1px dashed #334155;">Esperando...</div>
+      <div style="background: #1e293b; padding: 20px; border-radius: 8px; text-align: center; color: #64748b; border: 1px dashed #334155;">Esperando...</div>
+      <div style="background: #1e293b; padding: 20px; border-radius: 8px; text-align: center; color: #64748b; border: 1px dashed #334155;">Esperando...</div>
+    `;
+  }
+};
 
 
 

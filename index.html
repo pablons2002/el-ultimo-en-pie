@@ -10,7 +10,7 @@
 </head>
 
 <body>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <!-- Conexión a Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -49,6 +49,7 @@
           <option value="Votes"> Votación </option>
           <option value="SymbolZone"> Zona Símbolo </option>
           <option value="NumbersAndLetters">🔢 Cifras y Letras</option>
+          <option value="TheLiar"> El mentiroso </option>
 
         </select>
       </div>
@@ -67,7 +68,7 @@
 
     <!-- QR para que entren desde el móvil, crear QR (falta)-->
     <div id="screenJoin" class="screen">
-      <img src="img/qr-movil.png" alt="QR versión móvil" width="250">
+      <div id="qrcode"></div>
       <p style="font-size: 18px; margin-top: 20px;">Escanea el código QR para unirte desde tu móvil y elije un
         personaje.
       </p>
@@ -124,47 +125,51 @@
 
   <!-- Juego 2º GuessSong-->
   <div style="text-align: center; margin: 20px; font-family: sans-serif;">
-    
-    <div id="pantalla-juego">
-        <div id="screenGuessSong" style="display:none;">
-            <div id="contenedor-crono" style="font-size: 24px; font-weight: bold; margin-bottom: 10px; color: #e74c3c;">
-                Tiempo restante: <span id="segundos-crono">10</span>s
-            </div>
 
-            <button id="btn-play">Empezar Juego 🎮</button>
-            
-            <button id="btn-siguiente" disabled>Revelar Respuesta ➡️</button>
-            
-            <div style="margin-top: 15px; display: flex; justify-content: center; align-items: center; gap: 10px;">
-                <span id="tiempo-actual">0:00</span>
-                <input type="range" id="barra-progreso" value="0" min="0" max="100" style="width: 300px; cursor: pointer;">
-                <span id="tiempo-total">0:00</span>
-            </div>
+    <div id="pantalla-juego">
+      <div id="screenGuessSong" style="display:none;">
+        <div id="contenedor-crono" style="font-size: 24px; font-weight: bold; margin-bottom: 10px; color: #e74c3c;">
+          Tiempo restante: <span id="segundos-crono">10</span>s
         </div>
+
+        <button id="btn-play">Empezar Juego 🎮</button>
+
+        <button id="btn-siguiente" disabled>Revelar Respuesta ➡️</button>
+
+        <div style="margin-top: 15px; display: flex; justify-content: center; align-items: center; gap: 10px;">
+          <span id="tiempo-actual">0:00</span>
+          <input type="range" id="barra-progreso" value="0" min="0" max="100" style="width: 300px; cursor: pointer;">
+          <span id="tiempo-total">0:00</span>
+        </div>
+      </div>
     </div>
 
-    <div id="pantalla-respuesta" style="display: none; background: #f8f9fa; padding: 20px; border-radius: 10px; border: 2px solid #2ecc71; margin-top: 20px;">
-        
-        <h2 style="color: #2ecc71; margin-bottom: 5px;">¡Respuesta Correcta! 🎉</h2>
-        <p style="font-size: 20px; margin: 10px 0;"><strong>Canción:</strong> <span id="txt-nombre-cancion">-</span></p>
-        <p style="font-size: 20px; margin: 10px 0;"><strong>Autor:</strong> <span id="txt-autor">-</span></p>
-        
-        <button id="btn-ver-respuestas" style="background: #34495e; color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 5px; cursor: pointer; margin-top: 15px;">
-            Ver qué ha respondido la gente 👀
-        </button>
+    <div id="pantalla-respuesta"
+      style="display: none; background: #f8f9fa; padding: 20px; border-radius: 10px; border: 2px solid #2ecc71; margin-top: 20px;">
 
-        <div id="contenedor-respuestas-usuarios" style="display: none; margin-top: 20px; text-align: left; background: white; padding: 15px; border-radius: 8px; border: 1px solid #ddd;">
-            <h3 style="margin-top: 0; color: #34495e;">Respuestas de los jugadores:</h3>
-            <ul id="lista-respuestas-jugadores" style="list-style: none; padding: 0; font-size: 18px;"></ul>
-            
-            <button id="btn-continuar" style="background: #2ecc71; color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 5px; cursor: pointer; margin-top: 15px; width: 100%;">
-                Siguiente Canción ➡️
-            </button>
-        </div>
+      <h2 style="color: #2ecc71; margin-bottom: 5px;">¡Respuesta Correcta! 🎉</h2>
+      <p style="font-size: 20px; margin: 10px 0;"><strong>Canción:</strong> <span id="txt-nombre-cancion">-</span></p>
+      <p style="font-size: 20px; margin: 10px 0;"><strong>Autor:</strong> <span id="txt-autor">-</span></p>
+
+      <button id="btn-ver-respuestas"
+        style="background: #34495e; color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 5px; cursor: pointer; margin-top: 15px;">
+        Ver qué ha respondido la gente 👀
+      </button>
+
+      <div id="contenedor-respuestas-usuarios"
+        style="display: none; margin-top: 20px; text-align: left; background: white; padding: 15px; border-radius: 8px; border: 1px solid #ddd;">
+        <h3 style="margin-top: 0; color: #34495e;">Respuestas de los jugadores:</h3>
+        <ul id="lista-respuestas-jugadores" style="list-style: none; padding: 0; font-size: 18px;"></ul>
+
+        <button id="btn-continuar"
+          style="background: #2ecc71; color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 5px; cursor: pointer; margin-top: 15px; width: 100%;">
+          Siguiente Canción ➡️
+        </button>
+      </div>
     </div>
 
     <audio id="mi-reproductor"></audio>
-</div>
+  </div>
 
 
 
@@ -278,46 +283,54 @@
   </div>
 
   <!-- 5º Juego Votes-->
-<div id="screenVotes" class="screen" style="background: #111; color: white; padding: 30px; font-family: sans-serif; display: none;">
-  
-  <div style="text-align: center; margin-bottom: 20px;">
-    <h1 style="color: #e91e63; margin: 0; font-size: 3rem;">🗳️ Fase de Votación</h1>
-    <p style="color: #aaa; font-size: 1.2rem;">¡Vota a un compañero! Cada voto recibido otorgará +2 puntos globales.</p>
-  </div>
+  <div id="screenVotes" class="screen"
+    style="background: #111; color: white; padding: 30px; font-family: sans-serif; display: none;">
 
-  <div style="display: flex; gap: 30px;">
-    
-    <div style="flex: 0.9; background: #222; padding: 25px; border-radius: 15px; border: 2px solid #e91e63; text-align: center; height: fit-content;">
-      <h2 style="color: #fff; margin-top: 0;">Panel de Control</h2>
-      
-      <button onclick="abrirVotacion()" style="background: #e91e63; color: white; border: none; padding: 12px 20px; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 1.1rem; width: 100%; margin-bottom: 15px;">
-        🔓 Abrir Nueva Votación
-      </button>
-
-      <div style="background: #1a1a1a; padding: 15px; border-radius: 8px; border: 1px solid #333; margin-bottom: 15px;">
-        <span style="color: #aaa;">Estado de Privacidad:</span>
-        <div id="tvEstadoPrivacidad" style="font-size: 1.5rem; font-weight: bold; color: #ffc107; margin-top: 5px;">ANÓNIMA</div>
-      </div>
-
-      <button onclick="revelarVotos()" style="background: #ffc107; color: black; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1.1rem; width: 100%; margin-bottom: 15px;">
-        👁️ Revelar Votos (Hacer Visibles)
-      </button>
-
-      <button onclick="finalizarYSumarVotos()" style="background: #00e676; color: black; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1.1rem; width: 100%;">
-        💾 Aplicar Puntos (+2 pts por Voto)
-      </button>
+    <div style="text-align: center; margin-bottom: 20px;">
+      <h1 style="color: #e91e63; margin: 0; font-size: 3rem;">🗳️ Fase de Votación</h1>
+      <p style="color: #aaa; font-size: 1.2rem;">¡Vota a un compañero! Cada voto recibido otorgará +2 puntos globales.
+      </p>
     </div>
 
-    <div style="flex: 1.1; background: #1a1a1a; padding: 25px; border-radius: 15px; border: 2px solid #333;">
-      <h3 style="margin-top: 0; color: #e91e63; text-align: center;">📊 Urna de Votos en Tiempo Real</h3>
-      <div id="tvListaVotos" style="display: flex; flex-direction: column; gap: 10px;">
-        <p style="color: #666; text-align: center;">Esperando a que se inicie la votación...</p>
-      </div>
-    </div>
+    <div style="display: flex; gap: 30px;">
 
+      <div
+        style="flex: 0.9; background: #222; padding: 25px; border-radius: 15px; border: 2px solid #e91e63; text-align: center; height: fit-content;">
+        <h2 style="color: #fff; margin-top: 0;">Panel de Control</h2>
+
+        <button onclick="abrirVotacion()"
+          style="background: #e91e63; color: white; border: none; padding: 12px 20px; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 1.1rem; width: 100%; margin-bottom: 15px;">
+          🔓 Abrir Nueva Votación
+        </button>
+
+        <div
+          style="background: #1a1a1a; padding: 15px; border-radius: 8px; border: 1px solid #333; margin-bottom: 15px;">
+          <span style="color: #aaa;">Estado de Privacidad:</span>
+          <div id="tvEstadoPrivacidad" style="font-size: 1.5rem; font-weight: bold; color: #ffc107; margin-top: 5px;">
+            ANÓNIMA</div>
+        </div>
+
+        <button onclick="revelarVotos()"
+          style="background: #ffc107; color: black; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1.1rem; width: 100%; margin-bottom: 15px;">
+          👁️ Revelar Votos (Hacer Visibles)
+        </button>
+
+        <button onclick="finalizarYSumarVotos()"
+          style="background: #00e676; color: black; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1.1rem; width: 100%;">
+          💾 Aplicar Puntos (+2 pts por Voto)
+        </button>
+      </div>
+
+      <div style="flex: 1.1; background: #1a1a1a; padding: 25px; border-radius: 15px; border: 2px solid #333;">
+        <h3 style="margin-top: 0; color: #e91e63; text-align: center;">📊 Urna de Votos en Tiempo Real</h3>
+        <div id="tvListaVotos" style="display: flex; flex-direction: column; gap: 10px;">
+          <p style="color: #666; text-align: center;">Esperando a que se inicie la votación...</p>
+        </div>
+      </div>
+
+    </div>
+    <button onclick="goToRanking()"> Ranking </button>
   </div>
-  <button onclick="goToRanking()"> Ranking </button>
-</div>
   <!-- 6º Juego SymbolZone -->
   <div id="screenSymbolZone" class="screen"
     style="background: #111; color: white; padding: 30px; font-family: sans-serif; display: none;">
@@ -347,7 +360,9 @@
           <button onclick="controlarTiempoSymbol('pausar')"
             style="background: #ffc107; color: black; border: none; padding: 10px 20px; font-weight: bold; border-radius: 5px; cursor: pointer;">⏸️
             Pausar</button>
-            <button onclick="controlarTiempoSymbol('acabar')" style="background: #e53935; color: white; border: none; padding: 10px 20px; font-weight: bold; border-radius: 5px; cursor: pointer;">⏹️ Acabar</button>
+          <button onclick="controlarTiempoSymbol('acabar')"
+            style="background: #e53935; color: white; border: none; padding: 10px 20px; font-weight: bold; border-radius: 5px; cursor: pointer;">⏹️
+            Acabar</button>
         </div>
 
         <hr style="border-color: #333; margin: 20px 0;">
@@ -378,49 +393,129 @@
     <button onclick="goToRanking()">Ranking</button>
   </div>
 
-  <!-- 6º Juego: Números de números y letras-->
-<div id="screenNumbersAndLetters" class="screen" style="background: #111; color: white; padding: 30px; font-family: sans-serif; display: none;">
-  
-  <div style="text-align: center; margin-bottom: 20px;">
-    <h1 style="color: #00e676; margin: 0; font-size: 3rem;">🔢 Cifras y Letras</h1>
-    <p style="color: #aaa; font-size: 1.2rem;">¡Consigue el número objetivo usando las cifras dadas!</p>
-  </div>
+  <!--7º Juego: Números de números y letras-->
+  <div id="screenNumbersAndLetters" class="screen"
+    style="background: #111; color: white; padding: 30px; font-family: sans-serif; display: none;">
 
-  <div style="display: flex; gap: 30px;">
-    
-    <div style="flex: 0.9; background: #222; padding: 25px; border-radius: 15px; border: 2px solid #00e676; text-align: center;">
-      <h2 style="color: #ffc107; margin-top: 0;">Ronda de Cifras</h2>
-      
-      <button onclick="generarRetoCifras()" style="background: #ffc107; color: black; border: none; padding: 12px 20px; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 1.1rem; width: 100%; margin-bottom: 20px;">
-        🎲 Generar Nuevo Reto
-      </button>
-
-      <div style="color: #aaa; margin-bottom: 5px;">Cifras disponibles:</div>
-      <div id="tvNumerosDisponibles" style="display: flex; gap: 10px; justify-content: center; margin-bottom: 20px;">
-        <span style="color: #666; font-style: italic;">Pulsa generar...</span>
-      </div>
-
-      <div style="color: #aaa; margin-bottom: 5px;">Número a obtener:</div>
-      <div id="tvNumeroObjetivo" style="font-size: 4rem; font-weight: bold; color: #00e676; background: #1a1a1a; padding: 10px; border-radius: 8px; border: 1px solid #333; margin-bottom: 20px;">
-        ---
-      </div>
-
-      <button onclick="validarRespuestasCifras()" style="background: #007bff; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1.1rem; width: 100%;">
-        🧐 Validar Fórmulas y Sumar Puntos
-      </button>
+    <div style="text-align: center; margin-bottom: 20px;">
+      <h1 style="color: #00e676; margin: 0; font-size: 3rem;">🔢 Cifras y Letras</h1>
+      <p style="color: #aaa; font-size: 1.2rem;">¡Consigue el número objetivo usando las cifras dadas!</p>
     </div>
 
-    <div style="flex: 1.1; background: #1a1a1a; padding: 25px; border-radius: 15px; border: 2px solid #333;">
-      <h3 style="margin-top: 0; color: #00e676; text-align: center;">📱 Respuestas de los Jugadores</h3>
-      
-      <div id="tvListaRespuestasCifras" style="display: flex; flex-direction: column; gap: 10px;">
-        <p style="color: #666; text-align: center;">Esperando respuestas de los móviles...</p>
+    <div style="display: flex; gap: 30px;">
+
+      <div
+        style="flex: 0.9; background: #222; padding: 25px; border-radius: 15px; border: 2px solid #00e676; text-align: center;">
+        <h2 style="color: #ffc107; margin-top: 0;">Ronda de Cifras</h2>
+
+        <button onclick="generarRetoCifras()"
+          style="background: #ffc107; color: black; border: none; padding: 12px 20px; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 1.1rem; width: 100%; margin-bottom: 20px;">
+          🎲 Generar Nuevo Reto
+        </button>
+
+        <div style="color: #aaa; margin-bottom: 5px;">Cifras disponibles:</div>
+        <div id="tvNumerosDisponibles" style="display: flex; gap: 10px; justify-content: center; margin-bottom: 20px;">
+          <span style="color: #666; font-style: italic;">Pulsa generar...</span>
+        </div>
+
+        <div style="color: #aaa; margin-bottom: 5px;">Número a obtener:</div>
+        <div id="tvNumeroObjetivo"
+          style="font-size: 4rem; font-weight: bold; color: #00e676; background: #1a1a1a; padding: 10px; border-radius: 8px; border: 1px solid #333; margin-bottom: 20px;">
+          ---
+        </div>
+
+        <button onclick="validarRespuestasCifras()"
+          style="background: #007bff; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1.1rem; width: 100%;">
+          🧐 Validar Fórmulas y Sumar Puntos
+        </button>
       </div>
+
+      <div style="flex: 1.1; background: #1a1a1a; padding: 25px; border-radius: 15px; border: 2px solid #333;">
+        <h3 style="margin-top: 0; color: #00e676; text-align: center;">📱 Respuestas de los Jugadores</h3>
+
+        <div id="tvListaRespuestasCifras" style="display: flex; flex-direction: column; gap: 10px;">
+          <p style="color: #666; text-align: center;">Esperando respuestas de los móviles...</p>
+        </div>
+      </div>
+
+    </div>
+    <button onclick="goToRanking()">Ranking</button>
+  </div>
+
+  <div id="screenTheLiar" class="screen"
+    style="background: #0f172a; color: white; padding: 30px; font-family: sans-serif; display: none;">
+
+    <div style="text-align: center; margin-bottom: 20px;">
+      <h1 style="color: #38bdf8; margin: 0; font-size: 2.8rem;">🤫 El Mentiroso</h1>
+      <p style="color: #94a3b8; font-size: 1.1rem; margin-top: 5px;">4 afirman algo, pero ¡solo uno dice la verdad! Los
+        demás mienten.</p>
     </div>
 
+    <div style="display: flex; gap: 25px;">
+
+      <div
+        style="flex: 0.8; background: #1e293b; padding: 20px; border-radius: 12px; border: 2px solid #38bdf8; height: fit-content;">
+        <h3 style="color: #fff; margin-top: 0; text-align: center;">Control de Ronda</h3>
+
+        <button onclick="elegirSospechososAlAzar()"
+          style="background: #38bdf8; color: #0f172a; border: none; padding: 12px; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 1rem; width: 100%; margin-bottom: 15px;">
+          🎲 Elegir 4 Sospechosos al Azar
+        </button>
+
+        <button onclick="revelarVerdadMentiroso()"
+          style="background: #a855f7; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1rem; width: 100%; margin-bottom: 15px;">
+          👁️ Revelar Quién Dice la Verdad
+        </button>
+
+        <div
+          style="background: #0f172a; padding: 12px; border-radius: 6px; text-align: center; margin-bottom: 15px; border: 1px solid #334155;">
+          <span style="color: #94a3b8; font-size: 0.9rem;">Resultado de la Prueba:</span>
+          <div id="tvSolucionMentiroso" style="font-size: 1.3rem; font-weight: bold; color: #ffc107; margin-top: 5px;">
+            OCULTO</div>
+        </div>
+
+        <button onclick="nuevaRondaMentiroso()"
+          style="background: #64748b; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-size: 0.95rem; width: 100%;">
+          🔄 Limpiar para Siguiente Ronda
+        </button>
+      </div>
+
+      <div style="flex: 1.2; display: flex; flex-direction: column; gap: 20px;">
+
+        <div id="tvSospechososContenedor" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
+          <div
+            style="background: #1e293b; padding: 20px; border-radius: 8px; text-align: center; color: #64748b; border: 1px dashed #334155;">
+            Vacío</div>
+          <div
+            style="background: #1e293b; padding: 20px; border-radius: 8px; text-align: center; color: #64748b; border: 1px dashed #334155;">
+            Vacío</div>
+          <div
+            style="background: #1e293b; padding: 20px; border-radius: 8px; text-align: center; color: #64748b; border: 1px dashed #334155;">
+            Vacío</div>
+          <div
+            style="background: #1e293b; padding: 20px; border-radius: 8px; text-align: center; color: #64748b; border: 1px dashed #334155;">
+            Vacío</div>
+        </div>
+
+        <div
+          style="background: #1e293b; padding: 20px; border-radius: 12px; border: 1px solid #334155; text-align: center; min-height: 200px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+          <h4 style="margin: 0 0 10px 0; color: #94a3b8;">Prueba Gráfica (Evidencia)</h4>
+
+          <div id="tvMultimediaMentiroso" style="width: 100%; display: none;">
+            <img id="imgMentiroso" src="https://via.placeholder.com/400x220?text=Evidencia+Grafica"
+              style="max-width: 100%; max-height: 250px; border-radius: 6px; border: 2px solid #38bdf8;">
+          </div>
+
+          <div id="tvMultimediaOculta" style="color: #64748b; font-style: italic;">
+            La evidencia multimedia se desbloqueará al revelar la verdad.
+          </div>
+        </div>
+
+      </div>
+    </div>
   </div>
-  <button onclick="goToRanking()">Ranking</button>
-</div>
+
 
 </body>
+
 </html>
