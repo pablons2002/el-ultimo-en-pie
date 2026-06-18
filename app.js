@@ -46,8 +46,7 @@ function showScreen(screen) {
   document.getElementById("screenWorldGuessr").style.display = "none";
   document.getElementById("screenGuessSong").style.display = "none";
   document.getElementById("screenIrrationalPrice").style.display = "none";
-  //document.getElementById("screenRoulette").style.display = "none";
-  console.log("Estoy aquí", screen);
+  document.getElementById("screenNumbersAndLetters").style.display = "none";
   document.getElementById(screen).style.display = "block";
 }
 // =====================
@@ -322,12 +321,12 @@ function irrationalPrice() {
   console.log("🎮 Iniciando juego del Precio Irracional en el móvil");
 
   const btnEnviar = document.getElementById("btnEnviarPrice");
-  
+
   if (btnEnviar) {
     btnEnviar.onclick = async () => {
       // 1. Recuperamos el ID del jugador desde SU localStorage
-      const miPlayerId = localStorage.getItem("playerId"); 
-      
+      const miPlayerId = localStorage.getItem("playerId");
+
       if (!miPlayerId) {
         alert("❌ Error: No se encuentra tu ID de jugador. Reinicia la aplicación.");
         return;
@@ -378,10 +377,187 @@ function symbolZone() {
   // Lógica para el juego El último teorema
 
 }
+// ==========================================
+// Lógica Móvil: Cifras y Letras
+// ==========================================
+
+// 1. Las variables de control se quedan fuera para mantener su estado limpio
+let formulaActualMovil = "";
+let jugadorIdActual = "";
+let numerosDisponiblesRonda = [];
+let indicesNumerosUsados = [];
+
 
 function numbersAndLetters() {
-  // Lógica para el juego Cifras y letras
+  console.log("📱 Inicializando entorno de Cifras y Letras en el Móvil");
+  // Vinculamos la función de arranque a window para que el HTML o Firebase puedan activarla
+  window.iniciarMovilCifrasYLetras = function () {
+    jugadorIdActual = localStorage.getItem("playerId");
+    window.borrarTodoCifras();
+
+    // Escuchamos el estado del reto numérico en Firebase usando "numberState"
+    onSnapshot(doc(window.db, "game", "numberState"), (docSnap) => {
+      if (!docSnap.exists()) return;
+
+      const data = docSnap.data();
+      numerosDisponiblesRonda = data.cifrasDisponibles || [];
+      console.log(numerosDisponiblesRonda)
+      const objetivo = data.cifrasObjetivo || 0;
+
+      // Actualizamos el número objetivo en el móvil
+      const elObjetivo = document.getElementById("movilObjetivoCifras");
+      if (elObjetivo) elObjetivo.innerText = objetivo > 0 ? objetivo : "---";
+
+      // RENDERIZAR BOTONES DE NÚMEROS DEL RETO
+      const contenedorBotones = document.getElementById("movilBotonesNumeros");
+      if (contenedorBotones) {
+        if (numerosDisponiblesRonda.length === 0) {
+          contenedorBotones.innerHTML = `<span style="color:#666; font-style:italic;">Esperando números...</span>`;
+          return;
+        }
+
+        contenedorBotones.innerHTML = "";
+        numerosDisponiblesRonda.forEach((num, index) => {
+          const btn = document.createElement("button");
+          btn.innerText = num;
+          btn.id = `btn-cifra-${index}`;
+          btn.style.flex = "1";
+          btn.style.margin = "4px";
+          btn.style.background = "#ffc107";
+          btn.style.color = "black";
+          btn.style.fontSize = "1.3rem";
+          btn.style.fontWeight = "bold";
+          btn.style.border = "none";
+          btn.style.padding = "12px 5px";
+          btn.style.borderRadius = "6px";
+          btn.style.cursor = "pointer";
+
+          // Conectamos el click a la función de window
+          btn.onclick = () => window.pulsarNumeroReto(num, index);
+
+          contenedorBotones.appendChild(btn);
+        });
+      }
+
+      // RENDERIZAR TECLADO DE OPERADORES
+      const contenedorOperadores = document.getElementById("movilBotonesOperadores");
+      if (contenedorOperadores && contenedorOperadores.children.length === 0) {
+        const ops = ['+', '-', '*', '/', '(', ')'];
+        contenedorOperadores.innerHTML = "";
+        contenedorOperadores.style.display = "grid";
+        contenedorOperadores.style.gridTemplateColumns = "repeat(6, 1fr)";
+        contenedorOperadores.style.gap = "5px";
+        contenedorOperadores.style.marginTop = "10px";
+
+        ops.forEach(op => {
+          const btnOp = document.createElement("button");
+          btnOp.innerText = op === '*' ? '×' : op === '/' ? '÷' : op;
+          btnOp.style.padding = "12px 5px";
+          btnOp.style.fontSize = "1.3rem";
+          btnOp.style.background = "#444";
+          btnOp.style.color = "white";
+          btnOp.style.border = "none";
+          btnOp.style.borderRadius = "6px";
+          btnOp.style.fontWeight = "bold";
+
+          btnOp.onclick = () => {
+            formulaActualMovil += op;
+            window.actualizarPantallaFormulaVisual();
+          };
+          contenedorOperadores.appendChild(btnOp);
+        });
+      }
+
+      document.getElementById("movilInstruccionesCifras").innerText = "¡Arma tu operación con los botones!";
+      document.getElementById("btnEnviarCifras").disabled = false;
+      document.getElementById("btnEnviarCifras").style.opacity = "1";
+    });
+  };
+
+    iniciarMovilCifrasYLetras();
 }
+
+// 3. EXPOSICIÓN GLOBAL DE FUNCIONES DE CONTROL (Fuera de la caja para que los botones las vean)
+window.pulsarNumeroReto = function (numero, index) {
+  if (indicesNumerosUsados.includes(index)) return;
+
+  formulaActualMovil += numero.toString();
+  indicesNumerosUsados.push(index);
+
+  const btn = document.getElementById(`btn-cifra-${index}`);
+  if (btn) {
+    btn.style.background = "#333";
+    btn.style.color = "#666";
+    btn.style.opacity = "0.4";
+  }
+
+  window.actualizarPantallaFormulaVisual();
+};
+
+window.borrarUltimoCifras = function () {
+  if (formulaActualMovil.length === 0) return;
+
+  for (let i = indicesNumerosUsados.length - 1; i >= 0; i--) {
+    const idxOriginal = indicesNumerosUsados[i];
+    const valorNum = numerosDisponiblesRonda[idxOriginal].toString();
+
+    if (formulaActualMovil.endsWith(valorNum)) {
+      formulaActualMovil = formulaActualMovil.substring(0, formulaActualMovil.length - valorNum.length);
+      indicesNumerosUsados.splice(i, 1);
+      const btn = document.getElementById(`btn-cifra-${idxOriginal}`);
+      if (btn) {
+        btn.style.background = "#ffc107";
+        btn.style.color = "black";
+        btn.style.opacity = "1";
+      }
+      window.actualizarPantallaFormulaVisual();
+      return;
+    }
+  }
+
+  formulaActualMovil = formulaActualMovil.slice(0, -1);
+  window.actualizarPantallaFormulaVisual();
+};
+
+window.borrarTodoCifras = function () {
+  formulaActualMovil = "";
+  indicesNumerosUsados = [];
+  numerosDisponiblesRonda.forEach((_, index) => {
+    const btn = document.getElementById(`btn-cifra-${index}`);
+    if (btn) {
+      btn.style.background = "#ffc107";
+      btn.style.color = "black";
+      btn.style.opacity = "1";
+    }
+  });
+  window.actualizarPantallaFormulaVisual();
+};
+
+window.actualizarPantallaFormulaVisual = function () {
+  const pantalla = document.getElementById("movilPantallaFormula");
+  if (pantalla) {
+    pantalla.innerText = formulaActualMovil || "Escribe tu fórmula...";
+    pantalla.style.color = formulaActualMovil ? "#ffc107" : "#555";
+  }
+};
+
+window.enviarFormulaAlPresentador = async function () {
+  if (!formulaActualMovil) return alert("Escribe alguna operación antes de enviar.");
+  if (!jugadorIdActual) return alert("Error: No se detecta tu ID de jugador.");
+
+  try {
+    const playerRef = doc(window.db, "players", jugadorIdActual);
+    await updateDoc(playerRef, { cifrasFormula: formulaActualMovil });
+
+    document.getElementById("btnEnviarCifras").disabled = true;
+    document.getElementById("btnEnviarCifras").style.opacity = "0.5";
+    document.getElementById("movilInstruccionesCifras").innerText = "🚀 ¡Fórmula enviada!";
+    alert("✨ Operación enviada con éxito.");
+  } catch (error) {
+    console.error("Error enviando fórmula a Firebase:", error);
+    alert("❌ Error al enviar la respuesta.");
+  }
+};
 
 function truthOrLie() {
   // Lógica para el juego Verdad o invent
@@ -413,6 +589,6 @@ window.addEventListener("DOMContentLoaded", () => {
   const savedId = localStorage.getItem("playerId");
   if (savedId) {
     window.miJugadorId = savedId;
-    conectarEscuchaPantalla(savedId);
+    //conectarEscuchaPantalla(savedId);
   }
 })

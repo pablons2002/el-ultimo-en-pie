@@ -65,7 +65,12 @@ function showScreenTV(screen) {
   document.getElementById("screenGlassTower").style.display = "none";
   document.getElementById("screenIrrationalPrice").style.display = "none";
   document.getElementById("screenSymbolZone").style.display = "none";
+  document.getElementById("screenNumbersAndLetters").style.display = "none";
   document.getElementById(screen).style.display = "block"
+
+  if (screen === "screenNumbersAndLetters") {
+    cifrasLetras();
+  }
 }
 
 
@@ -814,7 +819,7 @@ function symbolZone() {
     // 2. Metemos los jugadores directos de Firebase. Todos empiezan en 'false' (en verde, salvados)
     snapshot.forEach((playerDoc) => {
       const p = playerDoc.data();
-      
+
       listaJugadoresSymbol.push({
         id: playerDoc.id,
         name: p.name,
@@ -895,16 +900,16 @@ window.controlarTiempoSymbol = function (accion) {
     clearInterval(intervaloCronometroSymbol);
     intervaloCronometroSymbol = null;
   }
- else if (accion === "acabar") {
-  clearInterval(intervaloCronometroSymbol);
-  intervaloCronometroSymbol = null;
-  tiempoRestanteSymbol = 0;
-  if (elReloj) {
-    elReloj.innerText = "00:00";
-    elReloj.style.color = "#ff3d00";
+  else if (accion === "acabar") {
+    clearInterval(intervaloCronometroSymbol);
+    intervaloCronometroSymbol = null;
+    tiempoRestanteSymbol = 0;
+    if (elReloj) {
+      elReloj.innerText = "00:00";
+      elReloj.style.color = "#ff3d00";
+    }
+    alert("⏰ ¡Tiempo finalizado manualmente por el presentador!");
   }
-  alert("⏰ ¡Tiempo finalizado manualmente por el presentador!");
-}
 };
 
 // BOTÓN: GUARDAR RONDA Y APLICAR PUNTOS (+2 a los no marcados)
@@ -984,6 +989,338 @@ function reiniciarRondaInterfaceSymbol() {
 
 
 
+// ==========================================
+// Juego 6º: Cifras y Letras
+// ==========================================
+let cifrasDeLaRonda = []; // Guardará los 6 números generados (ej: [2, 5, 8, 10, 25, 6])
+let objetivoDeLaRonda = 0; // El número al que tienen que llegar (ej: 432)
+let jugadoresCifras = [];  // Datos locales de las respuestas recibidas
+let rondaActualCifras = 0;       // Contador de rondas (de 0 a 5)
+let puntuacionJuegoCifras = {};  // Guardará los puntos internos { idJugador: puntos }
+
+async function cifrasLetras() {
+  // Esperar a que el DOM se haya cargado y existan los elementos necesarios
+  if (document.readyState === "loading") {
+    await new Promise((resolve) => document.addEventListener("DOMContentLoaded", resolve, { once: true }));
+  }
+
+  const numerosContenedor = document.getElementById("tvNumerosDisponibles");
+  const objetivoElemento = document.getElementById("tvNumeroObjetivo");
+  const respuestasContenedor = document.getElementById("tvListaRespuestasCifras");
+
+  if (!numerosContenedor || !objetivoElemento || !respuestasContenedor) {
+    console.warn("Cifras y Letras: falta algún elemento del DOM para inicializar.");
+    return;
+  }
+
+  // Limpiar interfaz
+  numerosContenedor.innerHTML = `<span style="color: #666; font-style: italic;">Pulsa generar...</span>`;
+  objetivoElemento.innerText = "---";
+  respuestasContenedor.innerHTML = `<p style="color: #666; text-align: center;">Genera un reto para empezar.</p>`;
+
+  // Escuchamos en tiempo real si van respondiendo
+  onSnapshot(query(collection(window.db, "players"), where("active", "==", true)), (snapshot) => {
+    console.log("Cifras y Letras: snapshot recibido. jugadores activos=", snapshot.size);
+    const contenedor = document.getElementById("tvListaRespuestasCifras");
+    if (!contenedor) {
+      console.warn("Cifras y Letras: contenedor de respuestas no está disponible.");
+      return;
+    }
+
+    // --- CANDADO VISUAL ---
+    // Si la pantalla ya está mostrando los resultados validados, ignoramos el snapshot
+    // para que Firebase no machaque la interfaz al limpiar los móviles.
+    if (contenedor.getAttribute("data-validado") === "true") {
+      console.log("Cifras y Letras: Snapshot ignorado para proteger la pantalla de resultados.");
+      return;
+    }
+
+    jugadoresCifras = [];
+    contenedor.innerHTML = "";
+
+    snapshot.forEach((playerDoc) => {
+      const p = playerDoc.data();
+      const formulaEnviada = p.cifrasFormula || "";
+
+      jugadoresCifras.push({
+        id: playerDoc.id,
+        name: p.name,
+        formula: formulaEnviada.trim()
+      });
+
+      if (cifrasDeLaRonda.length === 0) {
+        contenedor.innerHTML = `<p style="color: #666; text-align: center;">Esperando a que generes el reto...</p>`;
+        return;
+      }
+
+      // Crear línea visual en la TV (Tiempo real de quién está pensando o ya respondió)
+      const item = document.createElement("div");
+      item.style.padding = "10px";
+      item.style.background = "#222";
+      item.style.borderRadius = "6px";
+      item.style.border = "1px solid #444";
+      item.style.marginBottom = "8px";
+
+      const estado = formulaEnviada ? "📝 Respondido" : "⏳ Pensando...";
+      const colorEstado = formulaEnviada ? "#00e676" : "#ffc107";
+
+      item.innerHTML = `<strong>${p.name}</strong>: <span style="color: ${colorEstado}; font-weight:bold;">${estado}</span>`;
+      contenedor.appendChild(item);
+    });
+  });
+}
+cifrasLetras();
+
+// 1. GENERAR RETO (6 números aleatorios y 1 objetivo)
+window.generarRetoCifras = async function () {
+  // Quitamos el candado visual para que la pantalla vuelva a escuchar en tiempo real
+  const contenedor = document.getElementById("tvListaRespuestasCifras");
+  if (contenedor) contenedor.removeAttribute("data-validado");
+  rondaActualCifras++;
+  // Si es la ronda 1 (o si nos habíamos pasado de 5), reiniciamos el minijuego
+  if (rondaActualCifras === 1 || rondaActualCifras > 5) {
+    rondaActualCifras = 1;
+    puntuacionJuegoCifras = {}; // Vaciamos el marcador local
+    jugadoresCifras.forEach(j => {
+      puntuacionJuegoCifras[j.id] = 0; // Todos empiezan con 0 puntos internos
+    });
+  }
+  let opciones = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 25, 50, 75, 100];
+  cifrasDeLaRonda = [];
+
+  // Seleccionar exactamente 6 números sin repetir tarjetas
+  for (let i = 0; i < 6; i++) {
+    const randomIdx = Math.floor(Math.random() * opciones.length);
+    const numeroElegido = opciones.splice(randomIdx, 1)[0];
+    cifrasDeLaRonda.push(numeroElegido);
+  }
+
+  // Generar número objetivo (entre 101 y 999)
+  objetivoDeLaRonda = Math.floor(Math.random() * 899) + 101;
+
+  // Pintar en la TV
+  const contenedorCifras = document.getElementById("tvNumerosDisponibles");
+  contenedorCifras.innerHTML = cifrasDeLaRonda.map(num => `
+    <span style="background:#ffc107; color:black; font-size:1.8rem; font-weight:bold; padding:5px 15px; border-radius:5px; box-shadow:0 2px 4px rgba(0,0,0,0.5); margin: 0 5px;">${num}</span>
+  `).join("");
+
+  document.getElementById("tvNumeroObjetivo").innerText = objetivoDeLaRonda;
+  console.log(cifrasDeLaRonda, objetivoDeLaRonda);
+
+  // Subir reto a Firebase
+  try {
+    await updateDoc(doc(window.db, "game", "numberState"), {
+      cifrasDisponibles: cifrasDeLaRonda,
+      cifrasObjetivo: objetivoDeLaRonda
+    });
+  } catch (e) {
+    console.error("Error subiendo reto a Firebase:", e);
+  }
+};
+
+// 2. 🔥 FUNCIÓN DE VALIDACIÓN MATEMÁTICA (Modificada para aceptar aproximaciones)
+function analizarFormula(formulaString, numerosPermitidos, resultadoObjetivo) {
+  const formulalimpia = formulaString.replace(/\s+/g, "");
+  if (!formulalimpia) return { valido: false, motivo: "Fórmula vacía" };
+
+  const caracteresPermitidos = /^[0-9+\-*/().]+$/;
+  if (!caracteresPermitidos.test(formulalimpia)) {
+    return { valido: false, motivo: "Contiene caracteres inválidos o letras" };
+  }
+
+  const numerosUsados = formulalimpia.match(/\d+/g).map(Number);
+  let copiaPermitidos = [...numerosPermitidos];
+
+  for (let num of numerosUsados) {
+    const idx = copiaPermitidos.indexOf(num);
+    if (idx === -1) {
+      return { valido: false, motivo: `El número ${num} no está en la lista o lo has usado de más` };
+    }
+    copiaPermitidos.splice(idx, 1);
+  }
+
+  try {
+    const calcular = new Function(`return ${formulalimpia}`);
+    const resultadoReal = calcular();
+
+    if (isNaN(resultadoReal) || resultadoReal === Infinity) {
+      return { valido: false, motivo: "Resultado matemático indefinido o erróneo" };
+    }
+
+    // Si la matemática es correcta la damos por válida. La distancia al objetivo se mide en el ranking.
+    return { valido: true, resultado: resultadoReal };
+
+  } catch (error) {
+    return { valido: false, motivo: "Error de sintaxis en la ecuación (paréntesis, etc.)" };
+  }
+}
+
+// 3. BOTÓN: CALCULAR RANKING LOCAL, ASIGNAR PUNTOS Y PINTAR CLASIFICACIÓN GENERAL PERMANENTE
+window.validarRespuestasCifras = async function () {
+  if (jugadoresCifras.length === 0) return alert("No hay respuestas que validar.");
+
+  const contenedor = document.getElementById("tvListaRespuestasCifras");
+  contenedor.setAttribute("data-validado", "true");
+  
+  contenedor.innerHTML = `<h4 style='color:#ffc107; margin:0 0 5px 0;'>Resultados Ronda ${rondaActualCifras} / 5:</h4>`;
+
+  // Asegurar que todos los jugadores activos existan en el marcador local
+  jugadoresCifras.forEach(j => {
+    if (puntuacionJuegoCifras[j.id] === undefined) puntuacionJuegoCifras[j.id] = 0;
+  });
+
+  // 1. Evaluar matemáticamente las fórmulas
+  let jugadoresEvaluados = jugadoresCifras.map(j => {
+    const verificacion = analizarFormula(j.formula, cifrasDeLaRonda, objetivoDeLaRonda);
+    let resultadoReal = verificacion.resultado;
+    let distancia = Infinity;
+
+    if (verificacion.valido && j.formula !== "") {
+      distancia = Math.abs(objetivoDeLaRonda - resultadoReal);
+    }
+
+    return {
+      ...j,
+      valido: verificacion.valido && j.formula !== "",
+      resultado: resultadoReal || 0,
+      distancia: distancia,
+      motivo: verificacion.motivo || "Sin respuesta enviada"
+    };
+  });
+
+  // 2. Comprobar condiciones de puntuación de la ronda
+  const alguienAcertoExacto = jugadoresEvaluados.some(j => j.valido && j.distancia === 0);
+  
+  // Encontrar la menor distancia conseguida por alguien válido
+  let menorDistanciaRonda = Infinity;
+  jugadoresEvaluados.forEach(j => {
+    if (j.valido && j.distancia < menorDistanciaRonda) {
+      menorDistanciaRonda = j.distancia;
+    }
+  });
+
+  // 3. Asignar puntos del minijuego (+2 o +1) y pintar el intento en pantalla
+  jugadoresEvaluados.forEach(j => {
+    let puntosRondaLocal = 0;
+    let lineaHtml = "";
+
+    if (j.valido) {
+      const esExacto = j.distancia === 0;
+
+      if (esExacto) {
+        puntosRondaLocal = 2; // Regla: Acierto exacto = 2 puntos
+      } else if (!alguienAcertoExacto && j.distancia === menorDistanciaRonda) {
+        puntosRondaLocal = 1; // Regla: Nadie exacto, el más cercano = 1 punto
+      }
+
+      // Sumamos al marcador de este juego interno
+      puntuacionJuegoCifras[j.id] += puntosRondaLocal;
+
+      const colorTexto = esExacto ? "#00e676" : "#ffb300";
+      lineaHtml = `
+        <div style="padding:10px; background:#1b5e20; border-radius:6px; margin-bottom:8px;">
+          <strong>🟢 ${j.name}:</strong> <code>${j.formula}</code> = <strong>${j.resultado}</strong> 
+          <br><span style="color:${colorTexto}; font-size:0.9rem;">(${esExacto ? '¡CORRECTO EXACTO! +2' : `Más cercano a ${j.distancia} u. +1`})</span>
+          <strong style="float:right; color:#ffc107;">Esta ronda: +${puntosRondaLocal} pts</strong>
+        </div>`;
+    } else {
+      lineaHtml = `
+        <div style="padding:10px; background:#b71c1c; border-radius:6px; margin-bottom:8px; opacity: 0.7;">
+          <strong>🔴 ${j.name}:</strong> <code>${j.formula || "N/A"}</code>
+          <br><span style="font-size:0.85rem; color:#ffcdd2;">❌ Incorrecto: ${j.motivo}</span>
+        </div>`;
+    }
+
+    contenedor.innerHTML += lineaHtml;
+  });
+
+  // 4. Limpiar las fórmulas en Firebase para dejar los móviles listos sin alterar puntuaciones globales aún
+  for (let j of jugadoresCifras) {
+    try {
+      await updateDoc(doc(window.db, "players", j.id), { cifrasFormula: "" });
+    } catch (err) {
+      console.error("Error limpiando pantalla móvil:", err);
+    }
+  }
+
+  // 5. Construir el ranking interno actual de este juego para mostrarlo en la tabla
+  let listaRankingJuego = jugadoresCifras.map(j => ({
+    id: j.id,
+    name: j.name,
+    scoreJuego: puntuacionJuegoCifras[j.id]
+  }));
+
+  // Ordenamos de mayor a menor puntuación del juego interno
+  listaRankingJuego.sort((a, b) => b.scoreJuego - a.scoreJuego);
+
+  // Pintar la tabla de clasificación interna en la TV
+  let tablaHtml = `
+    <div style="margin-top: 20px; background: #000; padding: 15px; border-radius: 8px; border: 1px solid #ffc107;">
+      <h3 style="color: #ffc107; margin-top: 0; text-align: center; font-size: 1.2rem;">🏆 CLASIFICACIÓN DEL JUEGO (Ronda ${rondaActualCifras}/5)</h3>
+      <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 1.05rem;">
+        <thead>
+          <tr style="border-bottom: 2px solid #333; color: #aaa;">
+            <th style="padding: 6px;">Pos</th>
+            <th style="padding: 6px;">Jugador</th>
+            <th style="padding: 6px; text-align: right;">Puntos Juego</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
+
+  listaRankingJuego.forEach((jugador, index) => {
+    tablaHtml += `
+      <tr style="border-bottom: 1px solid #222;">
+        <td style="padding: 8px; font-weight: bold;">#${index + 1}</td>
+        <td style="padding: 8px;">${jugador.name} ${index === 0 ? '👑' : ''}</td>
+        <td style="padding: 8px; text-align: right; font-weight: bold; color: #ffc107;">${jugador.scoreJuego} pts</td>
+      </tr>
+    `;
+  });
+
+  tablaHtml += `</tbody></table></div>`;
+  contenedor.innerHTML += tablaHtml;
+
+  // ==========================================
+  // FINAL DEL JUEGO: SI LLEGAMOS A LA RONDA 5, REPARTIMOS EN FIREBASE GLOBAL
+  // ==========================================
+  if (rondaActualCifras === 5) {
+    alert("🏁 ¡Fin de la Ronda 5! Calculando posiciones finales para transferir puntos a la clasificación general.");
+    
+    const tablaPuntosGlobales = [10, 8, 6, 5, 4, 3, 2, 1];
+    
+    for (let index = 0; index < listaRankingJuego.length; index++) {
+      const jugadorRanking = listaRankingJuego[index];
+      const puntosParaFirebase = tablaPuntosGlobales[index] || 0;
+
+      if (puntosParaFirebase > 0) {
+        try {
+          const playerRef = doc(window.db, "players", jugadorRanking.id);
+          const snap = await getDocs(query(collection(window.db, "players")));
+          let scoreGlobalActual = 0;
+          
+          snap.forEach(d => { 
+            if (d.id === jugadorRanking.id) scoreGlobalActual = d.data().score ?? 0; 
+          });
+
+          // Sumamos la recompensa a su cuenta real de Firebase
+          await updateDoc(playerRef, {
+            score: scoreGlobalActual + puntosParaFirebase
+          });
+          console.log(`Transferidos +${puntosParaFirebase} pts globales a ${jugadorRanking.name}`);
+        } catch (err) {
+          console.error("Error al transferir puntos finales a Firebase:", err);
+        }
+      }
+    }
+    alert("🏆 ¡Puntos de torneo asignados en la base de datos global con éxito! El juego se reiniciará en el próximo reto.");
+  } else {
+    alert(`Ronda ${rondaActualCifras} validada. ¡Siguiente reto listo para generar!`);
+  }
+};
+
+
+
 
 
 
@@ -1000,26 +1337,14 @@ function reiniciarRondaInterfaceSymbol() {
 // ==========================================
 window.navegacionRapidaJuegos = function (idPantalla) {
   if (!idPantalla) return;
-
   try {
-    // Cambia a la pantalla seleccionada con tus funciones
     setScreen("screen" + idPantalla, idPantalla);
     showScreenTV("screen" + idPantalla);
-
-    // Reseteamos el menú para que vuelva a poner "🎮 Saltar a..."
     document.getElementById("selectorJuegosRapidos").value = "";
-
   } catch (error) {
     console.error("Error al saltar a la pantalla " + idPantalla + ":", error);
   }
 };
-
-
-
-
-
-
-
 
 // =====================
 // Reseteo llamado autodestrucción. Puede ser que vaya aumentado las colecciones en Firebase y no se suficiente
@@ -1058,13 +1383,6 @@ async function resetGame() {
 
     await Promise.all(promises); // Esperar a que se completen todos los updates
 
-    // 3. Reset de la canción activa
-    await updateDoc(doc(window.db, "game", "currentSong"), {
-      title: "Ninguna",
-      audioURL: "",
-      revealed: false
-    });
-    console.log("🎵 ¡Documento currentSong inicializado!");
 
   } catch (error) {
     console.error("❌ Error durante el reset total del juego:", error);

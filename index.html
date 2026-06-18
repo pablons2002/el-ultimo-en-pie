@@ -47,6 +47,7 @@
           <option value="GlassTower">⏱️ Torre de Vasos</option>
           <option value="IrrationalPrice"> Precio Irracional</option>
           <option value="SymbolZone"> Zona Símbolo </option>
+          <option value="NumbersAndLetters">🔢 Cifras y Letras</option>
 
         </select>
       </div>
@@ -312,6 +313,51 @@
     </div>
     <button onclick="goToRanking()">Ranking</button>
   </div>
+
+  <!-- 6º Juego: Números de números y letras-->
+<div id="screenNumbersAndLetters" class="screen" style="background: #111; color: white; padding: 30px; font-family: sans-serif; display: none;">
+  
+  <div style="text-align: center; margin-bottom: 20px;">
+    <h1 style="color: #00e676; margin: 0; font-size: 3rem;">🔢 Cifras y Letras</h1>
+    <p style="color: #aaa; font-size: 1.2rem;">¡Consigue el número objetivo usando las cifras dadas!</p>
+  </div>
+
+  <div style="display: flex; gap: 30px;">
+    
+    <div style="flex: 0.9; background: #222; padding: 25px; border-radius: 15px; border: 2px solid #00e676; text-align: center;">
+      <h2 style="color: #ffc107; margin-top: 0;">Ronda de Cifras</h2>
+      
+      <button onclick="generarRetoCifras()" style="background: #ffc107; color: black; border: none; padding: 12px 20px; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 1.1rem; width: 100%; margin-bottom: 20px;">
+        🎲 Generar Nuevo Reto
+      </button>
+
+      <div style="color: #aaa; margin-bottom: 5px;">Cifras disponibles:</div>
+      <div id="tvNumerosDisponibles" style="display: flex; gap: 10px; justify-content: center; margin-bottom: 20px;">
+        <span style="color: #666; font-style: italic;">Pulsa generar...</span>
+      </div>
+
+      <div style="color: #aaa; margin-bottom: 5px;">Número a obtener:</div>
+      <div id="tvNumeroObjetivo" style="font-size: 4rem; font-weight: bold; color: #00e676; background: #1a1a1a; padding: 10px; border-radius: 8px; border: 1px solid #333; margin-bottom: 20px;">
+        ---
+      </div>
+
+      <button onclick="validarRespuestasCifras()" style="background: #007bff; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1.1rem; width: 100%;">
+        🧐 Validar Fórmulas y Sumar Puntos
+      </button>
+    </div>
+
+    <div style="flex: 1.1; background: #1a1a1a; padding: 25px; border-radius: 15px; border: 2px solid #333;">
+      <h3 style="margin-top: 0; color: #00e676; text-align: center;">📱 Respuestas de los Jugadores</h3>
+      
+      <div id="tvListaRespuestasCifras" style="display: flex; flex-direction: column; gap: 10px;">
+        <p style="color: #666; text-align: center;">Esperando respuestas de los móviles...</p>
+      </div>
+    </div>
+
+  </div>
+  <button onclick="goToRanking()">Ranking</button>
+</div>
+
 </body>
 
 </html>

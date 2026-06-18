@@ -90,7 +90,7 @@
 
   <!-- 4º Juego Precio Irracional-->
 
-  <div id="screenIrrationalPrice"  style="display:none; text-align:center; padding: 20px;">
+  <div id="screenIrrationalPrice" style="display:none; text-align:center; padding: 20px;">
     <h2>🫙 El Precio Irracional</h2>
     <p>Mira la TV. ¿Cuántas lentejas crees que hay dentro del tarro?</p>
 
@@ -109,6 +109,52 @@
       <p>¡Respuesta enviada! Esperando a que el resto termine...</p>
     </div>
   </div>
+
+  <!-- 6º Juego Cifras y letras-->
+  <!-- Pantalla Móvil: Cifras y Letras -->
+  <div id="screenNumbersAndLetters" class="screen-movil"
+  style="background: #121212; color: white; padding: 20px; font-family: sans-serif; text-align: center; display: none;">
+
+  <h2 style="color: #00e676; margin-bottom: 5px;">🔢 Cifras y Letras</h2>
+  <p id="movilInstruccionesCifras" style="color: #aaa; font-size: 0.9rem; margin-top: 0;">Espera a que el presentador genere el reto...</p>
+
+  <div style="background: #1a1a1a; padding: 10px; border-radius: 8px; border: 1px solid #00e676; margin-bottom: 15px;">
+    <span style="color: #aaa; font-size: 0.85rem; display: block;">OBJETIVO:</span>
+    <strong id="movilObjetivoCifras" style="font-size: 2.5rem; color: #00e676;">---</strong>
+  </div>
+
+  <div id="movilPantallaFormula"
+    style="background: #000; min-height: 50px; padding: 12px; border-radius: 6px; border: 1px solid #333; font-family: monospace; font-size: 1.3rem; color: #ffc107; word-break: break-all; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+    Escribe tu fórmula...
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 12px;">
+
+    <div style="color: #aaa; text-align: left; font-size: 0.85rem;">Tus números disponibles:</div>
+    <div id="movilBotonesNumeros" style="display: flex; gap: 8px; justify-content: space-between;">
+      </div>
+
+    <div style="color: #aaa; text-align: left; font-size: 0.85rem; margin-top: 5px;">Operadores:</div>
+    <div id="movilBotonesOperadores">
+      </div>
+
+    <div style="display: flex; gap: 8px; margin-top: 5px;">
+      <button onclick="window.borrarUltimoCifras()"
+        style="flex: 1; background: #e65100; color: white; font-size: 1.1rem; font-weight: bold; border: none; padding: 12px; border-radius: 6px; cursor: pointer;">
+        ← Borrar
+      </button>
+      <button onclick="window.borrarTodoCifras()"
+        style="flex: 1; background: #c62828; color: white; font-size: 1.1rem; font-weight: bold; border: none; padding: 12px; border-radius: 6px; cursor: pointer;">
+        🗑️ Limpiar Todo
+      </button>
+    </div>
+
+    <button id="btnEnviarCifras" onclick="window.enviarFormulaAlPresentador()"
+      style="background: #00e676; color: black; font-size: 1.3rem; font-weight: bold; border: none; padding: 15px; border-radius: 6px; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 6px rgba(0,230,118,0.2);">
+      🚀 Enviar Fórmula
+    </button>
+  </div>
+</div>
 </body>
 
 </html>
