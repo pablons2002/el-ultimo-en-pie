@@ -422,5 +422,56 @@
   <button onclick="goToRanking()">Ranking</button>
 </div>
 
+
+ <!-- 8º Juego El último teorema -->
+<div id="screenLastTheorem" class="screen" style="background: #111; color: white; padding: 30px; font-family: sans-serif;">
+
+  <div id="viewInicio" class="game-view">
+    <h1>Bienvenido al Juego</h1>
+    <p>Presiona el botón para comenzar de cero.</p>
+    <button id="btnEmpezar" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">Empezar juego</button>
+  </div>
+
+  <div id="viewInput" class="game-view hidden" style="display: none;">
+    <h2>Introducir un número desde vuestros números</h2>
+    <p>Por favor, espera a que todos los jugadores estén listos.</p>
+    <button id="btnMostrarRespuestas" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">Mostrar respuestas</button>
+  </div>
+
+  <div id="viewRespuestas" class="game-view hidden" style="display: none;">
+    <h2>Respuestas de los jugadores</h2>
+    
+    <div id="contenedorMedia" style="background: #222; border: 2px solid #ff4a4a; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px;"></div>
+
+    <p>Selecciona a los jugadores que **NO** restan punto (los que acertaron/ganaron):</p>
+    
+    <div id="listaRespuestas">Cargando respuestas...</div>
+    
+    <br>
+    <button id="btnSiguienteRonda" style="padding: 10px 20px; font-size: 16px; cursor: pointer; display: none;">Siguiente ronda</button>
+  </div>
+
+  <div id="viewMuerte" class="game-view hidden" style="display: none; text-align: center; border: 3px solid red; padding: 30px; background: #200000;">
+    <h1 style="color: #ff4a4a; font-size: 40px; margin-top: 0;">¡ELIMINACIÓN!</h1>
+    <div id="mensajeMuerte" style="font-size: 24px; margin: 20px 0; font-weight: bold;"></div>
+    
+    <div style="margin: 30px 0; background: #300a0a; padding: 15px; border-radius: 5px;">
+      <p style="margin-top: 0; color: #ccc;">Nuevas reglas desbloqueadas por eliminación:</p>
+      <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 15px;">
+        <button class="btn-regla" data-regla="1" style="padding: 5px 15px; cursor: pointer;">Regla 1</button>
+        <button class="btn-regla" data-regla="2" style="padding: 5px 15px; cursor: pointer;">Regla 2</button>
+        <button class="btn-regla" data-regla="3" style="padding: 5px 15px; cursor: pointer;">Regla 3</button>
+      </div>
+      <div id="textoRegla" style="font-style: italic; color: #ffbaba; min-height: 40px; padding: 0 10px;">
+        Haz clic en una regla para ver los detalles.
+      </div>
+    </div>
+
+    <button id="btnMuerteSiguiente" style="padding: 10px 20px; font-size: 16px; cursor: pointer; background: red; color: white; border: none;">Siguiente ronda</button>
+  </div>
+
+</div>
+
+
 </body>
 </html>
