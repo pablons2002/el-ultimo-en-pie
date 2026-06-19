@@ -345,13 +345,21 @@ window.aplicarAjusteManualFirebase = async function (boton) {
 // Juego WorldGuessr, que aparezca la imagen por cada tecla pulsada.
 // =====================
 const imagenesPorTecla = {
-  "n": "images/cartasPersonajes/Alba.png",// faltan teclas
+  "a": "images/fotosGeoguessr/A-Alghero.jpg",
+  "c": "images/fotosGeoguessr/C-Cercedilla.jpg",
+  "e": "images/fotosGeoguessr/E-Escorial Silla Felipe.jpg",
+  "g": "images/fotosGeoguessr/G-Aldea.jpg",
+  "i": "images/fotosGeoguessr/I-Argüelles.jpg",
+  "j": "images/fotosGeoguessr/J-Jardines Marrakech.jpg",
+  "m": "images/fotosGeoguessr/M-Madeira.jpg",
+  "n": "images/fotosGeoguessr/N-El naranjo.jpg",
+  "p": "images/fotosGeoguessr/P-Punta Galera.jpg",
+  "r": "images/fotosGeoguessr/R-Roma.jpg",
+  "s": "images/fotosGeoguessr/S-Segovia.jpg",
+  "u": "images/fotosGeoguessr/U-Facultad Matematicas.jpg",
+  "x": "images/fotosGeoguessr/X-Madrid.jpg",
+  "z": "images/fotosGeoguessr/Z-Azores.jpg"
 };
-
-
-
-
-
 
 document.addEventListener("keydown", (e) => { // enseña las imágenes pulsando teclas
   console.log("estoy aquí")

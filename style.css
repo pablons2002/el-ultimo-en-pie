@@ -48,14 +48,7 @@ button {
   display: block;
 }
 
-/* Header para mostrar el nombre del usuario */
-#userHeader {
-  padding: 10px;
-  background: black;
-  color: white;
-  font-weight: bold;
-  z-index: 9999;
-}
+
 
 .userNameHeader {
   margin-left: 10px;
