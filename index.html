@@ -37,7 +37,7 @@
 
   <!-- Header TV-->
   <header id="userHeader"
-    style="display: flex; align-items: center; justify-content: space-between; padding: 10px; background: #4c3f0f;">
+    style="display: flex; align-items: center; justify-content: space-between; padding: 10px; background: rgb(44, 34, 26);">
     <div style="display: flex; align-items: center; gap: 15px;">
       <img src="images/iconoWeb.svg" width="40">
 
@@ -58,60 +58,54 @@
         </select>
       </div>
     </div>
-    <details style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #334155; color: white;">
+    <details class="myth-details">
 
-      <summary onclick="cargarJugadoresAjusteManual()"
-        style="color: #ef4444; font-weight: bold; font-size: 0.95rem; text-align: center; cursor: pointer; list-style: none; user-select: none;">
+      <summary onclick="cargarJugadoresAjusteManual()">
         Puntuación
       </summary>
 
-      <div
-        style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px; background: #0f172a; padding: 10px; border-radius: 6px; border: 1px solid #334155;">
+      <div class="myth-panel">
 
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <span style="font-size: 0.8rem; color: #94a3b8;">Selecciona jugador y puntos:</span>
-          <button onclick="cargarJugadoresAjusteManual()" title="Recargar lista"
-            style="background: #475569; color: white; border: none; border-radius: 4px; padding: 2px 6px; cursor: pointer; font-size: 0.75rem;">🔄</button>
+        <div class="myth-row">
+          <span>Selecciona jugador y puntos:</span>
+          <button onclick="cargarJugadoresAjusteManual()" title="Recargar lista">
+            R
+          </button>
         </div>
 
-        <select id="selectAjusteManualJugador"
-          style="background:#1e293b; color:white; border:1px solid #475569; padding:6px; font-size:0.85rem; width:100%; border-radius:4px; cursor: pointer;">
+        <select id="selectAjusteManualJugador">
           <option value="">-- Seleccionar Jugador --</option>
         </select>
 
-        <div style="display: flex; gap: 6px;">
-          <input type="number" id="inputAjusteManualPuntos" placeholder="Ej: 5 o -2"
-            style="background:#1e293b; color:white; border:1px solid #475569; padding:6px; font-size:0.85rem; width:50%; border-radius:4px; text-align:center;">
-          <button onclick="aplicarAjusteManualFirebase(this)"
-            style="background: #ef4444; color: white; border: none; padding: 6px; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 0.85rem; width: 50%;">
-            ⚙️ Aplicar
+        <div class="myth-actions">
+          <input type="number" id="inputAjusteManualPuntos" placeholder="Ej: 5 o -2">
+
+          <button onclick="aplicarAjusteManualFirebase(this)">
+            Aplicar
           </button>
         </div>
+
       </div>
     </details>
+
     <button id="selfDestruct"> Apocatástasis </button>
   </header>
 
   <div id="screenSelect">
     <!-- Inicio del programa, pantalla inicial, intro (falta)-->
     <div id="screenIntro" class="screen">
-      <h1 style="font-size: 50px; color: #00e676;">
-        El último en <span style="font-size: 1.4em;">πε</span>
-      </h1>
+      <h1>El último en <span>πε</span></h1>
     </div>
 
     <!-- QR para que entren desde el móvil, crear QR (falta)-->
     <div id="screenJoin" class="screen">
       <div id="qrcode"></div>
-      <p style="font-size: 18px; margin-top: 20px;">Escanea el código QR para unirte desde tu móvil y elije un
-        personaje.
-      </p>
+      <p>Escanea el código QR para unirte desde tu móvil y elige un personaje.</p>
     </div>
 
 
     <!-- LOBBY (jugadores) -->
     <div id="screenLobby" class="screen">
-      <h2> Concursantes</h2>
       <div id="playersList"></div>
 
       <button id="startBtn"> Empezar concurso</button>

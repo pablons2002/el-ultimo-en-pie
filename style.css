@@ -2,6 +2,12 @@
   font-family: 'Cinzel Decorative', serif !important;
 }
 
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
 body {
   font-family: Arial, sans-serif;
   text-align: center;
@@ -10,10 +16,415 @@ body {
   height: 100%;
 }
 
-h1 {
-  margin: 10px;
-  color: blue;
+body {
+  font-family: 'Cinzel Decorative', serif;
+  text-align: center;
+  padding: 0;
+  min-height: 100vh;
 }
+
+
+#selfDestruct {
+  background: linear-gradient(135deg, #2b0000 0%, #000000 100%);
+  color: #ff3b3b;
+
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(0.8rem, 1vw, 1rem);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+
+  padding: clamp(8px, 0.8vw, 12px) clamp(18px, 2vw, 28px);
+
+  border: 2px solid #8b0000;
+  border-radius: 4px;
+
+  cursor: pointer;
+  outline: none;
+  position: relative;
+  overflow: hidden;
+
+  box-shadow:
+    0 0 0 3px #1a0000,
+    0 0 18px rgba(255, 0, 0, 0.25),
+    inset 0 0 12px rgba(255, 0, 0, 0.1);
+
+  transition: all 0.25s ease-in-out;
+}
+
+#selfDestruct:hover {
+  background: linear-gradient(135deg, #8b0000 0%, #2b0000 100%);
+  color: #ffffff;
+
+  box-shadow:
+    0 0 0 3px #8b0000,
+    0 0 25px rgba(255, 0, 0, 0.7);
+
+  transform: translateY(-2px) scale(1.02);
+}
+
+#selfDestruct:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow:
+    0 0 10px rgba(255, 0, 0, 0.4);
+}
+
+#selfDestruct::before,
+#selfDestruct::after {
+  content: "";
+  position: absolute;
+  left: 15%;
+  right: 15%;
+  height: 1px;
+  background: rgba(255, 0, 0, 0.25);
+}
+
+#selfDestruct::before { top: 6px; }
+#selfDestruct::after { bottom: 6px; }
+
+
+.quick-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#selectorJuegosRapidos {
+  font-family: 'Cinzel Decorative', serif;
+
+  font-size: 0.95rem;
+  padding: 8px 34px 8px 12px;
+
+  color: #e8e4d8; /* mármol claro legible */
+  background: linear-gradient(135deg, rgb(44, 34, 26), rgb(32, 24, 18)); /* tierra oscura */
+
+  border: 2px solid #d4af37; /* dorado sagrado */
+  border-radius: 6px;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 0 0 3px rgba(245, 247, 250, 0.08),
+    0 6px 18px rgba(0, 0, 0, 0.35);
+
+  outline: none;
+
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  background-image:
+    linear-gradient(45deg, transparent 50%, #d4af37 50%),
+    linear-gradient(135deg, #d4af37 50%, transparent 50%);
+
+  background-position:
+    calc(100% - 18px) center,
+    calc(100% - 13px) center;
+
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+
+#selectorJuegosRapidos:hover {
+  background: linear-gradient(135deg, rgb(74, 56, 40), rgb(44, 34, 26));
+  border-color: #f5f0e6;
+
+  box-shadow:
+    0 0 0 3px rgba(245, 247, 250, 0.1),
+    0 0 18px rgba(212, 175, 55, 0.35);
+
+  transform: translateY(-1px);
+}
+
+#selectorJuegosRapidos:focus {
+  outline: none;
+
+  box-shadow:
+    0 0 0 3px rgba(245, 247, 250, 0.15),
+    0 0 22px rgba(212, 175, 55, 0.6);
+}
+
+#selectorJuegosRapidos option {
+  background: rgb(32, 24, 18);
+  color: #f5f0e6;
+}
+
+
+
+
+/* ===== CONTENEDOR PRINCIPAL ===== */
+.myth-details {
+  margin-top: 15px;
+  padding: 10px 0;
+  border-top: 1px solid rgba(212, 175, 55, 0.4);
+  color: #e8e4d8;
+  font-family: 'Cinzel Decorative', serif;
+}
+
+/* ===== TÍTULO (SUMARIO) ===== */
+.myth-details summary {
+  cursor: pointer;
+  user-select: none;
+
+  font-weight: 700;
+  font-size: 1rem;
+  text-align: center;
+  letter-spacing: 2px;
+
+  color: #d4af37; /* dorado sagrado */
+
+  text-shadow:
+    0 2px 10px rgba(0, 0, 0, 0.8),
+    0 0 10px rgba(212, 175, 55, 0.4);
+
+  list-style: none;
+}
+
+/* quitar flecha nativa */
+.myth-details summary::-webkit-details-marker {
+  display: none;
+}
+
+/* ===== PANEL ===== */
+.myth-panel {
+  margin-top: 12px;
+  padding: 12px;
+
+  background: linear-gradient(135deg, #f5f0e6 0%, #e8e4d8 100%);
+  border: 2px solid #d4af37;
+  border-radius: 10px;
+
+  box-shadow:
+    0 0 0 4px rgba(245, 247, 250, 0.8),
+    0 8px 20px rgba(0, 0, 0, 0.3);
+
+  color: #3b2f1a;
+}
+
+/* ===== FILA SUPERIOR ===== */
+.myth-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  font-size: 0.85rem;
+  color: #5a4630;
+
+  margin-bottom: 10px;
+}
+
+.myth-row button {
+  background: transparent;
+  border: 1px solid #d4af37;
+  color: #8c6d31;
+
+  border-radius: 4px;
+  cursor: pointer;
+
+  padding: 2px 6px;
+}
+
+/* ===== SELECT ===== */
+.myth-panel select {
+  width: 100%;
+  padding: 8px;
+
+  border: 2px solid #d4af37;
+  border-radius: 6px;
+
+  background: #fffaf0;
+  color: #3b2f1a;
+
+  font-family: inherit;
+}
+
+/* ===== INPUT + BOTÓN ===== */
+.myth-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.myth-actions input {
+  width: 50%;
+  padding: 8px;
+
+  border: 2px solid #d4af37;
+  border-radius: 6px;
+
+  background: #fffaf0;
+  color: #3b2f1a;
+
+  text-align: center;
+}
+
+.myth-actions button {
+  width: 50%;
+
+  background: linear-gradient(135deg, #d4af37, #aa7c11);
+  color: #fff;
+
+  border: none;
+  border-radius: 6px;
+
+  font-weight: bold;
+  cursor: pointer;
+
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.4);
+  transition: 0.2s;
+}
+
+.myth-actions button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 18px rgba(212, 175, 55, 0.7);
+}
+
+
+
+
+#screenIntro {
+  text-align: center;
+  padding: 30px 20px;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+/* El texto principal "El último en" (Estilo mármol/piedra tallada) */
+#screenIntro h1 {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(2rem, 5vw, 4rem); /* Tamaño imponente y majestuoso */
+  color: #ffd700;    /* Blanco puro */
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin: 0;
+  font-weight: 700;
+  
+  /* Combinación de sombras para que las letras floten y se lean sobre cualquier fondo */
+  text-shadow: 
+    0 3px 6px rgba(0, 0, 0, 0.9), 
+    0 6px 15px rgba(0, 0, 0, 0.7),
+    0 0 20px rgba(0, 0, 0, 0.4);
+}
+
+/* El símbolo "πε" (Estilo oro divino del Olimpo) */
+#screenIntro h1 span {
+  font-family: 'Cinzel Decorative', serif;
+  color: #ffd700;          /* Oro brillante */
+  text-transform: none;    /* ¡CLAVE! Evita que la 'ε' se convierta en una 'E' mayúscula */
+  font-size: 1.25em;       /* Le da mayor protagonismo visual */
+  font-weight: 900;
+  display: inline-block;
+  padding-left: 5px;       /* Un pequeño espacio de separación */
+  
+  /* Resplandor dorado místico */
+  text-shadow: 
+    0 3px 6px rgba(0, 0, 0, 0.9), 
+    0 6px 15px rgba(0, 0, 0, 0.7),
+    0 0 20px rgba(0, 0, 0, 0.4);
+}
+
+
+/* Eliminamos el fondo, bordes y cajas. Ahora el contenido flota libre */
+#screenJoin {
+  text-align: center;
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* QR más pequeño */
+#qrcode {
+  background: #ffffff;
+  padding: 8px;
+  display: inline-block;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+  margin-bottom: 15px;
+}
+
+/* Tamaño real del QR */
+#qrcode img,
+#qrcode canvas {
+  width: 150px !important;
+  height: 150px !important;
+}
+
+/* Texto grande, en negrita y ultra legible sin fondo */
+#screenJoin p {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(1rem, 2vw, 1.5rem);
+  font-weight: 700;
+  color: #e8e4d8;
+  line-height: 1.4;
+
+  
+  /* Contorno negro reforzado para que el texto resalte directamente sobre la imagen */
+  text-shadow: 
+    0 3px 30px rgba(0, 0, 0, 0.9), 
+    0 6px 30px rgba(0, 0, 0, 0.7),
+    0 0 30px rgba(0, 0, 0, 0.4);
+}
+
+/* El Botón Mitológico */
+#startBtn {
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%); 
+  color: #8c6d31; 
+  font-family: 'Cinzel Decorative', serif !important; 
+  font-size: clamp(1rem, 1.5vw, 1.4rem);
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  padding: clamp(10px, 1vw, 15px) clamp(20px, 2vw, 35px);
+  border: 3px double #d4af37; 
+  border-radius: 4px; 
+  cursor: pointer;
+  outline: none; /* 🌟 ELIMINA LA LÍNEA AZUL DE ENFOQUE DEL NAVEGADOR */
+  box-shadow: 
+    0 0 0 4px #f5f7fa, 
+    0 0 15px rgba(212, 175, 55, 0.4), 
+    inset 0 0 10px rgba(0, 0, 0, 0.05); 
+  transition: all 0.3s ease-in-out;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Evitamos que la línea azul vuelva al hacer clic */
+#startBtn:focus {
+  outline: none;
+  box-shadow: 
+    0 0 0 4px #f5f7fa, 
+    0 0 15px rgba(212, 175, 55, 0.4); /* Mantiene nuestro brillo dorado en vez del azul */
+}
+
+/* Efecto Hover */
+#startBtn:hover {
+  color: #fff;
+  background: linear-gradient(135deg, #d4af37 0%, #aa7c11 100%); 
+  border-color: #f5f7fa;
+  box-shadow: 
+    0 0 0 4px #d4af37,
+    0 0 25px rgba(212, 175, 55, 0.8); 
+  transform: translateY(-2px); 
+}
+
+/* Efecto Active */
+#startBtn:active {
+  transform: translateY(1px);
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+}
+
+/* Detalles de relieve horizontales dorados */
+#startBtn::before, #startBtn::after {
+  content: "";
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: rgba(212, 175, 55, 0.3);
+}
+#startBtn::before { top: 6px; }
+#startBtn::after { bottom: 6px; }
+
 
 .panel {
   margin: 10px;
