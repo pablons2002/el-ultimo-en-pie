@@ -1,0 +1,824 @@
+/* ==========================================
+   1. REGLAS GENERALES Y ESTRUCTURA (RESPONSIVE ALTO)
+   ========================================== */
+* {
+  font-family: 'Cinzel Decorative', serif !important;
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100svh;     /* Evita scroll en barras de móviles */
+  overflow: hidden;   /* Bloquea el scroll general de la página */
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  background-color: #d1bf9d; 
+  background-image: 
+    radial-gradient(circle at 50% 30%, rgba(107, 86, 51, 0.08) 0%, transparent 70%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.03) 0%, transparent 100%);
+  background-attachment: fixed;
+  color: #211a10; 
+}
+
+/* Contenedor elástico para todas las pantallas de juego */
+#screenSelect, #screenWaiting, #screenRanking, #screenGuessSong, #screenJoin {
+  flex-grow: 1;       /* Ocupa el espacio restante sin romper el alto */
+  width: 100%;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow-y: auto;   /* Scroll interno solo si el contenido desborda */
+}
+
+/* ==========================================
+   2. HEADER PERMANENTE Y COMPACTO
+   ========================================== */
+#userHeader {
+  background-color: #3e3220; 
+  border-bottom: 3px solid #b89047; 
+  color: #f4efe2; 
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: nowrap;
+  padding: 8px 12px;
+  flex-shrink: 0;     /* Bloquea que se aplaste el header */
+  width: 100%;
+  z-index: 9999;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#userHeader h1 {
+  margin: 0;
+  font-size: 1.1em;
+  color: #f1e983;
+  white-space: nowrap; 
+}
+
+#selectorContainer {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.select-label {
+  font-size: 0.9em;
+  color: #d1bf9d;
+}
+
+#playerSelect {
+  background-color: #2b251a;
+  color: #f4efe2;
+  border: 1px solid #b89047;
+  border-radius: 4px;
+  padding: 4px;
+  font-size: 0.9em;
+  max-width: 130px;
+}
+
+.userNameHeader {
+  margin-left: 10px;
+  color: aqua;
+}
+
+/* ==========================================
+   3. MAZO DE CARTAS / CROMOS OLÍMPICOS
+   ========================================== */
+.mazo-cartas-contenedor {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%; 
+  max-height: 75vh;
+  gap: 20px;
+}
+
+.cromo-olimpico {
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 4px double #d4af37;
+  border-radius: 8px;
+  padding: 20px;
+  width: max-content;
+  max-width: 85vw;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.cromo-foto {
+  max-height: 40vh;   /* Protege el alto estricto en pantallas de móvil */
+  max-width: 260px;
+  width: auto;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  border: 2px solid #1c2833;
+  border-radius: 4px;
+  object-fit: contain;
+}
+
+.cromo-nombre {
+  margin-top: 15px;
+  font-size: 1.3rem;
+  color: #1c2833;
+  letter-spacing: 1px;
+}
+
+/* ==========================================
+   4. ELEMENTOS ESPECÍFICOS (MAPA, IFRAME, OVERLAYS)
+   ========================================== */
+#map {
+  height: 70vh;
+  width: 100%;
+}
+
+#screenWorldGuessr {
+  width: 100%;
+  height: 100vh;
+}
+
+#screenWorldGuessr iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+#overlayImg {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.85);
+  justify-content: center;
+  align-items: center;
+  z-index: 99999;
+}
+
+#imgShow {
+  max-width: 90%;
+  max-height: 90%;
+  object-fit: contain;
+  z-index: 100000;
+}
+
+#screenSelect {
+  background-image: url('assets/wallpaper/vertical inetrior.jpg');
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+/* ==========================================
+   5. COMPONENTES INTERNOS (BOTONES, TABLAS, COMPLEMENTOS)
+   ========================================== */
+input, button {
+  padding: 8px 12px;
+  font-size: 16px;
+}
+
+button {
+  cursor: pointer;
+}
+
+.btn-navegacion {
+  background: #1c2833;
+  color: #d4af37;
+  border: 1px solid #d4af37;
+  font-size: 1.1rem;
+  border-radius: 4px;
+}
+
+.btn-elegir-personaje {
+  background: #b89728;
+  color: #ffffff;
+  border: 2px solid #1c2833;
+  font-size: 1.1rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  width: 100%;
+  margin-top: 15px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+#qrcode {
+  display: inline-flex;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.qrcode {
+  display: flex;
+  align-content: center;
+}
+
+/* ==========================================
+   6. DISEÑO EXTRA: ORÁCULO / TEMPLO
+   ========================================== */
+.templo-ruleta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 25px;
+  background: linear-gradient(135deg, #f4f1ea 0%, #e8e4d9 100%);
+  padding: 35px;
+  border-radius: 4px;
+  border: 6px double #d4af37;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), inset 0 0 20px rgba(212, 175, 55, 0.2);
+  max-width: 480px;
+  margin: 20px auto;
+  color: #1c2833;
+  position: relative;
+}
+
+.titulo-olimpico {
+  color: #b89728;
+  margin: 0;
+  font-size: 2rem;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  border-bottom: 2px solid #d4af37;
+  padding-bottom: 8px;
+  width: 100%;
+}
+
+.aguja-olimpica {
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 15px solid transparent;
+  border-right: 15px solid transparent;
+  border-top: 30px solid #b89728;
+  z-index: 10;
+  filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.3));
+}
+
+.boton-heroe {
+  display: none;
+  background: #1c2833;
+  color: #d4af37;
+  border: 2px solid #d4af37;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  border-radius: 2px;
+  font-size: 1.1rem;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.boton-heroe:hover {
+  background: #d4af37;
+  color: #1c2833;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4);
+}
+
+
+/* ==========================================
+   2. HEADER PERMANENTE Y COMPACTO (REPARADO)
+   ========================================== */
+#userHeader {
+  background-color: #3e3220; 
+  border-bottom: 3px solid #b89047; 
+  color: #f4efe2; 
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: nowrap;
+  padding: 6px 10px; /* Un pelo más compacto en los bordes */
+  flex-shrink: 0;     
+  width: 100%;
+  z-index: 9999;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0; /* OBLIGATORIO: Permite que el contenedor se encoja si el texto es largo */
+}
+
+/* Reducimos el logo un poco si la pantalla se vuelve muy enana */
+.header-left img {
+  max-width: 32px;
+  height: auto;
+}
+
+
+
+#userHeader h1 {
+  margin: 0;
+  font-size: 1rem; /* Bajamos de 1.1em a 1rem base */
+  color: #f1e983;
+  white-space: nowrap; 
+  overflow: hidden;
+  text-overflow: ellipsis; /* Si aun así no cabe el título, añade "..." con elegancia en vez de salirse */
+}
+
+#playerSelect {
+  background-color: #2b251a;
+  color: #f4efe2;
+  border: 1px solid #b89047;
+  border-radius: 4px;
+  padding: 2px 4px;   /* Padding vertical mínimo para que sea más plano */
+  font-size: 0.75em;  /* Letra bastante más pequeña */
+  
+  /* RECORTE ULTRA ESTRICTO */
+  width: 75px;        /* Súper estrecho, no ocupará casi nada */
+  max-width: 20vw;    /* Límite absoluto en pantallas mini */
+  
+  /* Corta el texto largo con puntos suspensivos */
+  text-overflow: ellipsis; 
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+
+
+#userHeader {
+  background-color: #3e3220; 
+  border-bottom: 3px solid #b89047; 
+  color: #f4efe2; 
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between; 
+  align-items: center;
+  padding: 6px 10px;
+  width: 100%;
+  z-index: 9999;
+}
+
+
+/* ==========================================
+   7. ESTILO FLUJO MITOLOGÍA: RANKING DEL TEMPLO
+   ========================================== */
+.tabla-templo-contenedor {
+  width: 100%;
+  max-width: 450px;
+  background: linear-gradient(135deg, #f4f1ea 0%, #e8e4d9 100%); /* Textura mármol suave */
+  border: 4px double #d4af37; /* Marco doble dorado */
+  border-radius: 6px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  margin-top: 15px;
+  overflow: hidden;
+}
+
+.tabla-mitologica {
+  width: 100%;
+  border-collapse: collapse;
+  color: #1c2833;
+}
+
+.tabla-mitologica thead {
+  background-color: #1c2833; /* Fondo oscuro elegante */
+  color: #d4af37; /* Letras doradas */
+}
+
+.tabla-mitologica th {
+  padding: 12px 10px;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.tabla-mitologica td {
+  padding: 10px 8px;
+  border-bottom: 1px solid rgba(184, 144, 71, 0.2);
+  font-size: 0.95rem;
+  vertical-align: middle;
+}
+
+/* Celda con Avatar e imagen */
+.heroe-celda {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+}
+
+.avatar-ranking {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid #b89047;
+  object-fit: cover;
+  background-color: #3e3220;
+}
+
+/* Celda de posición y tendencias */
+.pos-celda {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+}
+
+.tendencia-sube { color: #27ae60; font-weight: bold; font-size: 1.1em; } /* Verde */
+.tendencia-baja { color: #c0392b; font-weight: bold; font-size: 1.1em; } /* Rojo */
+.tendencia-igual { color: #7f8c8d; font-size: 0.9em; }
+
+/* Insignia de puntuación */
+.puntos-badge {
+  background-color: #3e3220;
+  color: #f1e983;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  border: 1px solid #b89047;
+  white-space: nowrap;
+}
+
+/* Resaltado divino si es mi fila */
+.mi-fila-divina {
+  background-color: rgba(212, 175, 55, 0.25) !important; /* Oro traslúcido */
+  border-left: 5px solid #d4af37;
+  animation: pulsoDivino 2s infinite alternate;
+}
+
+/* Mensaje del Oráculo Banner */
+.oraculo-banner {
+  width: 100%;
+  max-width: 450px;
+  background-color: #1c2833;
+  border: 2px solid #b89047;
+  border-radius: 6px;
+  padding: 12px;
+  margin-top: 10px;
+  box-shadow: inset 0 0 10px rgba(212, 175, 55, 0.2);
+}
+
+.oraculo-texto {
+  color: #f4efe2;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  display: block;
+}
+
+.oraculo-texto b {
+  color: #f1e983; /* Resalta datos en oro */
+}
+
+.aleron-oro {
+  animation: brilloTexto 1.5s infinite alternate;
+}
+
+/* Animaciones de atmósfera de juego */
+@keyframes pulsoDivino {
+  from { background-color: rgba(212, 175, 55, 0.15); }
+  to { background-color: rgba(212, 175, 55, 0.3); }
+}
+@keyframes brilloTexto {
+  from { text-shadow: 0 0 2px #f1e983; }
+  to { text-shadow: 0 0 8px #f1e983; }
+}
+
+/* ==========================================
+   FORZAR CENTRADO HORIZONTAL Y ARRIBA EN VERTICAL (REPARADO)
+   ========================================== */
+#screenRanking {
+  /* 1. Quitamos el !important para que tu JS pueda ocultarlo con display: none */
+  display: flex; 
+  flex-direction: column;
+  justify-content: flex-start; /* Alinea arriba en vertical */
+  align-items: center;         /* Centra perfecto hacia los lados */
+  
+  width: 100%;
+  height: 100%;             
+  padding: 15px;
+  box-sizing: border-box;
+}
+
+/* Alineación e imán al centro para los bloques internos */
+.titulo-olimpico {
+  text-align: center;
+  width: 100%;
+  margin: 5px auto 12px auto;
+}
+
+.oraculo-banner {
+  width: 100%;
+  max-width: 340px;         
+  margin: 0 auto 15px auto;
+  box-sizing: border-box;
+}
+
+.tabla-templo-contenedor {
+  width: 100%;
+  max-width: 340px;         
+  margin: 0 auto;           
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.tabla-mitologica {
+  width: 100%;              
+  border-collapse: collapse;
+}
+
+
+
+
+/* ==========================================
+   8. ESTILO MITOLÓGICO: SONGGUESSR / ORÁCULO
+   ========================================== */
+
+/* Contenedor Principal estilo Tablilla de Mármol/Pergamino */
+.pantalla-juego-mitologica {
+  width: 100%;
+  max-width: 360px;
+  background: linear-gradient(135deg, #f4f1ea 0%, #e8e4d9 100%); /* Textura mármol suave */
+  border: 5px double #d4af37; /* Borde doble dorado */
+  border-radius: 6px;
+  padding: 25px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25), inset 0 0 15px rgba(212, 175, 55, 0.1);
+  color: #1c2833;
+  margin: 0 auto;
+}
+
+.subtitulo-oraculo {
+  color: #5d6d7e;
+  font-size: 0.85rem;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Estilo para los bloques de formulario */
+.campo-divino {
+  margin-bottom: 15px;
+  text-align: left;
+  width: 100%;
+}
+
+.campo-divino label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+  font-size: 0.85rem;
+  color: #1c2833;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Inputs con aspecto del Templo Oscuro */
+.campo-divino input[type="text"] {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 1rem;
+  background-color: #2b251a; /* Fondo oscuro a juego con el header */
+  color: #f4efe2; /* Letras crema */
+  border: 1px solid #b89047; /* Borde bronce */
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.campo-divino input[type="text"]::placeholder {
+  color: rgba(244, 239, 226, 0.4);
+}
+
+/* Grupo de botones P / I alternativos */
+.grupo-botones-heroe {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.btn-pi {
+  flex: 1;
+  padding: 10px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  border: 2px solid #b89047;
+  background: #1c2833;
+  color: #d4af37;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* Botón de Enviar Respuesta del Héroe */
+.boton-heroe-enviar {
+  background: #3e3220; /* Color madera sagrada */
+  color: #f1e983; /* Letras doradas */
+  border: 2px solid #b89047;
+  padding: 12px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 10px;
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.boton-heroe-enviar:disabled {
+  background: #7f8c8d;
+  color: #d1bf9d;
+  border-color: #7f8c8d;
+  cursor: not-allowed;
+}
+
+/* Banners de Estados de Espera y Alerta */
+.banner-mensaje-templo {
+  width: 100%;
+  max-width: 360px;
+  padding: 22px;
+  border-radius: 6px;
+  margin: 0 auto;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+  border: 3px double;
+}
+
+/* Banner de acierto/espera verde/dorado */
+.banner-espera {
+  background-color: #1c2833;
+  border-color: #d4af37;
+  color: #f4efe2;
+}
+.banner-espera h3 {
+  color: #f1e983;
+  margin-top: 0;
+}
+
+/* Banner de tiempo agotado rojo/bronce */
+.banner-alerta {
+  background-color: #3a1c1c; /* Rojo vino oscuro */
+  border-color: #e53e3e;
+  color: #f4efe2;
+}
+.banner-alerta h2 {
+  color: #f2a1a1;
+  margin-top: 0;
+}
+
+
+
+/* Contenedor de los dos botones */
+.grupo-botones-heroe {
+  display: flex;
+  gap: 10px;            
+  justify-content: center; 
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* El botón individual (REPARADO) */
+.btn-pi {
+  flex: 1;              
+  max-width: 140px;     
+  
+  /* CAMBIO AQUÍ: Usamos inline-flex en lugar de flex puro */
+  /* Esto permite que el botón mantenga sus propiedades internas de alineado */
+  /* pero respete perfectamente el display: none / block de tus pantallas */
+  display: inline-flex;
+  
+  align-items: center;  
+  justify-content: center; 
+  gap: 8px;             
+  padding: 8px 10px;    
+  font-size: 0.95rem;
+}
+
+/* Las imágenes de los iconos dentro de los botones */
+.btn-pi img {
+  width: 24px;          
+  height: 24px;
+  border-radius: 50%;   
+  border: 1px solid #b89047; 
+  object-fit: cover;    
+}
+
+
+
+
+/* Input específico para el conteo de hilos */
+.input-moira {
+  width: 100%;
+  max-width: 200px;
+  padding: 12px;
+  font-size: 1.6rem !important; /* Número bien grande para evitar errores al teclear */
+  font-weight: bold;
+  text-align: center;
+  background-color: #2b251a;
+  color: #f1e983 !important; /* El número se tiñe de color oro */
+  border: 2px solid #b89047;
+  border-radius: 4px;
+  display: block;
+  margin: 0 auto 20px auto; /* Centrado horizontal */
+}
+
+/* Eliminar las flechas por defecto en los inputs de número para que se vea más limpio */
+.input-moira::-webkit-outer-spin-button,
+.input-moira::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* ==========================================
+   9. ESTILO MITOLÓGICO: EL VEREDICTO DE LOS DIOSES
+   ========================================== */
+
+.lista-urnas-contenedor {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+  max-height: 280px;      /* Evita que se desborde en pantallas de móviles cortas */
+  overflow-y: auto;       /* Añade scroll si hay más de 4 o 5 jugadores */
+  padding: 8px 4px;
+  border: 1px dashed rgba(184, 144, 71, 0.4); /* Línea sutil de papiro */
+  border-radius: 4px;
+}
+
+/* Personalización del scroll para que parezca una barra integrada en el templo */
+.lista-urnas-contenedor::-webkit-scrollbar {
+  width: 6px;
+}
+
+.lista-urnas-contenedor::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.lista-urnas-contenedor::-webkit-scrollbar-thumb {
+  background-color: #b89047;
+  border-radius: 10px;
+}
+
+/* 1. Ajuste global para que la pantalla mística ocupe exactamente el alto del móvil sin desbordar */
+.pantalla-juego-mitologica {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Centra todo el bloque verticalmente si sobra espacio */
+  height: 100vh;          /* Obliga a medir el 100% de la pantalla */
+  max-height: 100vh;
+  padding: 10px 15px !important; /* Padding vertical mínimo para ganar espacio */
+  box-sizing: border-box;
+  overflow: hidden;       /* Prohibido el scroll general de la pantalla */
+}
+
+/* 2. Reducir márgenes de títulos para pantallas con elementos masivos (como Láquesis) */
+.pantalla-juego-mitologica .titulo-olimpico {
+  font-size: 1.5rem !important;
+  margin-top: 0 !important;
+  margin-bottom: 4px !important;
+}
+
+.pantalla-juego-mitologica .subtitulo-oraculo {
+  font-size: 0.85rem !important;
+  margin-bottom: 10px !important;
+}
+
+/* 3. Ajuste para El Cálculo de Láquesis (Teclados compactos) */
+#movilBotonesNumeros button, 
+#movilBotonesOperadores button {
+  padding: 8px 4px !important; /* Botones más chatos para ahorrar muchísimos píxeles */
+  font-size: 1.15rem !important;
+}
+
+#movilPantallaFormula {
+  min-height: 40px !important; /* Pantalla de ecuación un poco más delgada */
+  margin-bottom: 10px !important;
+  padding: 8px !important;
+}
+
+/* 4. Ajuste para El Veredicto de los Dioses (Lista de votación) */
+.lista-urnas-contenedor {
+  max-height: 180px !important; /* Reducimos la altura máxima de la lista de 280px a 180px */
+  gap: 8px !important;
+  overflow-y: auto;             /* Solo esta cajita tiene derecho a scroll si hay muchos jugadores */
+}
+
+.lista-urnas-contenedor button {
+  padding: 10px !important;     /* Botones de votación más compactos */
+  font-size: 0.95rem !important;
+}
