@@ -125,11 +125,37 @@ document.getElementById("spinBtn").onclick = async () => {
 // 🎡 LOGICA DE LA RULETA DE SELECCIÓN DE MINIJUEGOS (TV)
 // =========================================================================
 
-const constGames = ["WorldGuessr", "GuessSong", "GlassTower", "IrrationalPrice", "Votes", "SymbolZone", "NumbersAndLetters", "TheLiar", "LastTheorem"];
+const constGames = [
+  "El viaje de Ulises",
+  "El canto de Orfeo",
+  "La torre de Dédalo",
+  "El precio de las Moiras",
+  "El veredicto de los dioses",
+  "El oráculo de Delfos",
+  "El cálculo de Láquesis",
+  "El juicio de Epimeteo",
+  "El último teorema"
+];
+
 let ruletaJuegosGirando = false;
 let juegoDestinoGuardado = ""; // Guardará temporalmente a dónde ir
 
 // A. DIBUJAR LA RULETA AUTOMÁTICAMENTE AL CARGAR EL SCRIPT
+
+function lightenColor(color, percent) {
+  const num = parseInt(color.replace("#", ""), 16);
+
+  let r = (num >> 16) + Math.round(2.55 * percent);
+  let g = ((num >> 8) & 0x00FF) + Math.round(2.55 * percent);
+  let b = (num & 0x0000FF) + Math.round(2.55 * percent);
+
+  r = Math.min(255, r);
+  g = Math.min(255, g);
+  b = Math.min(255, b);
+
+  return `rgb(${r}, ${g}, ${b})`;
+}
+
 window.inicializarRuletaJuegos = function () {
   const canvas = document.getElementById("canvasRuletaJuegos");
   if (!canvas) return;
@@ -138,19 +164,23 @@ window.inicializarRuletaJuegos = function () {
   const numSectores = constGames.length;
   const angularArco = (2 * Math.PI) / numSectores;
   const centro = canvas.width / 2;
+  const radio = centro;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   // Colores llamativos alternos para los sectores de la ruleta
   // Paleta de colores de la Grecia Clásica para el Canvas
   const colores = [
-    "#2c231e", // Negro Ático / Cerámica oscura
-    "#d97d4b", // Terracota clásico
-    "#e6dfcf", // Mármol / Crema
-    "#8a9a86", // Verde Oliva húmedo
-    "#b89728", // Oro Viejo
-    "#1c2833", // Azul Profundo del Egeo
-    "#bd5332"  // Rojo Cerámico
+    "#d4af37", // Oro clásico
+    "#c0c0c0", // Plata
+    "#cd7f32", // Bronce
+    "#b87333", // Cobre
+    "#e5e4e2", // Plata clara / brillo
+    "#bfa46f", // Oro envejecido
+    "#8c7853", // Latón antiguo
+    "#f2d16b", // Oro brillante
+    "#a8a8a8", // Metal acero
+    "#c49a6c"  // Oro arena metálico
   ];
 
   constGames.forEach((game, i) => {
@@ -159,20 +189,48 @@ window.inicializarRuletaJuegos = function () {
 
     // Pintar trozo de tarta
     ctx.beginPath();
-    ctx.fillStyle = colores[i % colores.length];
+    const gradient = ctx.createLinearGradient(
+      0, 0,
+      canvas.width, canvas.height
+    );
+
+    const base = colores[i];
+
+    gradient.addColorStop(0, base);
+    gradient.addColorStop(0.5, lightenColor(base, 25));
+    gradient.addColorStop(1, base);
+
+    ctx.fillStyle = gradient;
     ctx.moveTo(centro, centro);
-    ctx.arc(centro, centro, centro, anguloInicio, anguloFin);
+    ctx.arc(centro, centro, radio, anguloInicio, anguloFin);
     ctx.lineTo(centro, centro);
+    ctx.fill();
+    const light = ctx.createRadialGradient(
+      centro, centro, 10,
+      centro, centro, radio
+    );
+
+    light.addColorStop(0, "rgba(255,255,255,0.18)");
+    light.addColorStop(0.3, "rgba(255,255,255,0.05)");
+    light.addColorStop(1, "rgba(255,255,255,0)");
+
+    ctx.fillStyle = light;
     ctx.fill();
 
     // Escribir el nombre del juego
     ctx.save();
     ctx.translate(centro, centro);
     ctx.rotate(anguloInicio + angularArco / 2);
-    ctx.fillStyle = "#ffffff";
-    ctx.font = "bold 13px sans-serif";
+    ctx.fillStyle = "#3b2f1a";
+    ctx.font = "bold 10px Cinzel Decorative";
     ctx.textAlign = "right";
-    ctx.fillText(game, centro - 20, 5); // Desfase hacia fuera
+    let text = game;
+
+    if (text.length > 12) {
+      text = text.slice(0, 12) + "…";
+    }
+
+    ctx.fillText(text, radio - 15, 4);
     ctx.restore();
   });
 };
@@ -1565,7 +1623,7 @@ function symbolZone() {
   console.log("🔺 Iniciando juego SymbolZone en la TV");
 
   // 🔥 SOLUCIÓN: Vaciamos por completo el marcador local para la nueva partida
-  puntuacionJuegoSymbol = {}; 
+  puntuacionJuegoSymbol = {};
 
   rondaActualSymbol = 1;
   reiniciarRondaInterfaceSymbol();
@@ -1591,7 +1649,7 @@ function symbolZone() {
       listaJugadoresSymbol.push({
         id: idJugador,
         name: p.name,
-        equivocado: false 
+        equivocado: false
       });
     });
 
@@ -1632,7 +1690,7 @@ function pintarPanelJugadoresSymbol() {
 
     card.onclick = () => {
       listaJugadoresSymbol[index].equivocado = !listaJugadoresSymbol[index].equivocado;
-      pintarPanelJugadoresSymbol(); 
+      pintarPanelJugadoresSymbol();
     };
 
     contenedorLista.appendChild(card);
@@ -1650,7 +1708,7 @@ window.controlarTiempoSymbol = function (accion) {
       if (tiempoRestanteSymbol <= 0) {
         clearInterval(intervaloCronometroSymbol);
         intervaloCronometroSymbol = null;
-        if (elReloj) elReloj.style.color = "#ff3d00"; 
+        if (elReloj) elReloj.style.color = "#ff3d00";
         alert("⏰ ¡Tiempo agotado! Turno de revisar los símbolos.");
         return;
       }
@@ -1704,7 +1762,7 @@ window.pointsSymbolZone = async function () {
   const contenedorLista = document.getElementById("tvListaJugadoresSymbol");
   if (contenedorLista) {
     contenedorLista.setAttribute("data-bloqueado", "true"); // Bloqueo temporal anti-snapshot
-    
+
     let tablaHtml = `
       <div style="width: 100%; background: #000; padding: 15px; border-radius: 8px; border: 1px solid #ff3d00; box-sizing: border-box; grid-column: 1 / -1;">
         <h3 style="color: #ff3d00; margin-top: 0; text-align: center; font-size: 1.2rem;">🏆 RANKING LOCAL (Ronda ${rondaActualSymbol} / 5)</h3>
@@ -1746,7 +1804,7 @@ window.pointsSymbolZone = async function () {
 
     for (let index = 0; index < rankingJuego.length; index++) {
       const jugadorRanking = rankingJuego[index];
-      
+
       // Si empata en puntos con el jugador anterior, mantiene la misma posicionReal
       if (index > 0 && jugadorRanking.scoreJuego === rankingJuego[index - 1].scoreJuego) {
         // Mantiene la misma posicionReal
@@ -1761,7 +1819,7 @@ window.pointsSymbolZone = async function () {
       if (puntosGlobalesInyeccion > 0) {
         try {
           const playerRef = doc(window.db, "players", jugadorRanking.id);
-          
+
           // Traer la puntuación real acumulada del torneo en Firebase
           const snap = await getDocs(query(collection(window.db, "players")));
           let scoreTorneoActual = 0;
@@ -1782,7 +1840,7 @@ window.pointsSymbolZone = async function () {
     }
     alert("🏆 ¡El Olimpo ha repartido las puntuaciones de forma justa y el torneo global está actualizado!");
   }
-}; 
+};
 
 // BOTÓN: PASAR DE RONDA
 window.siguienteRondaSymbol = function () {
