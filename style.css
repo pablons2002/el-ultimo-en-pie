@@ -12,7 +12,7 @@ body {
 
 h1 {
   margin: 10px;
-  color:blue;
+  color: blue;
 }
 
 .panel {
@@ -59,30 +59,33 @@ button {
 
 .userNameHeader {
   margin-left: 10px;
-  color:aqua;
+  color: aqua;
 }
 
 /* Imágenes por encima del iframe*/
 #overlayImg {
-    display: none; /* Empieza oculto */
-    position: fixed; /* Se fija a la pantalla completa */
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.85); /* Fondo oscuro semitransparente */
-    justify-content: center;
-    align-items: center;
-    z-index: 99999; 
-    pointer-events: auto; 
+  display: none;
+  /* Empieza oculto */
+  position: fixed;
+  /* Se fija a la pantalla completa */
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.85);
+  /* Fondo oscuro semitransparente */
+  justify-content: center;
+  align-items: center;
+  z-index: 99999;
+  pointer-events: auto;
 }
 
 #imgShow {
-    max-width: 90%;
-    max-height: 90%;
-    object-fit: contain;
-    /* Por si acaso, asegúrate de que la imagen también herede un z-index alto */
-    z-index: 100000; 
+  max-width: 90%;
+  max-height: 90%;
+  object-fit: contain;
+  /* Por si acaso, asegúrate de que la imagen también herede un z-index alto */
+  z-index: 100000;
 }
 
 
@@ -95,15 +98,20 @@ button {
   flex-direction: column;
   align-items: center;
   gap: 25px;
-  background: linear-gradient(135deg, #f4f1ea 0%, #e8e4d9 100%); /* Textura mármol suave */
+  background: linear-gradient(135deg, #f4f1ea 0%, #e8e4d9 100%);
+  /* Textura mármol suave */
   padding: 35px;
-  border-radius: 4px; /* Menos curvo, más arquitectónico */
-  border: 6px double #d4af37; /* Borde doble dorado */
-  box-shadow: 0 20px 40px rgba(0,0,0,0.15), inset 0 0 20px rgba(212, 175, 55, 0.2);
+  border-radius: 4px;
+  /* Menos curvo, más arquitectónico */
+  border: 6px double #d4af37;
+  /* Borde doble dorado */
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), inset 0 0 20px rgba(212, 175, 55, 0.2);
   max-width: 480px;
   margin: 20px auto;
-  color: #1c2833; /* Texto oscuro elegante */
-  font-family: 'Cinzel', 'Georgia', serif; /* Tipografía con aire clásico */
+  color: #1c2833;
+  /* Texto oscuro elegante */
+  font-family: 'Cinzel', 'Georgia', serif;
+  /* Tipografía con aire clásico */
   position: relative;
 }
 
@@ -114,7 +122,7 @@ button {
   font-size: 2rem;
   text-transform: uppercase;
   letter-spacing: 3px;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
   border-bottom: 2px solid #d4af37;
   padding-bottom: 8px;
   width: 100%;
@@ -131,16 +139,19 @@ button {
   height: 0;
   border-left: 15px solid transparent;
   border-right: 15px solid transparent;
-  border-top: 30px solid #b89728; /* Dorado oscuro */
+  border-top: 30px solid #b89728;
+  /* Dorado oscuro */
   z-index: 10;
-  filter: drop-shadow(0px 4px 4px rgba(0,0,0,0.3));
+  filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.3));
 }
 
 /* Botón de Acción Digno de un Héroe */
 .boton-heroe {
   display: none;
-  background: #1c2833; /* Contraste oscuro */
-  color: #d4af37; /* Letras doradas */
+  background: #1c2833;
+  /* Contraste oscuro */
+  color: #d4af37;
+  /* Letras doradas */
   border: 2px solid #d4af37;
   padding: 14px 35px;
   font-weight: bold;
@@ -149,7 +160,7 @@ button {
   border-radius: 2px;
   cursor: pointer;
   font-size: 1.1rem;
-  box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
 }
 
@@ -181,16 +192,23 @@ button {
   font-family: 'Cinzel Decorative', serif;
 }
 
-/* El cromo/carta individual (Ancho dinámico según el contenido) */
+/* El cromo/carta individual con fondo traslúcido */
 .cromo-olimpico {
-  background: linear-gradient(135deg, #f4f1ea 0%, #e8e4d9 100%);
+  /* CAMBIO: Usamos rgba para darle un fondo crema/mármol con un 85% de opacidad (15% traslúcido) */
+  background: rgba(0, 0, 0, 25%);
+
+  /* EFECTO CRISTAL: Desenfoca sutilmente lo que haya detrás de la carta */
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  /* Soporte para Safari/iOS */
+
+  /* Mantenemos el marco doble dorado divino */
   border: 4px double #d4af37;
   border-radius: 8px;
   padding: 20px;
-  /* CAMBIO: Quitamos width fijo y dejamos que se adapte al tamaño de la foto */
-  width: max-content; 
-  max-width: 85vw; /* Límite para que no se desborde en pantallas de móvil pequeñas */
-  box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+  width: max-content;
+  max-width: 85vw;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
   text-align: center;
   transition: transform 0.3s ease;
 }
@@ -199,8 +217,10 @@ button {
 .cromo-foto {
   /* CAMBIO: Al usar max-width y max-height, la imagen conserva su tamaño real y 
      la carta se encoge o se agranda para abrazar la foto a la perfección */
-  max-width: 260px;  /* Ancho máximo recomendado para móvil */
-  max-height: 320px; /* Alto máximo recomendado para móvil */
+  max-width: 260px;
+  /* Ancho máximo recomendado para móvil */
+  max-height: 320px;
+  /* Alto máximo recomendado para móvil */
   width: auto;
   height: auto;
   display: block;
@@ -240,5 +260,57 @@ button {
   letter-spacing: 1px;
   width: 100%;
   margin-top: 15px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+
+
+#screenJoin {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 20px;
+}
+
+#qrcode {
+  display: inline-flex;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.qrcode {
+  display: flex;
+  align-content: center;
+}
+
+
+
+
+
+
+
+
+/* 📱 FONDO EXCLUSIVO PARA LA PANTALLA DEL MÓVIL */
+#screenSelect {
+  /* 1. Ruta de tu imagen (ojo con los espacios en el nombre, usa la barra invertida como tenías) */
+  background-image: url('assets/wallpaper/vertical inetrior.jpg');
+
+  /* 2. EVITA QUE SE DUPLIQUE */
+  background-repeat: no-repeat;
+
+  /* 3. Centra la imagen perfectamente */
+  background-position: center center;
+
+  /* 4. Hace que la imagen cubra todo el fondo del móvil sin deformarse */
+  background-size: cover;
+
+  /* 5. Deja el fondo fijo */
+  background-attachment: fixed;
+
+  /* 🔥 EXTRA PARA MÓVIL: Fuerza a que el contenedor ocupe el 100% del alto de la pantalla */
+  min-height: 100vh;
+  width: 100%;
+  box-sizing: border-box;
 }

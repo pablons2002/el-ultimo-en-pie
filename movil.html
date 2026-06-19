@@ -5,7 +5,11 @@
   <meta charset="utf-8">
   <title>Móvil - El último en πe</title>
   <link rel="stylesheet" href="style.css">
-  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&display=swap"
+    rel="stylesheet">
+
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1, , viewport-fit=cover">
   <link rel="icon" type="image/svg+xml" href="images/iconoWeb.svg">
@@ -17,17 +21,18 @@
     <img src="images/iconoWeb.svg" width="40">
     👤 <span id="userNameHeader"></span>
   </header>
-  <h1>El último en pi e</h1>
+  <div class="fondoVertical">
+    <h1>El último en <span style="font-size: 1.4em;">πε</span></h1>
 
 
-  <!-- Selección de personaje -->
-  <div id="screenSelect"></div>
+    <!-- Selección de personaje -->
+    <div id="screenSelect"></div>
 
-  <!-- Pantalla de espera después de selección de personaje, hasta que se pulse botón de empezar en tv-->
-  <div id="screenWaiting" style="display:none; text-align: center; margin-top: 50px;">
-    Esperando a que empiece la partida...
+    <!-- Pantalla de espera después de selección de personaje, hasta que se pulse botón de empezar en tv-->
+    <div id="screenWaiting" style="display:none; text-align: center; margin-top: 50px;">
+      Esperando a que empiece la partida...
+    </div>
   </div>
-
 
 
 
@@ -228,19 +233,21 @@
 
 
   <!-- 8º El último teorema-->
-<div id="screenLastTheorem" class="screen-movil" style="display: none;background: #111; color: white; padding: 30px; font-family: sans-serif; text-align: center; border-radius: 8px;">
-  <h2>El Último Teorema</h2>
-  <p id="statusMessage">Introduce tu número para esta ronda (0 a 100):</p>
-  
-  <div style="margin: 20px 0;">
-    <input type="number" id="inputNumber" min="0" max="100" placeholder="Ej. 42" 
-           style="font-size: 24px; padding: 10px; width: 80%; text-align: center; border-radius: 5px; border: none;">
+  <div id="screenLastTheorem" class="screen-movil"
+    style="display: none;background: #111; color: white; padding: 30px; font-family: sans-serif; text-align: center; border-radius: 8px;">
+    <h2>El Último Teorema</h2>
+    <p id="statusMessage">Introduce tu número para esta ronda (0 a 100):</p>
+
+    <div style="margin: 20px 0;">
+      <input type="number" id="inputNumber" min="0" max="100" placeholder="Ej. 42"
+        style="font-size: 24px; padding: 10px; width: 80%; text-align: center; border-radius: 5px; border: none;">
+    </div>
+
+    <button id="btnEnviarNumero"
+      style="padding: 12px 30px; font-size: 18px; cursor: pointer; background: #ff4a4a; color: white; border: none; border-radius: 5px; font-weight: bold;">
+      Enviar Número
+    </button>
   </div>
-  
-  <button id="btnEnviarNumero" style="padding: 12px 30px; font-size: 18px; cursor: pointer; background: #ff4a4a; color: white; border: none; border-radius: 5px; font-weight: bold;">
-    Enviar Número
-  </button>
-</div>
 
 
 </body>

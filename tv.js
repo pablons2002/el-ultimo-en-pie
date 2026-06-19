@@ -1542,7 +1542,7 @@ window.finalizarYSumarVotos = async function () {
 
 
 // ==========================================
-// Juego 6º: Symbol Zone
+// Juego 6º: Symbol Zone (Con Puntuación Local)
 // ==========================================
 
 let rondaActualSymbol = 1;
@@ -1550,44 +1550,55 @@ let tiempoRestanteSymbol = 60; // 1 minuto en segundos
 let intervaloCronometroSymbol = null;
 let listaJugadoresSymbol = []; // Guarda { id, name, equivocado: true/false }
 
+// MARCADOR LOCAL INTERNO
+let puntuacionJuegoSymbol = {}; // Guardará { idJugador: puntosAcumuladosEnJuego }
+
 function symbolZone() {
   console.log("🔺 Iniciando juego SymbolZone en la TV");
 
-  // Reiniciar estado inicial si entra al juego de primeras
+  // 🔥 SOLUCIÓN: Vaciamos por completo el marcador local para la nueva partida
+  puntuacionJuegoSymbol = {}; 
+
   rondaActualSymbol = 1;
   reiniciarRondaInterfaceSymbol();
 
-  // Escuchar a los jugadores activos al cargar la pantalla
   onSnapshot(query(collection(window.db, "players"), where("active", "==", true)), (snapshot) => {
     const contenedorLista = document.getElementById("tvListaJugadoresSymbol");
     if (!contenedorLista) return;
 
-    // 1. Vaciamos la lista vieja
+    if (contenedorLista.getAttribute("data-bloqueado") === "true") return;
+
     listaJugadoresSymbol = [];
     contenedorLista.innerHTML = "";
 
-    // 2. Metemos los jugadores directos de Firebase. Todos empiezan en 'false' (en verde, salvados)
     snapshot.forEach((playerDoc) => {
       const p = playerDoc.data();
+      const idJugador = playerDoc.id;
+
+      // Al empezar la nueva partida, todos los jugadores entran limpios con 0 puntos locales
+      if (puntuacionJuegoSymbol[idJugador] === undefined) {
+        puntuacionJuegoSymbol[idJugador] = 0;
+      }
 
       listaJugadoresSymbol.push({
-        id: playerDoc.id,
+        id: idJugador,
         name: p.name,
-        equivocado: false // Por defecto, nadie está equivocado al empezar
+        equivocado: false 
       });
     });
 
-    // 3. Los pintamos en la pantalla
     pintarPanelJugadoresSymbol();
   });
 }
 symbolZone();
+
 // FUNCIÓN PARA DIBUJAR LOS JUGADORES EN EL PANEL
 function pintarPanelJugadoresSymbol() {
   const contenedorLista = document.getElementById("tvListaJugadoresSymbol");
   if (!contenedorLista) return;
 
   contenedorLista.innerHTML = "";
+  contenedorLista.removeAttribute("data-bloqueado");
 
   listaJugadoresSymbol.forEach((jugador, index) => {
     const card = document.createElement("div");
@@ -1599,12 +1610,11 @@ function pintarPanelJugadoresSymbol() {
     card.style.transition = "0.2s";
     card.style.userSelect = "none";
 
-    // Si está marcado como equivocado se pinta rojo, si no verde (salvado provisional)
     if (jugador.equivocado) {
       card.style.background = "#d32f2f";
       card.style.color = "white";
       card.style.border = "2px solid #ff6666";
-      card.innerHTML = `❌<br>${jugador.name}<br><span style='font-size:0.8rem;opacity:0.8;'>0 pts</span>`;
+      card.innerHTML = `❌<br>${jugador.name}<br><span style='font-size:0.8rem;opacity:0.8;'>+0 pts</span>`;
     } else {
       card.style.background = "#2e7d32";
       card.style.color = "white";
@@ -1612,35 +1622,31 @@ function pintarPanelJugadoresSymbol() {
       card.innerHTML = `✅<br>${jugador.name}<br><span style='font-size:0.8rem;opacity:0.8;'>+2 pts</span>`;
     }
 
-    // Al hacer clic, alternamos su estado de acierto/error
     card.onclick = () => {
       listaJugadoresSymbol[index].equivocado = !listaJugadoresSymbol[index].equivocado;
-      pintarPanelJugadoresSymbol(); // Refrescar visualmente la pantalla
+      pintarPanelJugadoresSymbol(); 
     };
 
     contenedorLista.appendChild(card);
   });
 }
 
-// CONTROLADOR DEL CRONÓMETRO (Iniciar / Pausar)
+// CONTROLADOR DEL CRONÓMETRO
 window.controlarTiempoSymbol = function (accion) {
   const elReloj = document.getElementById("tvCronometroSymbol");
 
   if (accion === "iniciar") {
-    if (intervaloCronometroSymbol) return; // Evitar duplicar intervalos
+    if (intervaloCronometroSymbol) return;
 
     intervaloCronometroSymbol = setInterval(() => {
       if (tiempoRestanteSymbol <= 0) {
         clearInterval(intervaloCronometroSymbol);
         intervaloCronometroSymbol = null;
-        if (elReloj) elReloj.style.color = "#ff3d00"; // Se pone rojo al acabar
+        if (elReloj) elReloj.style.color = "#ff3d00"; 
         alert("⏰ ¡Tiempo agotado! Turno de revisar los símbolos.");
         return;
       }
-
       tiempoRestanteSymbol--;
-
-      // Formatear los segundos a formato MM:SS
       const minutos = String(Math.floor(tiempoRestanteSymbol / 60)).padStart(2, '0');
       const segundos = String(tiempoRestanteSymbol % 60).padStart(2, '0');
       if (elReloj) elReloj.innerText = `${minutos}:${segundos}`;
@@ -1662,43 +1668,115 @@ window.controlarTiempoSymbol = function (accion) {
   }
 };
 
-// BOTÓN: GUARDAR RONDA Y APLICAR PUNTOS (+2 a los no marcados)
+// BOTÓN: GUARDAR RONDA LOCALMENTE Y MOSTRAR MARCADOR PROVISIONAL
+// BOTÓN: GUARDAR RONDA LOCALMENTE Y MOSTRAR MARCADOR PROVISIONAL
 window.pointsSymbolZone = async function () {
   if (listaJugadoresSymbol.length === 0) return alert("No hay jugadores en la partida.");
 
-  console.log(`🚀 Repartiendo puntos de la Ronda ${rondaActualSymbol}...`);
+  console.log(`🚀 Acumulando puntos locales de la Ronda ${rondaActualSymbol}...`);
 
-  for (let i = 0; i < listaJugadoresSymbol.length; i++) {
-    const j = listaJugadoresSymbol[i];
+  // 1. Sumar puntos en la estructura interna de esta partida
+  listaJugadoresSymbol.forEach(j => {
+    const puntosRonda = j.equivocado ? 0 : 2;
+    if (puntuacionJuegoSymbol[j.id] === undefined) puntuacionJuegoSymbol[j.id] = 0;
+    puntuacionJuegoSymbol[j.id] += puntosRonda;
+  });
 
-    // Si NO está marcado como equivocado, suma 2 puntos. Si falló, suma 0.
-    const puntosAAsignar = j.equivocado ? 0 : 2;
+  // 2. Crear el ranking provisional del minijuego para pintarlo en pantalla
+  let rankingJuego = listaJugadoresSymbol.map(j => ({
+    id: j.id,
+    name: j.name,
+    scoreJuego: puntuacionJuegoSymbol[j.id]
+  }));
 
-    try {
-      const playerRef = doc(window.db, "players", j.id);
+  // Ordenar de mayor a menor puntuación local
+  rankingJuego.sort((a, b) => b.scoreJuego - a.scoreJuego);
 
-      // Traer puntuación acumulada actual
-      const snapshotActual = await getDocs(query(collection(window.db, "players")));
-      let scoreActual = 0;
-      snapshotActual.forEach((d) => {
-        if (d.id === j.id) scoreActual = d.data().score ?? 0;
-      });
+  // 3. Transformar temporalmente el panel del presentador en la tabla de clasificación
+  const contenedorLista = document.getElementById("tvListaJugadoresSymbol");
+  if (contenedorLista) {
+    contenedorLista.setAttribute("data-bloqueado", "true"); // Bloqueo temporal anti-snapshot
+    
+    let tablaHtml = `
+      <div style="width: 100%; background: #000; padding: 15px; border-radius: 8px; border: 1px solid #ff3d00; box-sizing: border-box; grid-column: 1 / -1;">
+        <h3 style="color: #ff3d00; margin-top: 0; text-align: center; font-size: 1.2rem;">🏆 RANKING LOCAL (Ronda ${rondaActualSymbol} / 5)</h3>
+        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 1rem; color: white;">
+          <thead>
+            <tr style="border-bottom: 2px solid #333; color: #aaa;">
+              <th style="padding: 6px;">Pos</th>
+              <th style="padding: 6px;">Jugador</th>
+              <th style="padding: 6px; text-align: right;">Puntos Acumulados</th>
+            </tr>
+          </thead>
+          <tbody>
+    `;
 
-      // Guardar el nuevo total en Firebase
-      await updateDoc(playerRef, {
-        score: scoreActual + puntosAAsignar
-      });
+    rankingJuego.forEach((jugador, index) => {
+      tablaHtml += `
+        <tr style="border-bottom: 1px solid #222;">
+          <td style="padding: 8px; font-weight: bold; color: #ff3d00;">#${index + 1}</td>
+          <td style="padding: 8px;">${jugador.name} ${index === 0 ? '👑' : ''}</td>
+          <td style="padding: 8px; text-align: right; font-weight: bold; color: #ffc107;">${jugador.scoreJuego} pts</td>
+        </tr>
+      `;
+    });
 
-      console.log(`✨ ${j.name} procesado: +${puntosAAsignar} pts.`);
-    } catch (error) {
-      console.error(`❌ Error guardando puntos para ${j.name}:`, error);
-    }
+    tablaHtml += `</tbody></table></div>`;
+    contenedorLista.innerHTML = tablaHtml;
   }
 
-  alert(`🏆 ¡Puntos de la Ronda ${rondaActualSymbol} aplicados con éxito!`);
-};
+  alert(`🏆 Puntos de la Ronda ${rondaActualSymbol} calculados localmente.`);
 
-// BOTÓN: PASAR DE RONDA Y REINICIAR EL MINUTO
+  // =========================================================================
+  // EXTRAPOLACIÓN GLOBAL: SI ESTAMOS EN LA RONDA 5, REPARTIR BOTÍN REAL WITH EMPATES
+  // =========================================================================
+  if (rondaActualSymbol === 5) {
+    alert("🏁 ¡Fin de la Ronda 5! Calculando posiciones con empates para la Clasificación General.");
+
+    const tablaPuntosGlobales = [10, 8, 6, 5, 4, 3, 2, 1];
+    let posicionReal = 1;
+
+    for (let index = 0; index < rankingJuego.length; index++) {
+      const jugadorRanking = rankingJuego[index];
+      
+      // Si empata en puntos con el jugador anterior, mantiene la misma posicionReal
+      if (index > 0 && jugadorRanking.scoreJuego === rankingJuego[index - 1].scoreJuego) {
+        // Mantiene la misma posicionReal
+      } else {
+        // Si no empata, su posición pasa a ser su índice físico real + 1
+        posicionReal = index + 1;
+      }
+
+      // Sacamos los puntos que le tocan según su rango real de la tabla
+      const puntosGlobalesInyeccion = tablaPuntosGlobales[posicionReal - 1] || 0;
+
+      if (puntosGlobalesInyeccion > 0) {
+        try {
+          const playerRef = doc(window.db, "players", jugadorRanking.id);
+          
+          // Traer la puntuación real acumulada del torneo en Firebase
+          const snap = await getDocs(query(collection(window.db, "players")));
+          let scoreTorneoActual = 0;
+
+          snap.forEach(d => {
+            if (d.id === jugadorRanking.id) scoreTorneoActual = d.data().score ?? 0;
+          });
+
+          // Guardar e inyectar el nuevo valor escalado con justicia divina
+          await updateDoc(playerRef, {
+            score: scoreTorneoActual + puntosGlobalesInyeccion
+          });
+          console.log(`⚖️ Rango #${posicionReal} | Inyectados +${puntosGlobalesInyeccion} pts de torneo a ${jugadorRanking.name}`);
+        } catch (err) {
+          console.error("Error al inyectar puntos globales escalados:", err);
+        }
+      }
+    }
+    alert("🏆 ¡El Olimpo ha repartido las puntuaciones de forma justa y el torneo global está actualizado!");
+  }
+}; 
+
+// BOTÓN: PASAR DE RONDA
 window.siguienteRondaSymbol = function () {
   if (rondaActualSymbol >= 5) {
     alert("🏁 ¡Ya has completado las 5 rondas de SymbolZone!");
@@ -1710,16 +1788,12 @@ window.siguienteRondaSymbol = function () {
   alert(`🔺 Iniciando Ronda ${rondaActualSymbol}. ¡Cambiad las pinzas de la espalda!`);
 };
 
-// FUNCIÓN AUXILIAR PARA REINICIAR CONTADORES DE RONDA
 function reiniciarRondaInterfaceSymbol() {
-  // Parar el reloj antiguo si seguía corriendo
   clearInterval(intervaloCronometroSymbol);
   intervaloCronometroSymbol = null;
 
-  // Valores por defecto (1 minuto)
   tiempoRestanteSymbol = 60;
 
-  // Actualizar textos en la UI
   const elReloj = document.getElementById("tvCronometroSymbol");
   if (elReloj) {
     elReloj.innerText = "01:00";
@@ -1729,11 +1803,10 @@ function reiniciarRondaInterfaceSymbol() {
   const elTextoRonda = document.getElementById("tvRondaSymbol");
   if (elTextoRonda) elTextoRonda.innerText = `Ronda ${rondaActualSymbol} / 5`;
 
-  // Limpiar las marcas de fallado de la ronda anterior para que todos empiecen limpios
+  // Limpiar selecciones visuales de fallos para la siguiente ronda, manteniendo el marcador intacto
   listaJugadoresSymbol.forEach(j => j.equivocado = false);
   pintarPanelJugadoresSymbol();
 }
-
 
 
 
