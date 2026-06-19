@@ -32,7 +32,8 @@ window.db = db;
 const screenMapMobile = {
   screenRoulette: "screenRanking",
   screenGlassTower: "screenRanking",
-  screenSymbolZone: "screenRanking"
+  screenSymbolZone: "screenRanking",
+  screenTheLiar: "screenTheLiar"
 };
 function showScreen(screen) {
   // traducir solo en móvil

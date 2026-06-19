@@ -67,6 +67,7 @@ function showScreenTV(screen) {
   document.getElementById("screenSymbolZone").style.display = "none";
   document.getElementById("screenNumbersAndLetters").style.display = "none";
   document.getElementById("screenVotes").style.display = "none";
+  document.getElementById("screenTheLiar").style.display = "none";
   document.getElementById(screen).style.display = "block"
 
   if (screen === "screenNumbersAndLetters") {
@@ -74,7 +75,14 @@ function showScreenTV(screen) {
   }
 }
 
-
+// ======================
+// QR generator
+// ======================
+new QRCode(document.getElementById("qrcode"), {
+    text: "https://pablons2002.github.io/el-ultimo-en-pie/movil.html",
+    width: 250,
+    height: 250
+});
 
 // =====================
 // Botón para empezar el concurso desde la TV. Pasa a la ruleta (falta), que lleva al Worldguessr. Aquí hay que ver cómo hacer la ruleta si meterla en cada juego o ponerla en screenGame.
@@ -1842,8 +1850,430 @@ window.validarRespuestasCifras = async function () {
 };
 
 
+// --- VARIABLES GLOBALES EL MENTIROSO ---
+let listaSospechososRonda = [];   // Los 4 sospechosos seleccionados
+let todosLosActivosMentiroso = []; // Cache de todos los jugadores de la sala
+let indiceVerdadero = -1;         // Quién dice la verdad (0 a 3)
+let puntosLocalesMentiroso = {};  // Puntuación del minijuego { idJugador: puntos }
+let rondaActualMentiroso = 0;     // Contador de rondas ejecutadas
+
+// CARGAR Y REPRODUCIR VIDEOS DE LA CARPETA assets/videosMentiroso
+window.loadVideosMentiroso = async function () {
+  const cont = document.getElementById("tvMultimediaMentiroso");
+  if (!cont) return;
+
+  try {
+    const resp = await fetch('assets/videosMentiroso/list.json');
+    if (!resp.ok) throw new Error('No se pudo leer el manifiesto de videos');
+    const lista = await resp.json();
+    if (!Array.isArray(lista) || lista.length === 0) return;
+
+    // Guardamos la lista y el índice globalmente para control manual
+    window._mentirosoVideosList = lista;
+    window._mentirosoVideoIdx = 0;
+
+    // Crear un único elemento <video> que reproducirá el archivo actual
+    const video = document.createElement('video');
+    video.id = 'videoMentirosoPlayer';
+    video.style.maxWidth = '100%';
+    video.style.maxHeight = '180px';
+    video.style.borderRadius = '6px';
+    video.style.border = '2px solid #38bdf8';
+    video.controls = true;
+
+    const basePath = 'assets/videosMentiroso/';
+
+    function cargarIndice(i) {
+      if (!window._mentirosoVideosList) return;
+      if (i < 0 || i >= window._mentirosoVideosList.length) return;
+      video.src = basePath + window._mentirosoVideosList[i];
+      video.load();
+    }
+
+    // Inicializar con el primer video
+    cargarIndice(0);
+
+    // Vaciar contenedor y añadir video
+    cont.innerHTML = '';
+    cont.appendChild(video);
+
+  } catch (e) {
+    console.error('Error cargando videos del mentiroso:', e);
+  }
+};
+
+// Función que avanza manualmente a la siguiente evidencia (llamada desde el botón en el HTML)
+window.siguienteEvidenciaMentiroso = function () {
+  if (!window._mentirosoVideosList) return alert('No hay evidencias cargadas.');
+  window._mentirosoVideoIdx = (window._mentirosoVideoIdx || 0) + 1;
+  if (window._mentirosoVideoIdx >= window._mentirosoVideosList.length) {
+    window._mentirosoVideoIdx = window._mentirosoVideosList.length - 1;
+    return alert('No hay más evidencias.');
+  }
+  const video = document.getElementById('videoMentirosoPlayer');
+  if (!video) return;
+  video.src = 'assets/videosMentiroso/' + window._mentirosoVideosList[window._mentirosoVideoIdx];
+  video.load();
+  video.play().catch(() => { });
+};
+
+// Inicializar la carga (intento silencioso al arrancar el script)
+window.loadVideosMentiroso();
+
+// 1. ELEGIR SOSPECHOSOS AL AZAR E INICIALIZAR ESTRUCTURAS SELECTORAS
+window.elegirSospechososAlAzar = async function () {
+  try {
+    rondaActualMentiroso++;
+    window.ocultarVerdadMentiroso(); // Empezamos con la solución oculta
+
+    const contenedor = document.getElementById("tvSospechososContenedor");
+
+    // Obtener los jugadores activos en tiempo real
+    const snap = await getDocs(query(collection(window.db, "players"), where("active", "==", true)));
+    todosLosActivosMentiroso = [];
+    snap.forEach(d => { todosLosActivosMentiroso.push({ id: d.id, ...d.data() }); });
+
+    if (todosLosActivosMentiroso.length < 4) {
+      return alert(`Faltan jugadores activos en la sala. Mínimo 4 (Hay: ${todosLosActivosMentiroso.length})`);
+    }
+
+    // Inicializar el marcador local del minijuego si es la primera ronda
+    todosLosActivosMentiroso.forEach(j => {
+      if (puntosLocalesMentiroso[j.id] === undefined) puntosLocalesMentiroso[j.id] = 0;
+    });
+
+    // Seleccionar 4 sospechosos al azar
+    let copiaActivos = [...todosLosActivosMentiroso];
+    listaSospechososRonda = [];
+    for (let i = 0; i < 4; i++) {
+      const randomIdx = Math.floor(Math.random() * copiaActivos.length);
+      listaSospechososRonda.push(copiaActivos.splice(randomIdx, 1)[0]);
+    }
+
+    indiceVerdadero = Math.floor(Math.random() * 4);
+    console.log("Sospechosos escogidos:", listaSospechososRonda, "Verdadero:", indiceVerdadero);
+
+    // Dibujar los 4 paneles de sospechosos con una zona interactiva selectiva para añadir quién los votó
+    contenedor.innerHTML = "";
+    listaSospechososRonda.forEach((jugador, index) => {
+
+      // Generar las opciones del selector de votos (todos los de la sala menos el propio sospechoso)
+      let opcionesSelectHtml = `<option value="">-- Añadir Voto de... --</option>`;
+      todosLosActivosMentiroso.forEach(activo => {
+        if (activo.id !== jugador.id) {
+          opcionesSelectHtml += `<option value="${activo.id}">${activo.name}</option>`;
+        }
+      });
+
+      const card = document.createElement("div");
+      card.id = `cardSospechoso-${index}`;
+      card.style.background = "#1e293b";
+      card.style.padding = "15px";
+      card.style.borderRadius = "10px";
+      card.style.textAlign = "center";
+      card.style.border = "2px solid #334155";
+      card.style.display = "flex";
+      card.style.flexDirection = "column";
+      card.style.gap = "10px";
+
+      card.innerHTML = `
+        <div>
+          <div style="font-size: 1.2rem; font-weight: bold; color: #fff;">${jugador.name}</div>
+          <div id="rol-${index}" style="color: #38bdf8; font-weight: bold; font-size: 0.85rem; margin-top: 4px;">🤫 SOSPECHOSO</div>
+        </div>
+
+        <div style="background: #0f172a; padding: 8px; border-radius: 6px; border: 1px dashed #475569;">
+          <select id="selectVotante-${index}" onchange="registrarVotoHaciaSospechoso(${index}, this)" style="background:#1e293b; color:white; border:1px solid #475569; padding:4px; font-size:0.85rem; width:100%; border-radius:4px;">
+            ${opcionesSelectHtml}
+          </select>
+          <div id="listaVotosRecibidos-${index}" style="display:flex; flex-wrap:wrap; gap:4px; margin-top:8px; justify-content:center;">
+            </div>
+        </div>
+      `;
+      contenedor.appendChild(card);
+    });
+
+    // Reiniciar la evidencia al comienzo de la ronda
+    if (window._mentirosoVideosList && window._mentirosoVideosList.length > 0) {
+      window._mentirosoVideoIdx = 0;
+      const vid = document.getElementById('videoMentirosoPlayer');
+      if (vid) {
+        vid.src = 'assets/videosMentiroso/' + window._mentirosoVideosList[0];
+        vid.load();
+      }
+    }
+
+    window.actualizarPizarraRankingLocal();
+
+  } catch (e) {
+    console.error("Error iniciando ronda de Mentiroso:", e);
+  }
+};
+
+// 2. REGISTRAR EL VOTO EN EL PANEL VISUAL
+window.registrarVotoHaciaSospechoso = function (indiceSospechoso, selectElement) {
+  const jugadorId = selectElement.value;
+  if (!jugadorId) return;
+
+  const jugadorObjeto = todosLosActivosMentiroso.find(j => j.id === jugadorId);
+  if (!jugadorObjeto) return;
+
+  const contenedorFichas = document.getElementById(`listaVotosRecibidos-${indiceSospechoso}`);
+
+  // Evitar duplicar el voto de un mismo jugador en esta ronda
+  if (document.getElementById(`votoFicha-${jugadorId}`)) {
+    alert("Este jugador ya ha emitido su voto en la pizarra.");
+    selectElement.value = "";
+    return;
+  }
+
+  // Crear la etiqueta del voto asignado
+  const ficha = document.createElement("span");
+  ficha.id = `votoFicha-${jugadorId}`;
+  ficha.setAttribute("data-votante-id", jugadorId);
+  ficha.style.background = "#38bdf8";
+  ficha.style.color = "#0f172a";
+  ficha.style.padding = "2px 6px";
+  ficha.style.borderRadius = "4px";
+  ficha.style.fontSize = "0.8rem";
+  ficha.style.fontWeight = "bold";
+  ficha.style.cursor = "pointer";
+  ficha.title = "Haz clic para retirar el voto";
+  ficha.innerText = `🗳️ ${jugadorObjeto.name}`;
+
+  // Si se pulsa encima por error, se borra de la lista
+  ficha.onclick = () => { ficha.remove(); };
+
+  contenedorFichas.appendChild(ficha);
+  selectElement.value = ""; // Reseteamos el desplegable
+};
+
+// 3. REVELAR LA VERDAD
+window.revelarVerdadMentiroso = function () {
+  if (listaSospechososRonda.length === 0) return alert("No hay sospechosos en juego.");
+
+  const ganador = listaSospechososRonda[indiceVerdadero];
+  const cartelSolucion = document.getElementById("tvSolucionMentiroso");
+  cartelSolucion.innerText = `¡${ganador.name} DICE LA VERDAD!`;
+  cartelSolucion.style.color = "#22c55e";
+
+  listaSospechososRonda.forEach((j, index) => {
+    const card = document.getElementById(`cardSospechoso-${index}`);
+    const rolTexto = document.getElementById(`rol-${index}`);
+
+    if (index === indiceVerdadero) {
+      if (card) card.style.borderColor = "#22c55e";
+      if (card) card.style.background = "rgba(34, 197, 94, 0.1)";
+      if (rolTexto) { rolTexto.innerText = "😇 DICE LA VERDAD"; rolTexto.style.color = "#22c55e"; }
+    } else {
+      if (card) card.style.borderColor = "#ef4444";
+      if (card) card.style.opacity = "0.6";
+      if (rolTexto) { rolTexto.innerText = "🤥 MENTIROSO"; rolTexto.style.color = "#ef4444"; }
+    }
+  });
+
+  document.getElementById("tvMultimediaOculta").style.display = "none";
+  document.getElementById("tvMultimediaMentiroso").style.display = "block";
+  const v = document.getElementById('videoMentirosoPlayer');
+  if (v) v.play().catch(() => { });
+};
+
+// 4. OCULTAR LA VERDAD
+window.ocultarVerdadMentiroso = function () {
+  const cartelSolucion = document.getElementById("tvSolucionMentiroso");
+  cartelSolucion.innerText = "OCULTA";
+  cartelSolucion.style.color = "#ffc107";
+
+  listaSospechososRonda.forEach((j, index) => {
+    const card = document.getElementById(`cardSospechoso-${index}`);
+    const rolTexto = document.getElementById(`rol-${index}`);
+    if (card) {
+      card.style.borderColor = "#334155";
+      card.style.background = "#1e293b";
+      card.style.opacity = "1";
+    }
+    if (rolTexto) { rolTexto.innerText = "🤫 SOSPECHOSO"; rolTexto.style.color = "#38bdf8"; }
+  });
+
+  document.getElementById("tvMultimediaMentiroso").style.display = "none";
+  document.getElementById("tvMultimediaOculta").style.display = "flex";
+  const v = document.getElementById('videoMentirosoPlayer');
+  if (v) { try { v.pause(); v.currentTime = 0; } catch (e) { } }
+};
+
+// 5. EVALUAR LA PIZARRA DE VOTOS (REGLAS DE REPARTO COMPLEJAS DE LA RONDA)
+window.validarVotosYAcertantesMentiroso = function () {
+  if (listaSospechososRonda.length === 0 || indiceVerdadero === -1) return alert("No hay ninguna ronda activa.");
+
+  // Forzar que se revele visualmente en la TV
+  window.revelarVerdadMentiroso();
+
+  const idGanadorVerdadero = listaSospechososRonda[indiceVerdadero].id;
+
+  let recuentoVotosPorSospechoso = {}; // { indiceSospechoso: cantidadDeVotos }
+  let totalVotosEnMentiras = 0;
+  let totalVotosEnVerdad = 0;
+  let desgloseAlert = "📊 Escrutinio de la Ronda:\n\n";
+
+  // --- PASO 1: Contar cuántos votos tiene cada una de las 4 tarjetas ---
+  listaSospechososRonda.forEach((sospechoso, index) => {
+    const contenedorVotos = document.getElementById(`listaVotosRecibidos-${index}`);
+    const fichas = contenedorVotos.querySelectorAll("[data-votante-id]");
+
+    recuentoVotosPorSospechoso[index] = fichas.length;
+
+    if (index === indiceVerdadero) {
+      totalVotosEnVerdad += fichas.length;
+    } else {
+      totalVotosEnMentiras += fichas.length;
+    }
+  });
+
+  // --- PASO 2: Repartir los puntos locales basándonos en las reglas ---
+  listaSospechososRonda.forEach((sospechoso, index) => {
+
+    // CASO A: Es uno de los Mentirosos
+    if (index !== indiceVerdadero) {
+      const votosEngañados = recuentoVotosPorSospechoso[index];
+      if (votosEngañados > 0) {
+        puntosLocalesMentiroso[sospechoso.id] += votosEngañados;
+        desgloseAlert += `🤥 Mentiroso [${sospechoso.name}]: +${votosEngañados} pt(s) por engañar a ${votosEngañados} jugador(es).\n`;
+      }
+    }
+    // CASO B: Es el que dice la Verdad
+    else {
+      // Fórmula: +1 por cada voto a favor - 1 por cada voto que se fue a una mentira
+      const puntosCalculadosVerdad = totalVotosEnVerdad - totalVotosEnMentiras;
+      puntosLocalesMentiroso[sospechoso.id] += puntosCalculadosVerdad;
+      desgloseAlert += `😇 Verdadero [${sospechoso.name}]: Got ${totalVotosEnVerdad} votos y hubo ${totalVotosEnMentiras} fallos. Neto: ${puntosCalculadosVerdad >= 0 ? '+' : ''}${puntosCalculadosVerdad} pt(s).\n`;
+    }
+
+    // CASO C: Premiar a los votantes individuales de la caja correcta (+1 pt por acertar)
+    if (index === indiceVerdadero) {
+      const contenedorCorrecto = document.getElementById(`listaVotosRecibidos-${indiceVerdadero}`);
+      const fichasCorrectas = contenedorCorrecto.querySelectorAll("[data-votante-id]");
+
+      if (fichasCorrectas.length > 0) desgloseAlert += `\n🎯 Acertantes (+1 pt):\n`;
+      fichasCorrectas.forEach(ficha => {
+        const idVotante = ficha.getAttribute("data-votante-id");
+        if (puntosLocalesMentiroso[idVotante] !== undefined) {
+          puntosLocalesMentiroso[idVotante] += 1;
+
+          // Conseguimos su nombre para el resumen de la alerta
+          const pObj = todosLosActivosMentiroso.find(p => p.id === idVotante);
+          desgloseAlert += ` - ${pObj ? pObj.name : 'Jugador'}\n`;
+        }
+      });
+    }
+  });
+
+  // Actualizar la tabla visual derecha en la TV
+  window.actualizarPizarraRankingLocal();
+
+  // Mostrar resumen emergente en el PC/TV del desglose
+  alert(desgloseAlert);
+};
+// 6. PINTAR EL MARCADOR DEL MINIJUEGO EN LA TV
+window.actualizarPizarraRankingLocal = function () {
+  const listaContenedor = document.getElementById("listaPuntosLocalesMentiroso");
+  if (!listaContenedor) return;
+
+  let rankingOrdenado = Object.keys(puntosLocalesMentiroso).map(id => {
+    const player = todosLosActivosMentiroso.find(p => p.id === id);
+    return {
+      id: id,
+      name: player ? player.name : "Desconocido",
+      pts: puntosLocalesMentiroso[id]
+    };
+  });
+
+  rankingOrdenado.sort((a, b) => b.pts - a.pts);
+
+  listaContenedor.innerHTML = "";
+  let prevPts = null;
+  let prevRank = 0;
+  for (let i = 0; i < rankingOrdenado.length; i++) {
+    const jugador = rankingOrdenado[i];
+    let rank = 0;
+    if (i === 0) {
+      rank = 1;
+    } else {
+      if (jugador.pts === prevPts) rank = prevRank; else rank = i + 1;
+    }
+    prevPts = jugador.pts;
+    prevRank = rank;
+
+    listaContenedor.innerHTML += `
+      <div style="display:flex; justify-content:space-between; background:#0f172a; padding:6px 10px; border-radius:4px; border:1px solid #1e293b;">
+        <span>#${rank} ${jugador.name}</span>
+        <strong style="color:#ffc107;">${jugador.pts} pts</strong>
+      </div>
+    `;
+  }
+};
+
+// 7. BOTÓN FINALIZAR MINIJUEGO: VOLCAR LA ESCALA CON CONTROL DE EMPATES A FIREBASE GLOBAL
+window.finalizarMinijuegoMentiroso = async function () {
+  if (Object.keys(puntosLocalesMentiroso).length === 0) return alert("No hay datos locales guardados.");
+
+  const confirmar = confirm("¿Quieres cerrar el minijuego de El Mentiroso y transferir la escala de puntos globales a la Base de Datos?");
+  if (!confirmar) return;
+
+  // Ordenar de mayor a menor puntuación obtenida en el minijuego
+  let rankingFinal = Object.keys(puntosLocalesMentiroso).map(id => ({
+    id: id,
+    ptsLocales: puntosLocalesMentiroso[id]
+  })).sort((a, b) => b.ptsLocales - a.ptsLocales);
+
+  const tablaEscalaGlobal = [10, 8, 6, 5, 4, 3, 2, 1];
+
+  let prevPts = null;
+  let puntosAsignadosTorneo = 0;
+
+  // Transferir los puntos correspondientes a Firebase calculando empates
+  for (let i = 0; i < rankingFinal.length; i++) {
+    const jRank = rankingFinal[i];
+
+    // Si coincide en puntos con el anterior, se lleva exactamente los mismos puntos
+    if (i > 0 && jRank.ptsLocales === prevPts) {
+      // Mantiene los puntos asignados en la iteración anterior
+    } else {
+      // Si no es un empate, toma los puntos que le corresponden por su índice en la tabla
+      puntosAsignadosTorneo = tablaEscalaGlobal[i] || 0;
+    }
+
+    // Guardamos el puntaje local actual para la comparativa de la siguiente iteración
+    prevPts = jRank.ptsLocales;
+
+    if (puntosAsignadosTorneo > 0) {
+      try {
+        const playerRef = doc(window.db, "players", jRank.id);
+        const snap = await getDocs(query(collection(window.db, "players")));
+        let scoreGlobalActual = 0;
+
+        snap.forEach(d => { if (d.id === jRank.id) scoreGlobalActual = d.data().score ?? 0; });
+
+        await updateDoc(playerRef, {
+          score: scoreGlobalActual + puntosAsignadosTorneo
+        });
+        
+        console.log(`Sincronizado: ${jRank.id} recibe +${puntosAsignadosTorneo} pts.`);
+      } catch (error) {
+        console.error("Error al transferir puntos finales:", error);
+      }
+    }
+  }
+
+  alert("🏆 ¡Torneo cerrado con éxito! Las posiciones calculadas con empates se han guardado en Firebase.");
+
+  // Resetear el estado del minijuego
+  puntosLocalesMentiroso = {};
+  rondaActualMentiroso = 0;
+  window.ocultarVerdadMentiroso();
+};
+
 // ==========================================
-// Juego 8º: El último teorema (TELEVISIÓN)
+// Juego 9º: El último teorema (TELEVISIÓN)
 // ==========================================
 
 // Referencias a las pantallas
@@ -2074,9 +2504,6 @@ async function cargarRespuestasFirebase() {
     listaRespuestas.innerHTML = "<p style='color: red;'>Error al cargar las respuestas.</p>";
   }
 }
-
-
-
 
 
 
