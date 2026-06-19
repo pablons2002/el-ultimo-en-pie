@@ -233,7 +233,7 @@ document.getElementById("spinBtn").onclick = async () => {
 
   // 4. AL TERMINAR EL GIRO (Esperamos los 4.5 segundos de la animación)
   await new Promise(resolve => setTimeout(resolve, 4500));
-  txtResultado.innerHTML = `⚖️ Destino dictado: <span style="color:#bd5332; font-weight:900;">${gameSelected}</span>`;
+  txtResultado.innerHTML = `Destino dictado: <span style="color:#bd5332; font-weight:900;">${gameSelected}</span>`;
   // Hacer aparecer de forma triunfal el botón de Jugar
   btnJugar.style.display = "block";
 
