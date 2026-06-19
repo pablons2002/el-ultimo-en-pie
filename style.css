@@ -698,7 +698,30 @@ button {
 /* 📱 FONDO EXCLUSIVO PARA LA PANTALLA DEL MÓVIL */
 #screenSelect {
   /* 1. Ruta de tu imagen (ojo con los espacios en el nombre, usa la barra invertida como tenías) */
-  background-image: url('assets/wallpaper/vertical inetrior.jpg');
+  background-image: url('assets/wallpaper/camino.avif');
+
+  /* 2. EVITA QUE SE DUPLIQUE */
+  background-repeat: no-repeat;
+
+  /* 3. Centra la imagen perfectamente */
+  background-position: center center;
+
+  /* 4. Hace que la imagen cubra todo el fondo del móvil sin deformarse */
+  background-size: cover;
+
+  /* 5. Deja el fondo fijo */
+  background-attachment: fixed;
+
+  /* 🔥 EXTRA PARA MÓVIL: Fuerza a que el contenedor ocupe el 100% del alto de la pantalla */
+  min-height: 100vh;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* 📱 FONDO EXCLUSIVO PARA LA PANTALLA DEL MÓVIL */
+#screenRoulette {
+  /* 1. Ruta de tu imagen (ojo con los espacios en el nombre, usa la barra invertida como tenías) */
+  background-image: url('assets/wallpaper/ZeusElige.png');
 
   /* 2. EVITA QUE SE DUPLIQUE */
   background-repeat: no-repeat;
