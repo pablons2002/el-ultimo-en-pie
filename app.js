@@ -55,7 +55,7 @@ function showScreen(screen) {
 // =====================
 // CARGAR JUGADORES
 // =====================
-async function loadPlayers() {
+/* async function loadPlayers() {
   const snapshot = await getDocs(collection(window.db, "players"));
   const container = document.getElementById("screenSelect");
 
@@ -72,7 +72,7 @@ async function loadPlayers() {
     card.style.cursor = "pointer";
 
     card.innerHTML = `
-      <img src="${player.img || ''}" 
+      <img src="${player.imgCard || ''}" 
         style="width:100px;height:100px;object-fit:cover;background:#ddd;">
       <br><b>${player.name}</b>
     `;
@@ -81,6 +81,86 @@ async function loadPlayers() {
     container.appendChild(card);
   });
 }
+*/
+
+// Variables de control para el carrusel de cromos
+let arrayPersonajes = [];
+let idxCartaActual = 0;
+
+async function loadPlayers() {
+  const container = document.getElementById("screenSelect");
+  if (!container) return;
+
+  try {
+    const snapshot = await getDocs(collection(window.db, "players"));
+    arrayPersonajes = [];
+
+    // 1. Guardamos todos los cromos en el array
+    snapshot.forEach((docSnap) => {
+      arrayPersonajes.push({
+        id: docSnap.id,
+        ...docSnap.data()
+      });
+    });
+
+    if (arrayPersonajes.length === 0) {
+      container.innerHTML = "No hay personajes divinos disponibles.";
+      return;
+    }
+
+    idxCartaActual = 0; // Empezamos en la primera carta
+    window.renderizarCartaActual(); // Pintamos la interfaz de navegación
+
+  } catch (error) {
+    console.error("Error al cargar los cromos:", error);
+  }
+}
+
+// NUEVA FUNCIÓN: Se encarga de pintar la estructura 1 a 1 en la pantalla
+window.renderizarCartaActual = function() {
+  const container = document.getElementById("screenSelect");
+  if (!container || arrayPersonajes.length === 0) return;
+
+  const personaje = arrayPersonajes[idxCartaActual];
+
+  // Estructura limpia del Carrusel/Mazo
+  container.innerHTML = `
+    <div class="mazo-cartas-contenedor">
+      
+      <div class="cromo-olimpico" id="cromoAnimado">
+        <img src="${personaje.imgCard || ''}" class="cromo-foto" alt="${personaje.name}">
+        <div class="cromo-nombre"><b>${personaje.name}</b></div>
+        
+        <button class="btn-elegir-personaje" onclick="selectPlayer('${personaje.id}', '${personaje.name}')">
+          🏛️ Elegir Personaje
+        </button>
+      </div>
+
+      <div style="display: flex; gap: 20px; align-items: center;">
+        <button class="btn-navegacion" onclick="cambiarCartaMentiroso(-1)">◀ Anterior</button>
+        <span style="font-weight: bold; color: #475569;">
+          ${idxCartaActual + 1} / ${arrayPersonajes.length}
+        </span>
+        <button class="btn-navegacion" onclick="cambiarCartaMentiroso(1)">Siguiente ▶</button>
+      </div>
+
+    </div>
+  `;
+};
+
+// NUEVA FUNCIÓN: Controla los límites del mazo al pulsar Anterior o Siguiente
+window.cambiarCartaMentiroso = function(direccion) {
+  idxCartaActual += direccion;
+
+  // Control de límites para que sea infinito/bucle
+  if (idxCartaActual < 0) {
+    idxCartaActual = arrayPersonajes.length - 1; // Si va hacia atrás del primero, salta al último
+  } else if (idxCartaActual >= arrayPersonajes.length) {
+    idxCartaActual = 0; // Si pasa del último, vuelve al primero
+  }
+
+  window.renderizarCartaActual();
+};
 
 // =====================
 // SELECCIONAR JUGADOR

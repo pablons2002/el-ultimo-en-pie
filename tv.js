@@ -79,9 +79,9 @@ function showScreenTV(screen) {
 // QR generator
 // ======================
 new QRCode(document.getElementById("qrcode"), {
-    text: "https://pablons2002.github.io/el-ultimo-en-pie/movil.html",
-    width: 250,
-    height: 250
+  text: "https://pablons2002.github.io/el-ultimo-en-pie/movil.html",
+  width: 250,
+  height: 250
 });
 
 // =====================
@@ -119,6 +119,226 @@ document.getElementById("spinBtn").onclick = async () => {
     currentGame = data.game;
     console.log(currentGame)
   });
+};
+
+// =========================================================================
+// 🎡 LOGICA DE LA RULETA DE SELECCIÓN DE MINIJUEGOS (TV)
+// =========================================================================
+
+const constGames = ["WorldGuessr", "GuessSong", "GlassTower", "IrrationalPrice", "Votes", "SymbolZone", "NumbersAndLetters", "TheLiar", "LastTheorem"];
+let ruletaJuegosGirando = false;
+let juegoDestinoGuardado = ""; // Guardará temporalmente a dónde ir
+
+// A. DIBUJAR LA RULETA AUTOMÁTICAMENTE AL CARGAR EL SCRIPT
+window.inicializarRuletaJuegos = function () {
+  const canvas = document.getElementById("canvasRuletaJuegos");
+  if (!canvas) return;
+
+  const ctx = canvas.getContext("2d");
+  const numSectores = constGames.length;
+  const angularArco = (2 * Math.PI) / numSectores;
+  const centro = canvas.width / 2;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Colores llamativos alternos para los sectores de la ruleta
+  // Paleta de colores de la Grecia Clásica para el Canvas
+  const colores = [
+    "#2c231e", // Negro Ático / Cerámica oscura
+    "#d97d4b", // Terracota clásico
+    "#e6dfcf", // Mármol / Crema
+    "#8a9a86", // Verde Oliva húmedo
+    "#b89728", // Oro Viejo
+    "#1c2833", // Azul Profundo del Egeo
+    "#bd5332"  // Rojo Cerámico
+  ];
+
+  constGames.forEach((game, i) => {
+    const anguloInicio = i * angularArco;
+    const anguloFin = anguloInicio + angularArco;
+
+    // Pintar trozo de tarta
+    ctx.beginPath();
+    ctx.fillStyle = colores[i % colores.length];
+    ctx.moveTo(centro, centro);
+    ctx.arc(centro, centro, centro, anguloInicio, anguloFin);
+    ctx.lineTo(centro, centro);
+    ctx.fill();
+
+    // Escribir el nombre del juego
+    ctx.save();
+    ctx.translate(centro, centro);
+    ctx.rotate(anguloInicio + angularArco / 2);
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 13px sans-serif";
+    ctx.textAlign = "right";
+    ctx.fillText(game, centro - 20, 5); // Desfase hacia fuera
+    ctx.restore();
+  });
+};
+
+// Ejecutar el dibujo automáticamente al procesar el script
+setTimeout(window.inicializarRuletaJuegos, 100);
+
+
+// B. INTEGRACIÓN DIRECTA CON TU EVENTO ASYNC CLICK DE SPINBTN
+document.getElementById("spinBtn").onclick = async () => {
+  if (ruletaJuegosGirando) return;
+
+  const canvas = document.getElementById("canvasRuletaJuegos");
+  const txtResultado = document.getElementById("resultadoRuletaTV");
+  const btnJugar = document.getElementById("btnIrAlJuego");
+
+  if (!canvas) return;
+
+  // Ocultar botón y limpiar textos de jugadas anteriores
+  btnJugar.style.display = "none";
+  txtResultado.style.innerText = "🎰 Girando...";
+
+  // 1. Obtener los datos actuales de Firebase (Tu código original)
+  const snap = await getDoc(ref);
+  const data = snap.data();
+  const gameSelected = data.game; // Ej: "TheLiar"
+  juegoDestinoGuardado = gameSelected; // Lo guardamos para el botón final
+
+  // 2. Buscar en qué posición del array está el juego de Firebase
+  const indiceObjetivo = constGames.indexOf(gameSelected);
+
+  if (indiceObjetivo === -1) {
+    // Si por lo que sea el string de Firebase no coincide con el array, saltamos directo sin romper el programa
+    console.warn("El juego de Firebase no coincide con el array de constantes:", gameSelected);
+    ejecutarSaltoDePantallaDirecto(gameSelected);
+    return;
+  }
+
+  ruletaJuegosGirando = true;
+
+  // 3. CALCULO MATEMÁTICO DE ROTACIÓN DEL GANADOR
+  const numSectores = constGames.length;
+  const angularArcoDeg = 360 / numSectores;
+
+  // Centro del sector objetivo en grados
+  const centroSectorDeg = (indiceObjetivo * angularArcoDeg) + (angularArcoDeg / 2);
+
+  // Calcular desfase para que se detenga arriba del todo (en los 270º)
+  const anguloDeParada = (270 - centroSectorDeg + 360) % 360;
+
+  // 6 vueltas completas de animación + ángulo final
+  const vueltasExtras = 6 * 360;
+  const rotacionTotal = vueltasExtras + anguloDeParada;
+
+  // Aplicar la animación CSS (Duración de 4.5 segundos)
+  canvas.style.transition = "transform 4.5s cubic-bezier(0.1, 0.8, 0.1, 1)";
+  canvas.style.transform = `rotate(${rotacionTotal}deg)`;
+
+  // 4. AL TERMINAR EL GIRO (Esperamos los 4.5 segundos de la animación)
+  await new Promise(resolve => setTimeout(resolve, 4500));
+  txtResultado.innerHTML = `⚖️ Destino dictado: <span style="color:#bd5332; font-weight:900;">${gameSelected}</span>`;
+  // Hacer aparecer de forma triunfal el botón de Jugar
+  btnJugar.style.display = "block";
+
+  // Dejar la ruleta fija en la posición estática final para evitar bugs visuales futuros
+  canvas.style.transition = "none";
+  canvas.style.transform = `rotate(${anguloDeParada}deg)`;
+
+  ruletaJuegosGirando = false;
+
+  // Asignar el comportamiento al botón para que haga el cambio de pantalla final
+  btnJugar.onclick = () => {
+    ejecutarSaltoDePantallaDirecto(juegoDestinoGuardado);
+  };
+};
+
+// C. COMPORTAMIENTO POST-RULETA: TU LÓGICA DE SALTO DE PANTALLA
+function ejecutarSaltoDePantallaDirecto(gameSelected) {
+  setScreen("screen" + gameSelected, gameSelected);
+  showScreenTV("screen" + gameSelected);
+
+  // Escuchador pasivo en tiempo real (Tu código original)
+  onSnapshot(ref, (snap) => {
+    const data = snap.data();
+    currentScreen = data.screen;
+    currentGame = data.game;
+    console.log("Cambio de pantalla registrado:", currentGame);
+  });
+}
+
+
+// =============
+// Ajuste manual de puntos
+// =============
+// =========================================================================
+// 🔧 AJUSTE MANUAL COMPLEMENTARIO (CONTROL DE ERRORES DIRECTO A FIREBASE)
+// =========================================================================
+
+// A. FUNCIÓN INDEPENDIENTE PARA RELLENAR EL DESPLEGABLE EN CUALQUIER MOMENTO
+window.cargarJugadoresAjusteManual = async function () {
+  const select = document.getElementById("selectAjusteManualJugador");
+  if (!select) return;
+
+  try {
+    // Hace su propia consulta limpia a Firebase para traer a los jugadores activos
+    const snap = await getDocs(query(collection(window.db, "players"), where("active", "==", true)));
+
+    // Limpiamos el selector manteniendo la opción inicial
+    select.innerHTML = '<option value="">-- Seleccionar Jugador --</option>';
+
+    snap.forEach(d => {
+      const jugador = d.data();
+      const opt = document.createElement("option");
+      opt.value = d.id;
+      opt.innerText = jugador.name;
+      select.appendChild(opt);
+    });
+
+    console.log("🔄 Desplegable de ajuste manual actualizado directamente desde Firebase.");
+  } catch (error) {
+    console.error("Error al cargar jugadores en el ajuste manual:", error);
+  }
+};
+
+// B. FUNCIÓN PARA APLICAR LOS PUNTOS EN FIREBASE GENERAL
+window.aplicarAjusteManualFirebase = async function (boton) {
+  const idJugador = document.getElementById("selectAjusteManualJugador").value;
+  const inputPts = document.getElementById("inputAjusteManualPuntos");
+  const puntosAAjustar = parseInt(inputPts.value, 10);
+
+  if (!idJugador) return alert("Por favor, selecciona un jugador del desplegable.");
+  if (isNaN(puntosAAjustar)) return alert("Introduce un número de puntos válido (positivo o negativo).");
+
+  try {
+    boton.disabled = true;
+    boton.innerText = "⏳... ";
+
+    const playerRef = doc(window.db, "players", idJugador);
+
+    // Consultar el puntaje que tiene actualmente en la BD
+    const snap = await getDocs(query(collection(window.db, "players")));
+    let scoreGlobalActual = 0;
+    let nombreJugador = "Jugador";
+
+    snap.forEach(d => {
+      if (d.id === idJugador) {
+        scoreGlobalActual = d.data().score ?? 0;
+        nombreJugador = d.data().name;
+      }
+    });
+
+    // Guardar la corrección sumando o restando directamente
+    await updateDoc(playerRef, {
+      score: scoreGlobalActual + puntosAAjustar
+    });
+
+    alert(`✅ Ajuste aplicado. ${nombreJugador} ahora tiene ${scoreGlobalActual + puntosAAjustar} pts globales.`);
+    inputPts.value = ""; // Limpiar input
+
+  } catch (error) {
+    console.error("Error en el ajuste manual:", error);
+    alert("No se pudo actualizar la base de datos.");
+  } finally {
+    boton.disabled = false;
+    boton.innerText = "⚙️ Aplicar";
+  }
 };
 
 // =====================
@@ -2256,7 +2476,7 @@ window.finalizarMinijuegoMentiroso = async function () {
         await updateDoc(playerRef, {
           score: scoreGlobalActual + puntosAsignadosTorneo
         });
-        
+
         console.log(`Sincronizado: ${jRank.id} recibe +${puntosAsignadosTorneo} pts.`);
       } catch (error) {
         console.error("Error al transferir puntos finales:", error);
@@ -2318,7 +2538,7 @@ btnEmpezar.addEventListener("click", async () => {
       await updateDoc(jugadorRef, {
         "tenbin.score": 0,
         "tenbin.isAlive": true,
-        "tenbin.currentNumber": null 
+        "tenbin.currentNumber": null
       });
     }
 
@@ -2369,13 +2589,13 @@ btnSiguienteRonda.addEventListener("click", async () => {
 
     for (const jugadorId of jugadoresActivosIds) {
       const checkbox = document.getElementById(`chk-${jugadorId}`);
-      const jugadorRef = doc(window.db, "players", jugadorId); 
+      const jugadorRef = doc(window.db, "players", jugadorId);
 
       if (checkbox && !checkbox.checked) {
         // Restamos punto si no estaba seleccionado y limpiamos el número para la siguiente ronda
         await updateDoc(jugadorRef, {
           "tenbin.score": increment(-1),
-          "tenbin.currentNumber": null 
+          "tenbin.currentNumber": null
         });
 
         // Recuperamos los datos actualizados para ver si el jugador muere
@@ -2396,11 +2616,11 @@ btnSiguienteRonda.addEventListener("click", async () => {
           "tenbin.currentNumber": null
         });
       }
-    } 
+    }
 
     // Decidir navegación de pantallas en la TV
     viewRespuestas.style.display = "none";
-    
+
     if (jugadoresMuertos.length > 0) {
       // Si hubo muertes, mostramos la pantalla de eliminación y reseteamos el texto informativo de las reglas
       const textoRegla = document.getElementById("textoRegla");
@@ -2445,7 +2665,7 @@ async function cargarRespuestasFirebase() {
 
       // FILTRO EXTRA: Si tenbin.isAlive es explícitamente false, lo ignoramos por completo
       if (data.tenbin && data.tenbin.isAlive === false) {
-        return; 
+        return;
       }
 
       hayJugadoresVivos = true;
@@ -2552,7 +2772,9 @@ async function resetGame() {
         score: 0,
         active: false,
         vasosTimes: { round1: 0, round2: 0 },
-        lentejasGuess: null
+        lentejasGuess: null,
+        cifrasFormula: null,
+        votoEnviado: null
       };
 
       if (playerData.attemptsSong !== undefined) {
@@ -2572,6 +2794,10 @@ async function resetGame() {
   // Reset de la ronda de GlassTower
   await updateDoc(doc(window.db, "game", "towerState"), {
     ronda: "Ronda 1"
+  });
+  await updateDoc(doc(window.db, "game", "numberState"), {
+    cifrasDisponibles: null,
+    cifrasObjetivo: null
   });
 }
 

@@ -7,6 +7,9 @@
   <link rel="stylesheet" href="style.css">
   <link rel="icon" type="image/svg+xml" href="images/iconoWeb.svg">
   <meta name="viewport" content="width=device-width, initial-scale=1, , viewport-fit=cover">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
 
 <body>
@@ -42,7 +45,7 @@
         <select id="selectorJuegosRapidos" onchange="navegacionRapidaJuegos(this.value)"
           style="padding: 5px 10px; font-size: 0.9rem; border-radius: 4px; cursor: pointer; background: #333; color: white; border: 1px solid #555;">
           <option value="" selected disabled>🎮 Saltar a...</option>
-          <option value="WorldGuessr">📊 Ranking Global</option>
+          <option value="WorldGuessr">📊 GeoGuessr</option>
           <option value="GuessSong">🎵 Guess The Song</option>
           <option value="GlassTower">⏱️ Torre de Vasos</option>
           <option value="IrrationalPrice"> Precio Irracional</option>
@@ -55,7 +58,37 @@
         </select>
       </div>
     </div>
+    <details style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #334155; color: white;">
 
+      <summary onclick="cargarJugadoresAjusteManual()"
+        style="color: #ef4444; font-weight: bold; font-size: 0.95rem; text-align: center; cursor: pointer; list-style: none; user-select: none;">
+        🛠️ Pulsar para Ajustes Manuales (Errores) ▼
+      </summary>
+
+      <div
+        style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px; background: #0f172a; padding: 10px; border-radius: 6px; border: 1px solid #334155;">
+
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 0.8rem; color: #94a3b8;">Selecciona jugador y puntos:</span>
+          <button onclick="cargarJugadoresAjusteManual()" title="Recargar lista"
+            style="background: #475569; color: white; border: none; border-radius: 4px; padding: 2px 6px; cursor: pointer; font-size: 0.75rem;">🔄</button>
+        </div>
+
+        <select id="selectAjusteManualJugador"
+          style="background:#1e293b; color:white; border:1px solid #475569; padding:6px; font-size:0.85rem; width:100%; border-radius:4px; cursor: pointer;">
+          <option value="">-- Seleccionar Jugador --</option>
+        </select>
+
+        <div style="display: flex; gap: 6px;">
+          <input type="number" id="inputAjusteManualPuntos" placeholder="Ej: 5 o -2"
+            style="background:#1e293b; color:white; border:1px solid #475569; padding:6px; font-size:0.85rem; width:50%; border-radius:4px; text-align:center;">
+          <button onclick="aplicarAjusteManualFirebase(this)"
+            style="background: #ef4444; color: white; border: none; padding: 6px; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 0.85rem; width: 50%;">
+            ⚙️ Aplicar
+          </button>
+        </div>
+      </div>
+    </details>
     <button id="selfDestruct">💣 Autodestrucción</button>
   </header>
 
@@ -63,7 +96,7 @@
     <!-- Inicio del programa, pantalla inicial, intro (falta)-->
     <div id="screenIntro" class="screen">
       <h1 style="font-size: 50px; color: #00e676;">
-        El último en π(e)
+        El último en <span style="font-size: 1.4em;">πε</span>
       </h1>
     </div>
 
@@ -87,14 +120,35 @@
 
   <!-- ROULETTE  falta poner la ruleta y que acabe en worldguessr -->
   <div id="screenRoulette" class="screen" style="display: none;">
-    <h2> Ruleta de juegos</h2>
-    <div id="rouletteContainer"></div> <!--Aquí va la ruleta-->
+    <div id="contenedorRuletaJuegos" class="templo-ruleta">
+
+      <h2 class="titulo-olimpico">🏛️ El Oráculo de los Juegos 🏛️</h2>
+
+      <div style="position: relative; width: 350px; height: 350px; margin-top: 15px;">
+        <div class="aguja-olimpica"></div>
+
+        <canvas id="canvasRuletaJuegos" width="350" height="350"
+          style="border-radius: 50%; border: 8px solid #1c2833; box-shadow: 0 12px 28px rgba(0,0,0,0.4); transform: rotate(0deg);"></canvas>
+      </div>
+
+      <div
+        style="text-align: center; display: flex; flex-direction: column; gap: 15px; width: 100%; align-items: center; min-height: 100px;">
+        <div id="resultadoRuletaTV"
+          style="font-size: 1.4rem; font-weight: bold; color: #1c2833; text-transform: uppercase; letter-spacing: 1px;">
+          ⚡ Los Dioses están decidiendo... ⚡
+        </div>
+
+        <button id="btnIrAlJuego" class="boton-heroe">
+          🏛️ ¡Entrar al Olimpo!
+        </button>
+      </div>
+    </div>
     <button id="spinBtn">Girar ruleta</button>
   </div>
 
   <!-- Juego 1º WorldGuessr -->
   <div id="screenWorldGuessr" style="display: none;">
-    <!--<iframe src="https://www.worldguessr.com" width="600" height="400"></iframe>-->
+    <iframe src="https://www.worldguessr.com" width="600" height="400"></iframe>
     <div id="overlayImg" style="display:none;">
       <img id="imgShow">
     </div>
@@ -446,7 +500,7 @@
 
 
 
-<!-- -->
+  <!-- -->
   <div id="screenTheLiar" class="screen"
     style="background: #0f172a; color: white; padding: 30px; font-family: sans-serif; display: none;">
 
