@@ -145,19 +145,21 @@ window.inicializarRuletaJuegos = function () {
   // Colores llamativos alternos para los sectores de la ruleta
   // Paleta de colores de la Grecia Clásica para el Canvas
   const colores = [
-    "#2c231e", // Negro Ático / Cerámica oscura
-    "#d97d4b", // Terracota clásico
-    "#9b7826", // Mármol / Crema
-    "#6e8944", // Verde Oliva húmedo
-    "#b89728", // Oro Viejo
-    "#624513", // Azul Profundo del Egeo
-    "#bd5332"  // Rojo Cerámico
+    "#5A3E2B", // Marrón nogal
+    "#A86A3D", // Terracota suave
+    "#8B6B2E", // Oro oscuro
+    "#6F4E37", // Café tostado
+    "#B08D2F", // Dorado envejecido
+    "#7A5C3A",
+    "#a0692a",
+    "#ba6825", // Arena oscura
+    "#9C5F3C"  // Arcilla cálida
   ];
 
   constGames.forEach((game, i) => {
     const anguloInicio = i * angularArco;
     const anguloFin = anguloInicio + angularArco;
-    const gameTitle = ["Ulises", "Orfeo", "Dédalo","Moiras","Veredicto","Delfos","Láquesis","Epimeteo","Teorema"];
+    const gameTitle = ["Ulises", "Orfeo", "Dédalo", "Moiras", "Veredicto", "Delfos", "Láquesis", "Epimeteo", "Teorema"];
 
     // Pintar trozo de tarta
     ctx.beginPath();
@@ -172,7 +174,7 @@ window.inicializarRuletaJuegos = function () {
     ctx.translate(centro, centro);
     ctx.rotate(anguloInicio + angularArco / 2);
     ctx.fillStyle = "#ffffff";
-    ctx.font = "bold 8px sans-serif";
+    ctx.font = "bold 12px sans-serif";
     ctx.textAlign = "right";
     ctx.fillText(gameTitle[i], centro - 20, 5); // Desfase hacia fuera
     ctx.restore();
@@ -195,7 +197,7 @@ document.getElementById("spinBtn").onclick = async () => {
 
   // Ocultar botón y limpiar textos de jugadas anteriores
   btnJugar.style.display = "none";
-  txtResultado.style.innerText = "🎰 Girando...";
+  txtResultado.style.innerText = "Girando...";
 
   // 1. Obtener los datos actuales de Firebase (Tu código original)
   const snap = await getDoc(ref);
@@ -235,7 +237,9 @@ document.getElementById("spinBtn").onclick = async () => {
 
   // 4. AL TERMINAR EL GIRO (Esperamos los 4.5 segundos de la animación)
   await new Promise(resolve => setTimeout(resolve, 4500));
-  txtResultado.innerHTML = `Destino dictado: <span style="color:#bd5332; font-weight:900;">${gameSelected}</span>`;
+  const gameTitle = ["El viaje de Ulises", "El canto de Orfeo", "La torre de Dédalo", "El conteo de las Moiras", "El veredicto de los dioses", "El oráculo de Delfos", "El cálculo Láquesis", "El juicio de Epimeteo", "El último teorema"];
+  const jj = constGames.indexOf(gameSelected);
+  txtResultado.innerHTML = `Destino dictado: <span style="color:#bd5332; font-weight:900;">${gameTitle[jj]}</span>`;
   // Hacer aparecer de forma triunfal el botón de Jugar
   btnJugar.style.display = "block";
 
@@ -247,6 +251,7 @@ document.getElementById("spinBtn").onclick = async () => {
 
   // Asignar el comportamiento al botón para que haga el cambio de pantalla final
   btnJugar.onclick = () => {
+    document.getElementById("resultadoRuletaTV").innerHTML = "";
     ejecutarSaltoDePantallaDirecto(juegoDestinoGuardado);
   };
 };
