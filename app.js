@@ -107,6 +107,18 @@ function repararRutaRelativa(ruta) {
 }
 */
 
+function mostrarEntradaOlimpo() {
+
+  const pantalla = document.getElementById("pantallaEntradaOlimpo");
+  const btn = document.getElementById("btnEntrarOlimpo");
+
+  btn.onclick = () => {
+    pantalla.style.display = "none";
+  };
+}
+
+mostrarEntradaOlimpo();
+
 // Variables de control para el carrusel de cromos
 let arrayPersonajes = [];
 let idxCartaActual = 0;

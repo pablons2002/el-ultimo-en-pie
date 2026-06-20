@@ -16,6 +16,18 @@
 </head>
 
 <body>
+
+  <div id="pantallaEntradaOlimpo">
+    <div class="caja-olimpo">
+      <h1> Bienvenido al Último en Pie</h1>
+      <p>Has sido convocado</p>
+
+      <button id="btnEntrarOlimpo">
+        Entrada
+      </button>
+    </div>
+  </div>
+
   <script type="module" src="app.js"></script>
   <header id="userHeader">
     <div class="header-left">
@@ -122,93 +134,107 @@
 
 
   <!-- 4º Juego Precio Irracional-->
-<!-- 4º Juego: El Conteo de las Moiras -->
-<div id="screenIrrationalPrice" class="pantalla-juego-mitologica" style="display:none;">
+  <!-- 4º Juego: El Conteo de las Moiras -->
+  <div id="screenIrrationalPrice" class="pantalla-juego-mitologica" style="display:none;">
 
-  <h2 class="titulo-olimpico" style="margin-top: 0;">El conteo de las Moiras</h2>
-  <p class="subtitulo-oraculo">Mira la TV con atención. Las Moiras desafían tu intuición: ¿cuántas lentejas crees que esconde el tarro?</p>
+    <h2 class="titulo-olimpico" style="margin-top: 0;">El conteo de las Moiras</h2>
+    <p class="subtitulo-oraculo">Mira la TV con atención. Las Moiras desafían tu intuición: ¿cuántas lentejas crees que
+      esconde el tarro?</p>
 
-  <!-- Contenedor del Formulario Activo -->
-  <div id="formContenedorPrice">
-    <div class="campo-divino">
-      <input type="number" id="inputMovilLentejas" placeholder="Ej: 450" class="input-moira">
-    </div>
-    <button id="btnEnviarPrice" class="boton-heroe-enviar">
-      Sellar veredicto
-    </button>
-  </div>
-
-  <!-- Contenedor de Espera Interno -->
-  <div id="esperaContenedorPrice" class="banner-mensaje-templo banner-espera" style="display:none; margin-top: 20px;">
-    <h3>¡Hilo medido con éxito! 🕊️</h3>
-    <p>¡Número registrado! Las Moiras han guardado tu apuesta. Esperando al resto de jugadores...</p>
-  </div>
-
-</div>
-  <div id="screenVotes" class="pantalla-juego-mitologica" style="display: none;">
-
-  <div class="cabecera-urna">
-    <h2 class="titulo-olimpico" style="margin-top: 0;">El Veredicto de los Dioses</h2>
-    <p class="subtitulo-oraculo">
-      Los ojos de la cumbre sagrada os observan. Dictamina en secreto qué rival merece el favor de los cielos en esta ronda. 
-      Tu veredicto llegará de forma anónima al altar hasta que la TV revele el juicio divino.
-    </p>
-  </div>
-
-  <div id="moListaParaVotar" class="lista-urnas-contenedor">
-    <p style="color: #666; font-style: italic; text-align: center;">Reuniendo a los competidores en el altar...</p>
-  </div>
-
-  <div id="moMensajeVotoEnviado" class="banner-mensaje-templo banner-espera" style="display: none;">
-    <h3>Ofrenda depositada en el altar</h3>
-    <p>Tu veredicto ha sido entregado en la sombra. Espera en tu puesto a que el presentador cierre la urna sagrada en la TV para ver el destino de la ronda.</p>
-  </div>
-
-</div>
-
-<div id="screenNumbersAndLetters" class="pantalla-juego-mitologica" style="display: none;">
-
-  <h2 class="titulo-olimpico" style="margin-top: 0;">El Cálculo de Láquesis</h2>
-  <p id="movilInstruccionesCifras" class="subtitulo-oraculo">Espera a que la Moira desvele la longitud del destino...</p>
-
-  <div id="formularioCifrasContenedor">
-    <div style="background: rgba(28, 40, 51, 0.6); padding: 12px; border-radius: 4px; border: 1px solid #b89047; margin-bottom: 15px;">
-      <span style="color: #aaa; font-size: 0.85rem; display: block; font-weight: bold; letter-spacing: 1px;">LONGITUD OBJETIVO:</span>
-      <strong id="movilObjetivoCifras" style="font-size: 2.8rem; color: #d4af37; font-family: serif; text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);">---</strong>
-    </div>
-
-    <div id="movilPantallaFormula" style="background: #0f141a; min-height: 55px; padding: 12px; border-radius: 4px; border: 2px solid #b89047; font-family: monospace; font-size: 1.4rem; color: #f1e983; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); word-break: break-all;">
-      Escribe tu fórmula...
-    </div>
-
-    <div style="display: flex; flex-direction: column; gap: 12px;">
-      <div style="color: #d4af37; text-align: left; font-size: 0.85rem; font-weight: bold;">Cifras del Destino:</div>
-      <div id="movilBotonesNumeros" style="display: flex; gap: 8px; justify-content: space-between;"></div>
-
-      <div style="color: #d4af37; text-align: left; font-size: 0.85rem; font-weight: bold; margin-top: 5px;">Leyes Aritméticas:</div>
-      <div id="movilBotonesOperadores"></div>
-
-      <div style="display: flex; gap: 8px; margin-top: 5px;">
-        <button onclick="window.borrarUltimoCifras()" style="flex: 1; background: #5c3a21; color: #f1e983; font-size: 1rem; font-weight: bold; border: 1px solid #b89047; padding: 12px; border-radius: 4px; cursor: pointer;">
-          ← Deshacer
-        </button>
-        <button onclick="window.borrarTodoCifras()" style="flex: 1; background: #3d1414; color: #ffb3b3; font-size: 1rem; font-weight: bold; border: 1px solid #cc3333; padding: 12px; border-radius: 4px; cursor: pointer;">
-          Purgar Todo
-        </button>
+    <!-- Contenedor del Formulario Activo -->
+    <div id="formContenedorPrice">
+      <div class="campo-divino">
+        <input type="number" id="inputMovilLentejas" placeholder="Ej: 450" class="input-moira">
       </div>
-
-      <button id="btnEnviarCifras" onclick="window.enviarFormulaAlPresentador()" class="boton-heroe-enviar" style="margin-top: 15px;">
-        Sellar Ecuación
+      <button id="btnEnviarPrice" class="boton-heroe-enviar">
+        Sellar veredicto
       </button>
     </div>
+
+    <!-- Contenedor de Espera Interno -->
+    <div id="esperaContenedorPrice" class="banner-mensaje-templo banner-espera" style="display:none; margin-top: 20px;">
+      <h3>¡Hilo medido con éxito! 🕊️</h3>
+      <p>¡Número registrado! Las Moiras han guardado tu apuesta. Esperando al resto de jugadores...</p>
+    </div>
+
+  </div>
+  <div id="screenVotes" class="pantalla-juego-mitologica" style="display: none;">
+
+    <div class="cabecera-urna">
+      <h2 class="titulo-olimpico" style="margin-top: 0;">El Veredicto de los Dioses</h2>
+      <p class="subtitulo-oraculo">
+        Los ojos de la cumbre sagrada os observan. Dictamina en secreto qué rival merece el favor de los cielos en esta
+        ronda.
+        Tu veredicto llegará de forma anónima al altar hasta que la TV revele el juicio divino.
+      </p>
+    </div>
+
+    <div id="moListaParaVotar" class="lista-urnas-contenedor">
+      <p style="color: #666; font-style: italic; text-align: center;">Reuniendo a los competidores en el altar...</p>
+    </div>
+
+    <div id="moMensajeVotoEnviado" class="banner-mensaje-templo banner-espera" style="display: none;">
+      <h3>Ofrenda depositada en el altar</h3>
+      <p>Tu veredicto ha sido entregado en la sombra. Espera en tu puesto a que el presentador cierre la urna sagrada en
+        la TV para ver el destino de la ronda.</p>
+    </div>
+
   </div>
 
-  <div id="esperaCifrasContenedor" class="banner-mensaje-templo banner-espera" style="display: none; margin-top: 20px;">
-    <h3>Cálculo entregado a Láquesis</h3>
-    <p>Tu ecuación ha sido registrada en el hilo del destino. Comprueba en la gran pantalla si tu medición es exacta...</p>
-  </div>
+  <div id="screenNumbersAndLetters" class="pantalla-juego-mitologica" style="display: none;">
 
-</div>
+    <h2 class="titulo-olimpico" style="margin-top: 0;">El Cálculo de Láquesis</h2>
+    <p id="movilInstruccionesCifras" class="subtitulo-oraculo">Espera a que la Moira desvele la longitud del destino...
+    </p>
+
+    <div id="formularioCifrasContenedor">
+      <div
+        style="background: rgba(28, 40, 51, 0.6); padding: 12px; border-radius: 4px; border: 1px solid #b89047; margin-bottom: 15px;">
+        <span style="color: #aaa; font-size: 0.85rem; display: block; font-weight: bold; letter-spacing: 1px;">LONGITUD
+          OBJETIVO:</span>
+        <strong id="movilObjetivoCifras"
+          style="font-size: 2.8rem; color: #d4af37; font-family: serif; text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);">---</strong>
+      </div>
+
+      <div id="movilPantallaFormula"
+        style="background: #0f141a; min-height: 55px; padding: 12px; border-radius: 4px; border: 2px solid #b89047; font-family: monospace; font-size: 1.4rem; color: #f1e983; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); word-break: break-all;">
+        Escribe tu fórmula...
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <div style="color: #d4af37; text-align: left; font-size: 0.85rem; font-weight: bold;">Cifras del Destino:</div>
+        <div id="movilBotonesNumeros" style="display: flex; gap: 8px; justify-content: space-between;"></div>
+
+        <div style="color: #d4af37; text-align: left; font-size: 0.85rem; font-weight: bold; margin-top: 5px;">Leyes
+          Aritméticas:</div>
+        <div id="movilBotonesOperadores"></div>
+
+        <div style="display: flex; gap: 8px; margin-top: 5px;">
+          <button onclick="window.borrarUltimoCifras()"
+            style="flex: 1; background: #5c3a21; color: #f1e983; font-size: 1rem; font-weight: bold; border: 1px solid #b89047; padding: 12px; border-radius: 4px; cursor: pointer;">
+            ← Deshacer
+          </button>
+          <button onclick="window.borrarTodoCifras()"
+            style="flex: 1; background: #3d1414; color: #ffb3b3; font-size: 1rem; font-weight: bold; border: 1px solid #cc3333; padding: 12px; border-radius: 4px; cursor: pointer;">
+            Purgar Todo
+          </button>
+        </div>
+
+        <button id="btnEnviarCifras" onclick="window.enviarFormulaAlPresentador()" class="boton-heroe-enviar"
+          style="margin-top: 15px;">
+          Sellar Ecuación
+        </button>
+      </div>
+    </div>
+
+    <div id="esperaCifrasContenedor" class="banner-mensaje-templo banner-espera"
+      style="display: none; margin-top: 20px;">
+      <h3>Cálculo entregado a Láquesis</h3>
+      <p>Tu ecuación ha sido registrada en el hilo del destino. Comprueba en la gran pantalla si tu medición es
+        exacta...</p>
+    </div>
+
+  </div>
   <!-- 8º El último teorema-->
   <div id="screenLastTheorem" class="screen-movil"
     style="display: none;background: #111; color: white; padding: 30px; font-family: sans-serif; text-align: center; border-radius: 8px;">
@@ -228,23 +254,30 @@
 
   <div id="screenWinner" class="pantalla-juego-mitologica" style="display: none;">
 
-  <h2 class="titulo-olimpico" style="margin-top: 0;">⚡ Ascenso al Olimpo</h2>
-  
-  <div style="background: rgba(212, 175, 55, 0.1); border: 1px double #d4af37; padding: 8px 12px; border-radius: 4px; margin-bottom: 12px;">
-    <span style="color: #aaa; font-size: 0.8rem; display: block; font-weight: bold; letter-spacing: 1px;">HA ALCANZADO LA INMORTALIDAD:</span>
-    <strong id="movilNombreGanador" style="font-size: 1.3rem; color: #f1e983; font-family: serif;">Cargando veredicto...</strong>
-  </div>
+    <h2 class="titulo-olimpico" style="margin-top: 0;">⚡ Ascenso al Olimpo</h2>
 
-  <div style="flex: 1; display: flex; align-items: center; justify-content: center; max-height: 220px; margin-bottom: 12px; overflow: hidden;">
-    <img id="movilMiCartaFinal" src="" alt="Tu Divinidad" style="max-height: 100%; max-width: 160px; border: 2px solid #b89047; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); object-fit: contain;">
-  </div>
+    <div
+      style="background: rgba(212, 175, 55, 0.1); border: 1px double #d4af37; padding: 8px 12px; border-radius: 4px; margin-bottom: 12px;">
+      <span style="color: #aaa; font-size: 0.8rem; display: block; font-weight: bold; letter-spacing: 1px;">HA ALCANZADO
+        LA INMORTALIDAD:</span>
+      <strong id="movilNombreGanador" style="font-size: 1.3rem; color: #f1e983; font-family: serif;">Cargando
+        veredicto...</strong>
+    </div>
 
-  <div style="background: #1c2833; border: 1px solid #b89047; padding: 10px; border-radius: 4px; width: 100%; box-sizing: border-box;">
-    <span style="color: #d4af37; font-size: 0.85rem; display: block; font-weight: bold;">TU DESTINO FINAL:</span>
-    <p id="movilMiPosicion" style="font-size: 1.2rem; color: #fff; margin: 4px 0 0 0; font-weight: bold;">Calculando tu posición...</p>
-  </div>
+    <div
+      style="flex: 1; display: flex; align-items: center; justify-content: center; max-height: 220px; margin-bottom: 12px; overflow: hidden;">
+      <img id="movilMiCartaFinal" src="" alt="Tu Divinidad"
+        style="max-height: 100%; max-width: 160px; border: 2px solid #b89047; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); object-fit: contain;">
+    </div>
 
-</div>
+    <div
+      style="background: #1c2833; border: 1px solid #b89047; padding: 10px; border-radius: 4px; width: 100%; box-sizing: border-box;">
+      <span style="color: #d4af37; font-size: 0.85rem; display: block; font-weight: bold;">TU DESTINO FINAL:</span>
+      <p id="movilMiPosicion" style="font-size: 1.2rem; color: #fff; margin: 4px 0 0 0; font-weight: bold;">Calculando
+        tu posición...</p>
+    </div>
+
+  </div>
 
 </body>
 
