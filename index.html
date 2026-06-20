@@ -134,7 +134,7 @@
         </button>
       </div>
     </div>
-    <button id="spinBtn" class="boton-mitologico">Invocación del destino</button>
+    <button id="spinBtn">Girar ruleta</button>
   </div>
 
   <!-- Juego 1º WorldGuessr -->
@@ -199,22 +199,26 @@
   </div>
 
   <!--Pantalla Ranking-->
-  <div id="screenRanking" style="display:none;">
-    <h3 class="titulo-olimpico" style="margin-top: 10px;">Pódium</h3>
+  <div id="screenRanking" style="display: none; width: 100%; max-width: 600px; margin: 0 auto; padding: 20px; display: flex; flex-direction: column; align-items: center;">
+  
+  <h3 class="titulo-olimpico" style="text-align: center; margin-bottom: 20px;">
+    Pódium
+  </h3>
 
-    <div class="tabla-templo-contenedor">
-      <table class="tabla-mitologica">
-        <thead>
-          <tr>
-            <th>Pos</th>
-            <th>Dios</th>
-            <th>Puntos</th>
-          </tr>
-        </thead>
-        <tbody id="listaRankingActivos"></tbody>
-      </table>
-    </div>
+  <div class="tabla-templo-contenedor" style="max-width: 100%; width: 100%;">
+    <table class="tabla-mitologica">
+      <thead>
+        <tr>
+          <th>Pos</th>
+          <th style="text-align: left; padding-left: 15px;">Dios</th>
+          <th>Puntos</th>
+        </tr>
+      </thead>
+      <tbody id="listaRankingTVActivos"></tbody>
+    </table>
   </div>
+  <button id="nextGameBtn">Siguiente juego</button> <!-- Aquí va a la ruleta cambiando el game al siguiente-->
+</div>
 
   <!-- Juego 2º GuessSong-->
 
@@ -819,7 +823,7 @@
       <div id="listaRespuestas">Cargando respuestas...</div>
 
       <br>
-      <div style="margin:10px 0; color:rgb(0, 0, 0);">
+      <div style="margin:10px 0; color:rgb(222, 207, 207);">
         <label>Penalización:</label>
 
         <button id="penal1" class="boton-penalizacion boton-penalizacion-activo">
