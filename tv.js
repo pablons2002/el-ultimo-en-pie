@@ -76,6 +76,25 @@ function showScreenTV(screen) {
   }
 }
 
+function getAlbumImageUrl(albumPath) {
+  if (!albumPath) return "";
+  const trimmed = albumPath.trim();
+  if (!trimmed) return "";
+  if (/^(https?:|data:)/i.test(trimmed)) {
+    return trimmed;
+  }
+
+  let normalized = trimmed.replace(/\\/g, "/");
+  if (!normalized.startsWith("images/")) {
+    normalized = `images/guessSong/${normalized}`;
+  }
+  if (!normalized.startsWith("/")) {
+    normalized = normalized;
+  }
+
+  return encodeURI(normalized);
+}
+
 // ======================
 // QR generator
 // ======================
@@ -707,6 +726,27 @@ async function revelarRespuesta() {
   contenedorRespuestasUsuarios.style.display = "none";
   btnVerRespuestas.style.display = "inline-block";
 
+  // Mostrar carátula del álbum si existe
+  try {
+    const imgAlbumCover = document.getElementById('img-album-cover');
+    const contenedorAlbumCover = document.getElementById('contenedor-album-cover');
+    const albumField = cancionActual ? cancionActual.album : null;
+    const albumUrl = getAlbumImageUrl(albumField);
+    console.log('🔍 revelarRespuesta album field:', albumField, 'resolved albumUrl:', albumUrl);
+
+    if (imgAlbumCover && contenedorAlbumCover && albumUrl) {
+      imgAlbumCover.src = albumUrl;
+      imgAlbumCover.alt = `Carátula de ${cancionActual.nombreCancion || 'la canción'}`;
+      contenedorAlbumCover.style.display = 'block';
+    } else if (imgAlbumCover && contenedorAlbumCover) {
+      // Ocultar si no hay carátula disponible
+      imgAlbumCover.src = '';
+      contenedorAlbumCover.style.display = 'none';
+    }
+  } catch (e) {
+    console.error('Error al procesar la carátula del álbum:', e);
+  }
+
   pantallaJuego.style.display = "none";
   pantallaRespuesta.style.display = "block";
 
@@ -743,7 +783,6 @@ async function revelarRespuesta() {
     }
   }
 }
-
 // 7. FASE 2 DE LA RESPUESTA: EVENTO PARA CARGAR LAS RESPUESTAS Y ASIGNAR PUNTOS A 'scoreSong'
 btnVerRespuestas.addEventListener('click', async () => {
   btnVerRespuestas.style.display = "none";
@@ -772,10 +811,22 @@ btnVerRespuestas.addEventListener('click', async () => {
         const cancionMostrar = cancionRespondida || "❓";
         const autorMostrar = autorRespondido || "❓";
 
-        // 🔥 LEER E IMPRIMIR 'scoreSong' EN LA UI DE RESPUESTAS
+        // 🔥 LEER E IMPRIMIR 'scoreSong' EN LA UI DE RESPUESTAS CON LA FOTO DE FIREBASE
         const scoreSongActual = datosJugador.scoreSong || 0;
+        const fotoJugador = datosJugador.img || 'ruta/por/defecto.png';
+
         const contenedorTexto = document.createElement('div');
-        contenedorTexto.innerHTML = `👤 <strong>${datosJugador.name || "Jugador"}:</strong> "${cancionMostrar}" de <em>${autorMostrar}</em> <span style="font-size: 14px; color: #3498db; margin-left: 10px; font-weight: bold;">(Song Score: ${scoreSongActual} pts)</span>`;
+        contenedorTexto.style.display = "flex";
+        contenedorTexto.style.alignItems = "center";
+        contenedorTexto.style.gap = "8px";
+        
+        contenedorTexto.innerHTML = `
+          <img src="${fotoJugador}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover;" alt="Avatar">
+          <span>
+            <strong>${datosJugador.name || "Jugador"}:</strong> "${cancionMostrar}" de <em>${autorMostrar}</em> 
+            <span style="font-size: 14px; color: #3498db; margin-left: 10px; font-weight: bold;">(Acierto de deidad: ${scoreSongActual} pts)</span>
+          </span>
+        `;
 
         const contenedorBotones = document.createElement('div');
         contenedorBotones.style.display = "flex";
@@ -845,7 +896,6 @@ btnVerRespuestas.addEventListener('click', async () => {
 
   contenedorRespuestasUsuarios.style.display = "block";
 });
-
 // 8. FUNCIÓN PARA CARGAR LA SIGUIENTE CANCIÓN LOCAL
 function cargarCancion(indice) {
   const imgOwner = document.getElementById("img-owner");
@@ -981,7 +1031,9 @@ botonPlay.addEventListener('click', async () => {
       // 2. Descargar canciones de la base de datos
       const querySnapshot = await getDocs(collection(window.db, "GuessSong"));
       querySnapshot.forEach((doc) => {
-        listaCanciones.push(doc.data());
+        const data = doc.data();
+        console.log(`📥 GuessSong loaded: id=${doc.id} album=${data.album} nombreCancion=${data.nombreCancion}`);
+        listaCanciones.push(data);
       });
 
       if (listaCanciones.length === 0) {
@@ -1030,6 +1082,13 @@ botonContinuar.addEventListener('click', async () => {
       });
     }
     console.log("✅ Respuestas limpias para la nueva ronda.");
+      try {
+        // Forzar notificación a clientes móviles para que refresquen UI
+        await updateDoc(gameRef, { state: true, lastReset: Date.now() });
+        console.log('🔁 Notificación de reinicio enviada (game.songState.lastReset actualizado).');
+      } catch (notifyErr) {
+        console.error('❌ No se pudo notificar el reinicio a game.songState:', notifyErr);
+      }
   } catch (e) {
     console.error("Error al limpiar respuestas en Firestore:", e);
   }
@@ -1628,11 +1687,14 @@ function symbolZone() {
         puntuacionJuegoSymbol[idJugador] = 0;
       }
 
-      // Removida la carga de avatar propensa a errores. Usamos solo texto seguro.
+      // Guardar avatar proveniente de Firestore (campo `img`) con fallback
+      const avatarUrl = p.img ? p.img : 'images/personajesIconos/default.png';
+
       listaJugadoresSymbol.push({
         id: idJugador,
         name: p.name,
-        equivocado: false
+        equivocado: false,
+        avatar: avatarUrl
       });
     });
 
@@ -1667,7 +1729,7 @@ function pintarPanelJugadoresSymbol() {
       card.style.color = "#9e2a2b";
       card.style.border = "2px solid #9e2a2b";
       card.innerHTML = `
-        <span style="font-size: 1.3rem;">⚡</span>
+        <img src="${jugador.avatar}" style="width: 28px; height: 28px; object-fit: cover; border-radius: 50%; border: 2px solid #9e2a2b; margin-bottom: 4px; background: #fff;">
         <span style="font-size: 1.05rem; letter-spacing: 0.5px;">Traicionado</span>
         <span style='font-size:0.85rem; color: #7d6e5e; font-weight: normal;'>${jugador.name}</span>
       `;
@@ -1676,7 +1738,7 @@ function pintarPanelJugadoresSymbol() {
       card.style.color = "#4e6c1e";
       card.style.border = "2px solid #6d8c31";
       card.innerHTML = `
-        <img src="1039662481576695228.jpeg" style="width: 20px; height: 20px; object-fit: contain; margin-bottom: 2px;">
+        <img src="${jugador.avatar}" style="width: 28px; height: 28px; object-fit: cover; border-radius: 50%; border: 2px solid #6d8c31; margin-bottom: 4px; background: #fff;">
         <span style="font-size: 1.05rem; letter-spacing: 0.5px;">Supo la verdad</span>
         <span style='font-size:0.85rem; color: #4e4031; font-weight: normal;'>${jugador.name}</span>
       `;
@@ -2116,7 +2178,7 @@ window.validarRespuestasCifras = async function () {
       lineaHtml = `
         <div style="padding:10px; background:#f4f7f1; border-left: 4px solid #2e4225; margin-bottom:8px; color: #2c221e;">
           <strong>Ofrenda de ${j.name}:</strong> <code style="background:#fff; padding:2px 4px; border:1px solid #e3dac9;">${j.formula}</code> = <strong>${j.resultado}</strong> 
-          <br><span style="color:${colorTexto}; font-size:0.9rem; font-weight: bold; font-variant: small-caps;">(${esExacto ? 'Calculo exacto bendecido con +2' : `Proximidad al destino concedida a ${j.distancia} unidades. +1`})</span>
+          <br><span style="color:${colorTexto}; font-size:0.9rem; font-weight: bold; font-variant: small-caps;">(${esExacto ? 'Calculo exacto bendecido con +2' : `Proximidad al destino concedida a ${j.distancia} unidades.`})</span>
           <strong style="float:right; color:#8c6d31; font-variant: small-caps;">+${puntosRondaLocal} Favor</strong>
         </div>`;
     } else {
@@ -2299,7 +2361,7 @@ window.elegirSospechososAlAzar = async function () {
     contenedor.innerHTML = "";
     listaSospechososRonda.forEach((jugador, index) => {
 
-      let opcionesSelectHtml = `<option value="">-- Depositar voto de... --</option>`;
+      let opcionesSelectHtml = `<option value="">Depositar voto</option>`;
       todosLosActivosMentiroso.forEach(activo => {
         if (activo.id !== jugador.id) {
           opcionesSelectHtml += `<option value="${activo.id}">${activo.name}</option>`;

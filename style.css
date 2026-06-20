@@ -1067,3 +1067,25 @@ button {
   position: relative;
   overflow: hidden;
 }
+
+
+body {
+  /* Indica que el fondo usará una imagen */
+  background-image: url('tu-imagen-de-fondo.jpg'); 
+
+  /* Evita que la imagen se repita si es más pequeña que la pantalla */
+  background-repeat: no-repeat; 
+
+  /* 🔥 CLAVE 1: Hace que la imagen se estire para cubrir todo sin deformarse */
+  background-size: cover; 
+
+  /* Centra la imagen para que el reajuste se haga desde el medio */
+  background-position: center; 
+
+  /* 🔥 CLAVE 2: Fija el fondo para que no se mueva al hacer scroll */
+  background-attachment: fixed; 
+
+  /* Asegura que el cuerpo ocupe al menos toda la altura del navegador */
+  min-height: 100vh; 
+  margin: 0;
+}
