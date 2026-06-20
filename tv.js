@@ -3231,6 +3231,10 @@ window.navegacionRapidaJuegos = function (idPantalla) {
   } catch (error) {
     console.error("Error al saltar a la pantalla " + idPantalla + ":", error);
   }
+  if (idPantalla === "screenLastTheorem") {
+        console.log("✨ Entrada detectada a El Último Teorema. Abriendo presentación LaTeX...");
+        window.open("assets/El_último_en_pie.pdf", "_blank");
+    }
 };
 
 // =====================
