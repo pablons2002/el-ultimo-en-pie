@@ -559,20 +559,21 @@ document.getElementById("confirmRanking").onclick = async () => {
   setScreen("screenRanking");
   showScreenTV("screenRanking");
 };
+// =========================================================================
+// RANKING EN TIEMPO REAL PARA LA PANTALLA DE LA TV
+// =========================================================================
+// =========================================================================
+// RANKING EN TIEMPO REAL PARA LA PANTALLA DE LA TV (ESTILO INTEGRADO)
+// =========================================================================
+function listenToRankingTV() {
+  const tablaTVContenedor = document.getElementById("listaRankingTVActivos");
 
-function listenToRankingAndScore() {
-  const tablaContenedor = document.getElementById("listaRankingActivos");
-
-  if (!tablaContenedor) {
-    setTimeout(listenToRankingAndScore, 50);
+  if (!tablaTVContenedor || !window.db) {
+    setTimeout(listenToRankingTV, 50);
     return;
   }
 
-  if (!window.db) {
-    setTimeout(listenToRankingAndScore, 50);
-    return;
-  }
-  console.log("Sincronizando el Oraculo del Ranking en tiempo real");
+  console.log("📺 Conectando la TV con el registro de las deidades...");
 
   const q = query(
     collection(window.db, "players"),
@@ -581,27 +582,39 @@ function listenToRankingAndScore() {
   );
 
   onSnapshot(q, (snapshot) => {
-    tablaContenedor.innerHTML = "";
-
+    tablaTVContenedor.innerHTML = "";
     let posicion = 1;
 
     snapshot.forEach((docSnap) => {
       const jugador = docSnap.data();
       const fila = document.createElement("tr");
-
+      
+      // Construimos usando tus selectores exactos: pos-celda, heroe-celda, avatar-ranking y puntos-badge
       fila.innerHTML = `
-        <td>Escala #${posicion}</td>
-        <td style="font-weight: bold; font-variant: small-caps;">${jugador.name || "Navegante Anonimo"}</td>
-        <td style="color: #8c6d31; font-weight: bold;">${jugador.score ?? 0} mercedes</td>
+        <td>
+          <div class="pos-celda">
+            <strong>#${posicion}</strong>
+          </div>
+        </td>
+        <td>
+          <div class="heroe-celda" style="padding-left: 5px;">
+            <img src="${jugador.img || 'images/iconoWeb.svg'}" class="avatar-ranking" onerror="this.src='images/iconoWeb.svg'">
+            <span style="font-weight: bold;">${jugador.name || "Sin nombre"}</span>
+          </div>
+        </td>
+        <td>
+          <span class="puntos-badge">${jugador.score ?? 0} pts</span>
+        </td>
       `;
 
-      tablaContenedor.appendChild(fila);
+      tablaTVContenedor.appendChild(fila);
       posicion++;
     });
   });
 }
 
-listenToRankingAndScore();
+// Ejecutamos la escucha de la TV de forma automática
+listenToRankingTV();
 
 document.getElementById("nextGameBtn").onclick = async () => {
   console.log(currentGame);
