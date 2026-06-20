@@ -1293,14 +1293,14 @@ function lastTheorem() {
 // Ganador
 // =====================
 function finalWinnerScreen(nombreGanadorGlobal, rankingJugadores) {
-  console.log("🏛️ Renderizando pantalla final del Olimpo en el móvil");
+  console.log(" Renderizando pantalla final del Olimpo en el móvil");
   
   const miIdLocal = localStorage.getItem("playerId");
   
   // 1. Pintamos el nombre del ganador de la partida en el banner superior
   const txtGanador = document.getElementById("movilNombreGanador");
   if (txtGanador) {
-    txtGanador.innerText = `🏆 ${nombreGanadorGlobal.toUpperCase()}`;
+    txtGanador.innerText = ` ${nombreGanadorGlobal.toUpperCase()}`;
   }
 
   // 2. Buscamos nuestra propia información en el ranking que manda la TV o Firebase

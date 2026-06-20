@@ -872,3 +872,161 @@ button {
   width: 100%;
   z-index: 9999;
 }
+
+
+
+
+#btn-play,
+#btn-siguiente {
+  width: 80%;      /* 🔥 antes 100% */
+  margin: 10px auto;
+  display: block;
+
+  padding: 10px 12px;  /* 🔥 más pequeños */
+
+  font-size: 14px;
+  letter-spacing: 1.5px;
+
+  border-radius: 10px;
+}
+
+#contenedor-crono {
+  background: linear-gradient(#fffdf6, #f7f0dc);
+  border: 2px solid #c9a24a;
+  box-shadow:
+    0 6px 15px rgba(0,0,0,0.15),
+    inset 0 0 8px rgba(212,175,55,0.2);
+}
+
+#segundos-crono {
+  font-size: 40px;
+  color: #b8860b;
+}
+
+.espaciador {
+  height: 60px; /* ajusta el espacio que quieras */
+}
+
+
+#screenGuessSong {
+  background-image: url('assets/wallpaper/musica.png');
+
+  /* 2. EVITA QUE SE DUPLIQUE */
+  background-repeat: no-repeat;
+
+  /* 3. Centra la imagen perfectamente */
+  background-position: center center;
+
+  /* 4. Hace que la imagen cubra todo el fondo del móvil sin deformarse */
+  background-size: cover;
+
+  /* 5. Deja el fondo fijo */
+  background-attachment: fixed;
+
+  /* 🔥 EXTRA PARA MÓVIL: Fuerza a que el contenedor ocupe el 100% del alto de la pantalla */
+  min-height: 100vh;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#pantalla-respuesta {
+  display: none;
+  padding: 20px;
+  margin-top: 20px;
+
+  background: linear-gradient(#fffdf6, #f6ecd6);
+  border: 3px solid #c9a24a;
+  border-radius: 16px;
+
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+
+  font-family: "Georgia", serif;
+  text-align: center;
+  color: #3b2f1b;
+}
+
+#pantalla-respuesta h2 {
+  color: #b8860b;
+  font-size: 26px;
+  letter-spacing: 2px;
+
+  text-shadow:
+    1px 1px 2px rgba(0,0,0,0.2),
+    0 0 6px rgba(212,175,55,0.3);
+}
+
+#pantalla-respuesta p {
+  font-size: 18px;
+  margin: 12px 0;
+}
+
+#pantalla-respuesta strong {
+  color: #8c6f2d;
+}
+
+#txt-nombre-cancion,
+#txt-autor {
+  color: #3e3220;
+  font-weight: bold;
+}
+
+#btn-ver-respuestas {
+  margin-top: 15px;
+
+  background: linear-gradient(145deg, #3e3220, #3e3220);
+  color: #fff;
+
+  border: 1px solid #c9a24a;
+  border-radius: 8px;
+
+  padding: 10px 18px;
+  font-size: 14px;
+
+  cursor: pointer;
+  letter-spacing: 1px;
+
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+#btn-ver-respuestas:hover {
+  transform: translateY(-2px);
+}
+
+#contenedor-respuestas-usuarios {
+  display: none;
+  margin-top: 20px;
+
+  text-align: left;
+
+  background: #fffaf0;
+  padding: 20px;
+
+  border-radius: 12px;
+  border: 2px solid #d4af37;
+
+  box-shadow: inset 0 0 10px rgba(212,175,55,0.2);
+}
+
+#btn-continuar {
+  margin-top: 15px;
+
+  width: 100%;
+  padding: 12px;
+
+  background: linear-gradient(#d4af37, #b8860b);
+  color: white;
+
+  border: none;
+  border-radius: 8px;
+
+  font-size: 16px;
+  letter-spacing: 1px;
+
+  cursor: pointer;
+
+  box-shadow: 0 5px 12px rgba(0,0,0,0.2);
+}
+
+#btn-continuar:hover {
+  transform: translateY(-2px);
+}

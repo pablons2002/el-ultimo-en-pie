@@ -240,30 +240,34 @@
     </div>
   </div>
 
-  <div id="pantalla-respuesta"
-    style="display: none; background: #f8f9fa; padding: 20px; border-radius: 10px; border: 2px solid #2ecc71; margin-top: 20px;">
+  <div id="pantalla-respuesta">
 
-    <h2 style="color: #2ecc71; margin-bottom: 5px;">¡Respuesta Correcta!</h2>
-    <p style="font-size: 20px; margin: 10px 0;"><strong>Canción:</strong> <span id="txt-nombre-cancion">-</span></p>
-    <p style="font-size: 20px; margin: 10px 0;"><strong>Autor:</strong> <span id="txt-autor">-</span></p>
+    <h2>¡Respuesta Correcta!</h2>
 
-    <button id="btn-ver-respuestas"
-      style="background: #34495e; color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 5px; cursor: pointer; margin-top: 15px;">
+    <p>
+      <strong>Canción:</strong>
+      <span id="txt-nombre-cancion">-</span>
+    </p>
+
+    <p>
+      <strong>Autor:</strong>
+      <span id="txt-autor">-</span>
+    </p>
+
+    <button id="btn-ver-respuestas">
       Ver qué ha respondido la gente
     </button>
 
-    <div id="contenedor-respuestas-usuarios"
-      style="display: none; margin-top: 20px; text-align: left; background: white; padding: 15px; border-radius: 8px; border: 1px solid #ddd;">
-      <h3 style="margin-top: 0; color: #34495e;">Respuestas de los jugadores:</h3>
-      <ul id="lista-respuestas-jugadores" style="list-style: none; padding: 0; font-size: 18px;"></ul>
+    <div id="contenedor-respuestas-usuarios">
+      <h3>Respuestas de los jugadores:</h3>
+      <ul id="lista-respuestas-jugadores"></ul>
 
-      <button id="btn-continuar"
-        style="background: #2ecc71; color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 5px; cursor: pointer; margin-top: 15px; width: 100%;">
+      <button id="btn-continuar">
         Siguiente Canción
       </button>
     </div>
-  </div>
 
+  </div>
   <audio id="mi-reproductor"></audio>
 
   <!-- -->

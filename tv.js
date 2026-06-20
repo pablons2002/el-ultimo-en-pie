@@ -68,6 +68,7 @@ function showScreenTV(screen) {
   document.getElementById("screenNumbersAndLetters").style.display = "none";
   document.getElementById("screenVotes").style.display = "none";
   document.getElementById("screenTheLiar").style.display = "none";
+  document.getElementById("viewWinner").style.display = "none";
   document.getElementById(screen).style.display = "block"
 
   if (screen === "screenNumbersAndLetters") {
@@ -838,7 +839,7 @@ function cargarCancion(indice) {
     reiniciarCronometro();
 
     botonPlay.disabled = false;
-    botonPlay.textContent = "Reproducir Música 🎵";
+    botonPlay.textContent = "Reproducir Música";
     botonSiguiente.disabled = false;
   } else {
     pantallaRespuesta.style.display = "none";
@@ -846,7 +847,7 @@ function cargarCancion(indice) {
     reiniciarCronometro();
 
     juegoTerminado = true;
-    botonPlay.textContent = "Ver Ranking Final 🏆";
+    botonPlay.textContent = "Ver Ranking Final";
     botonPlay.disabled = false;
     botonSiguiente.disabled = true;
 
@@ -972,11 +973,11 @@ botonPlay.addEventListener('click', async () => {
     // Interruptor Play / Pausa normal durante la ronda
     if (reproductor.paused) {
       await reproductor.play();
-      botonPlay.textContent = "Pausar ⏸️";
+      botonPlay.textContent = "Pausar";
       iniciarCronometro();
     } else {
       reproductor.pause();
-      botonPlay.textContent = "Reproducir Música 🎵";
+      botonPlay.textContent = "Reproducir Música";
       pausarCronometro();
     }
 
@@ -2630,7 +2631,15 @@ function abrirFullscreen() {
   }
 }
 
+let videoStarted = false;
+
+videoFinal.addEventListener("play", () => {
+  videoStarted = true;
+});
+
 videoFinal.addEventListener("ended", async () => {
+  if (!videoStarted) return; // 🔥 si no empezó, no hacer nada
+
   const ganador = await obtenerGanador();
 
   viewVideo.style.display = "none";
