@@ -2624,6 +2624,8 @@ const viewWinner = document.getElementById("viewWinner");
 const videoFinal = document.getElementById("videoFinal");
 const textoGanador = document.getElementById("textoGanador");
 
+let videoStarted = false;
+
 btnFinalizarJuego.addEventListener("click", async () => {
   viewMuerte.style.display = "none";
 
@@ -2632,6 +2634,7 @@ btnFinalizarJuego.addEventListener("click", async () => {
   videoFinal.play();
 
   abrirFullscreen();
+  videoStarted = true;
 });
 
 const video = document.getElementById("videoFinal");
@@ -2660,13 +2663,13 @@ function abrirFullscreen() {
   }
 }
 
-let videoStarted = false;
-videoFinal.addEventListener("play", () => {
-  videoStarted = true;
-});
-
-/*
 videoFinal.addEventListener("ended", async () => {
+
+  // 🚨 SOLO EJECUTAR SI EL JUEGO YA HA EMPEZADO EL VIDEO
+  if (!videoStarted) return;
+
+  videoStarted = false; // evita re-ejecuciones dobles
+
   const ganador = await obtenerGanador();
 
   viewVideo.style.display = "none";
@@ -2675,10 +2678,13 @@ videoFinal.addEventListener("ended", async () => {
   const img = document.getElementById("winnerImg");
   const texto = document.getElementById("textoGanador");
 
-  img.src = ganador.img || "default.png";
-  texto.innerHTML = ganador.name;
+  if (ganador) {
+    img.src = ganador.img || "default.png";
+    texto.innerHTML = ganador.name;
+  } else {
+    texto.innerHTML = "No hay ganador";
+  }
 });
-*/
 
 // Diccionario de reglas traducidas (Asegúrate de tener este elemento 'textoRegla' en tu HTML)
 const textosReglas = {
@@ -2735,12 +2741,25 @@ btnEmpezar.addEventListener("click", async () => {
   }
 });
 
-document.getElementById("penal1").onclick = () => {
+const penal1 = document.getElementById("penal1");
+const penal2 = document.getElementById("penal2");
+
+function setActivo(btnActivo) {
+  [penal1, penal2].forEach(btn => {
+    btn.classList.remove("boton-penalizacion-activo");
+  });
+
+  btnActivo.classList.add("boton-penalizacion-activo");
+}
+
+penal1.onclick = () => {
   penalizacionSeleccionada = -1;
+  setActivo(penal1);
 };
 
-document.getElementById("penal2").onclick = () => {
+penal2.onclick = () => {
   penalizacionSeleccionada = -2;
+  setActivo(penal2);
 };
 
 btnMostrarRespuestas.addEventListener("click", () => {
@@ -2821,7 +2840,7 @@ btnSiguienteRonda.addEventListener("click", async () => {
 
       mensajeMuerte.innerHTML = `
       <span style="color:#ff4a4a; font-size: 20px;">
-        🎉 El juego ha terminado
+        El juego ha terminado
       </span><br>
       <span>Queda un único jugador vivo</span>
     `;
@@ -2921,7 +2940,7 @@ async function cargarRespuestasFirebase() {
       jugadoresActivosIds.push(j.jugadorId);
 
       htmlContenido += `
-        <label style='display: flex; align-items: center; justify-content: space-between; background: #222; padding: 10px; border-radius: 4px; cursor: pointer;'>
+        <label style='display: flex; align-items: center; justify-content: space-between; padding: 10px; border-radius: 4px; cursor: pointer;'>
           <div style='display: flex; align-items: center; gap: 10px;'>
             <input type='checkbox' id='chk-${j.jugadorId}' style='transform: scale(1.2);'>
             <span>
@@ -2931,7 +2950,7 @@ async function cargarRespuestasFirebase() {
             </span>
           </div>
 
-          <span style='background: #444; padding: 2px 8px; border-radius: 12px; font-size: 14px;'>
+          <span style='padding: 2px 8px; border-radius: 12px; font-size: 14px;'>
             Score: ${j.scoreActual}
           </span>
         </label>
@@ -2945,7 +2964,7 @@ async function cargarRespuestasFirebase() {
     // ==============================
     if (totalJugadoresConNumero > 0) {
       contenedorMedia.innerHTML = `
-        <span style="font-size: 14px; text-transform: uppercase; color: #aaa; letter-spacing: 1px;">
+        <span style="font-size: 14px; text-transform: uppercase; color: #000000; letter-spacing: 1px;">
           Media × 0.8
         </span>
         <div style="font-size: 48px; font-weight: bold; color: #ff4a4a; margin-top: 5px;">
@@ -3098,7 +3117,8 @@ async function resetGame() {
         vasosTimes: { round1: 0, round2: 0 },
         lentejasGuess: null,
         cifrasFormula: null,
-        votoEnviado: null
+        votoEnviado: null,
+        tenbin: {currentNumber: null, hasAnswered: false, isAlive: true, score: 0}
       };
 
       if (playerData.attemptsSong !== undefined) {

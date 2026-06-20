@@ -1210,7 +1210,7 @@ function lastTheorem() {
       const tenbin = data.tenbin;
 
       // SI EL JUGADOR HA MUERTO: Bloqueamos la interfaz por completo
-      if (tenbin && tenbin.isAlive === false) {
+      if (tenbin.score=-10 && tenbin.isAlive === false) {
         if (statusMessage) {
           statusMessage.innerHTML = `<span style="color: #ff4a4a; font-weight: bold;">💀 ¡HAS MUERTO! 💀</span><br>Has alcanzado los -10 puntos y has sido eliminado.`;
         }
