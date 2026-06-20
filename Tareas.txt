@@ -25,9 +25,9 @@ nombres pruebas:
 ✔️Veredicto de los dioses
 ✔️El oráculo de Delfos
 ✔️El cálculo de Laquesis
-✔️❌El Juicio de Epimeteo
+✔️El Juicio de Epimeteo
 
-✔️	cANTO DE ORFEO
+❌	cANTO DE ORFEO
 Quitar barra reproductor. 
 Fondo de pantalla con música
 Nombre del juego
@@ -89,32 +89,27 @@ Meter showRaning
 
 El fondo se corta
 ✔️Número 1/15 en dos líneas
-Ruleta sale tirada anterior
+✔️Ruleta sale tirada anterior
 ✔️10s Al principio de GuessSong
-✔️En guessSong pponer personas iconos en la ras respuestas y SongScore
+En guessSong poner personas iconos en la las respuestas y SongScore
 No se actualiza en móvil el oyente para enviar otra respuesta.
 ✔️Give it up to me no funciona
-✔️Se queda veredicto enviado para la siguiente
+Se queda veredicto enviado para la siguiente
 
 Que se vea todo en una en la de las lentejas y en la anterior
 RANKING
-✔️RUleta
+RUleta
 
-✔️Simbolzone no se cargan los iconos y quitar rayo en traicionado
+Simbolzone no se cargan los iconos y quitar rayo en traicionado
 
-✔️Quitar rayito en móvil cifras. TV error de que pone proximidad al destino conedida +1 siempre
+Quitar rayito en móvil cifras. TV error de que pone proximidad al destino conedida +1 siempre
 Se corta en ese juego en el móvil
-✔️Puntuación centrarlo
-➖Votos en el móvil que se vean todos es muy pequeño el contenedor de lo svotos
+Puntuación centrarlo
+Votos en el móvil que se vean todos es muy pequeño el contenedor de lo svotos
 
-➖En la de las lentejas lo de la derecha se queda muy largo
+En la de las lentejas lo de la derecha se queda muy largo
 Depositar voto se corta en tv
 Quitar alerta en mentiroso
-
-
-
-RANKING
-El ultimo teorema
+El ulitmo teorema
 El video del final
 En el móvil final
-Inicio móvil y ordenador
