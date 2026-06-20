@@ -173,265 +173,351 @@
 
 
   <!-- Juego 2º GuessSong-->
-  <div style="text-align: center; margin: 20px; font-family: sans-serif;">
 
-    <div id="pantalla-juego">
-      <div id="screenGuessSong" style="display:none;">
-        <div id="contenedor-crono" style="font-size: 24px; font-weight: bold; margin-bottom: 10px; color: #e74c3c;">
-          Tiempo restante: <span id="segundos-crono">10</span>s
-        </div>
+  <div id="pantalla-juego">
+    <div id="screenGuessSong" style="display:none;">
+      <div id="contenedor-crono" style="font-size: 24px; font-weight: bold; margin-bottom: 10px; color: #e74c3c;">
+        Tiempo restante: <span id="segundos-crono">10</span>s
+      </div>
 
-        <button id="btn-play">Empezar Juego 🎮</button>
+      <button id="btn-play">Empezar Juego 🎮</button>
 
-        <button id="btn-siguiente" disabled>Revelar Respuesta ➡️</button>
+      <button id="btn-siguiente" disabled>Revelar Respuesta ➡️</button>
 
-        <div style="margin-top: 15px; display: flex; justify-content: center; align-items: center; gap: 10px;">
-          <span id="tiempo-actual">0:00</span>
-          <input type="range" id="barra-progreso" value="0" min="0" max="100" style="width: 300px; cursor: pointer;">
-          <span id="tiempo-total">0:00</span>
-        </div>
+      <div style="margin-top: 15px; display: flex; justify-content: center; align-items: center; gap: 10px;">
+        <span id="tiempo-actual">0:00</span>
+        <input type="range" id="barra-progreso" value="0" min="0" max="100" style="width: 300px; cursor: pointer;">
+        <span id="tiempo-total">0:00</span>
       </div>
     </div>
-
-    <div id="pantalla-respuesta"
-      style="display: none; background: #f8f9fa; padding: 20px; border-radius: 10px; border: 2px solid #2ecc71; margin-top: 20px;">
-
-      <h2 style="color: #2ecc71; margin-bottom: 5px;">¡Respuesta Correcta! 🎉</h2>
-      <p style="font-size: 20px; margin: 10px 0;"><strong>Canción:</strong> <span id="txt-nombre-cancion">-</span></p>
-      <p style="font-size: 20px; margin: 10px 0;"><strong>Autor:</strong> <span id="txt-autor">-</span></p>
-
-      <button id="btn-ver-respuestas"
-        style="background: #34495e; color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 5px; cursor: pointer; margin-top: 15px;">
-        Ver qué ha respondido la gente 👀
-      </button>
-
-      <div id="contenedor-respuestas-usuarios"
-        style="display: none; margin-top: 20px; text-align: left; background: white; padding: 15px; border-radius: 8px; border: 1px solid #ddd;">
-        <h3 style="margin-top: 0; color: #34495e;">Respuestas de los jugadores:</h3>
-        <ul id="lista-respuestas-jugadores" style="list-style: none; padding: 0; font-size: 18px;"></ul>
-
-        <button id="btn-continuar"
-          style="background: #2ecc71; color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 5px; cursor: pointer; margin-top: 15px; width: 100%;">
-          Siguiente Canción ➡️
-        </button>
-      </div>
-    </div>
-
-    <audio id="mi-reproductor"></audio>
   </div>
 
+  <div id="pantalla-respuesta"
+    style="display: none; background: #f8f9fa; padding: 20px; border-radius: 10px; border: 2px solid #2ecc71; margin-top: 20px;">
 
+    <h2 style="color: #2ecc71; margin-bottom: 5px;">¡Respuesta Correcta! 🎉</h2>
+    <p style="font-size: 20px; margin: 10px 0;"><strong>Canción:</strong> <span id="txt-nombre-cancion">-</span></p>
+    <p style="font-size: 20px; margin: 10px 0;"><strong>Autor:</strong> <span id="txt-autor">-</span></p>
 
-  <!-- Juego 3º GlassTower-->
+    <button id="btn-ver-respuestas"
+      style="background: #34495e; color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 5px; cursor: pointer; margin-top: 15px;">
+      Ver qué ha respondido la gente 👀
+    </button>
+
+    <div id="contenedor-respuestas-usuarios"
+      style="display: none; margin-top: 20px; text-align: left; background: white; padding: 15px; border-radius: 8px; border: 1px solid #ddd;">
+      <h3 style="margin-top: 0; color: #34495e;">Respuestas de los jugadores:</h3>
+      <ul id="lista-respuestas-jugadores" style="list-style: none; padding: 0; font-size: 18px;"></ul>
+
+      <button id="btn-continuar"
+        style="background: #2ecc71; color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 5px; cursor: pointer; margin-top: 15px; width: 100%;">
+        Siguiente Canción ➡️
+      </button>
+    </div>
+  </div>
+
+  <audio id="mi-reproductor"></audio>
+
+  <!-- -->
+  <!-- Juego 3º GlassTower (La Torre de Dédalo) -->
   <div id="screenGlassTower" class="screen"
-    style="background: #111; color: white; padding: 30px; font-family: sans-serif; display: none;">
+    style="background: #fdfbf7; color: #3c3228; padding: 30px; font-family: 'Cinzel', serif; display: none;">
 
-    <div style="text-align: center; margin-bottom: 25px;">
-      <h1 id="tvRondaActual"
-        style="color: #ffc107; margin: 0; font-size: 2.8rem; display: inline-block; vertical-align: middle;">RONDA 1
-      </h1>
-      <div style="display: inline-block; margin-left: 20px; vertical-align: middle;">
-        <button onclick="cambiarRondaDirecto('Ronda 1')"
-          style="padding: 5px 10px; background: #333; color: white; border: 1px solid #ffc107; cursor: pointer;">R1</button>
-        <button onclick="cambiarRondaDirecto('Ronda 2')"
-          style="padding: 5px 10px; background: #333; color: white; border: 1px solid #ffc107; cursor: pointer;">R2</button>
+    <!-- CABECERA: ESTILO TEMPLO DE MÁRMOL -->
+    <div style="text-align: center; margin-bottom: 30px;">
+      <h1
+        style="font-family: 'Cinzel Decorative', serif; color: #b89047; font-size: 3rem; margin: 0; text-shadow: 1px 1px 2px rgba(0,0,0,0.1);">
+        La Torre de Dédalo</h1>
+      <p style="color: #7d6e5e; font-size: 1.1rem; letter-spacing: 2px; margin: 5px 0 15px 0;">Desafía las arenas del
+        tiempo en el altar de los dioses</p>
+
+      <!-- Selector de Fases/Rondas -->
+      <div
+        style="background: #f4eae1; display: inline-block; padding: 10px 20px; border-radius: 8px; border: 2px solid #dcd1c4; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+        <h2 id="tvRondaActual" style="color: #8c6d31; margin: 0 0 10px 0; font-size: 1.8rem; display: block;">RONDA 1
+        </h2>
+        <div style="display: flex; gap: 10px; justify-content: center;">
+          <button onclick="cambiarRondaDirecto('Ronda 1')"
+            style="padding: 6px 15px; background: #fff; color: #8c6d31; border: 1px solid #b89047; font-family: 'Cinzel', serif; font-weight: bold; cursor: pointer; border-radius: 4px; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">Fase
+            I</button>
+          <button onclick="cambiarRondaDirecto('Ronda 2')"
+            style="padding: 6px 15px; background: #fff; color: #8c6d31; border: 1px solid #b89047; font-family: 'Cinzel', serif; font-weight: bold; cursor: pointer; border-radius: 4px; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">Fase
+            II</button>
+        </div>
       </div>
     </div>
 
-    <div style="display: flex; gap: 30px; align-items: flex-start;">
+    <!-- CUERPO PRINCIPAL DEL PANEL -->
+    <div style="display: flex; gap: 30px; align-items: flex-start; max-width: 1200px; margin: 0 auto;">
 
-      <div style="flex: 1.2; background: #222; padding: 20px; border-radius: 15px; border: 2px solid #444;">
-        <h2 style="margin-top: 0; font-size: 1.4rem; color: #007bff; text-align: center;">👇 SELECCIONA QUIÉN JUEGA
-          AHORA 👇</h2>
+      <!-- COLUMNA IZQUIERDA: CONTROLES -->
+      <div
+        style="flex: 1.2; background: #fcf9f2; padding: 25px; border-radius: 15px; border: 2px solid #e3dac9; box-shadow: 0 8px 24px rgba(184,144,71,0.15);">
+        <h2
+          style="margin-top: 0; font-size: 1.3rem; color: #8c6d31; text-align: center; letter-spacing: 1px; margin-bottom: 20px;">
+          SELECCIONA AL DIOS EN EL TRONO</h2>
 
+        <!-- Rejilla de Botones de Jugadores -->
         <div id="tvBotonesJugadores"
           style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 25px;"></div>
 
+        <!-- ZONA DEL CRONÓMETRO -->
         <div id="zonaCronometro"
-          style="background: #333; padding: 15px; border-radius: 10px; text-align: center; display: none;">
-          <h3 style="margin: 0 0 10px 0; font-size: 1.5rem;">⏱️ Turno de: <span id="nombreSeleccionado"
-              style="color: #ffc107;">--</span></h3>
-          <div id="cronometroDisplay" style="font-size: 2rem; margin-bottom: 12px; color: #00e676;">0.00s</div>
-          <button id="btnStartCrono" onclick="iniciarCronometro()"
-            style="font-size: 1.2rem; background: #007bff; color: white; border: none; padding: 10px 18px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-right: 10px;">Iniciar</button>
-          <button id="btnStopCrono" onclick="detenerYCargarTiempo()" disabled
-            style="font-size: 1.2rem; background: #28a745; color: white; border: none; padding: 10px 18px; border-radius: 5px; cursor: pointer; font-weight: bold;">Detener
-            y guardar</button>
+          style="background: #fff; padding: 20px; border-radius: 12px; text-align: center; border: 2px solid #b89047; display: none; box-shadow: 0 4px 15px rgba(184,144,71,0.1);">
+          <h3 style="margin: 0 0 12px 0; font-size: 1.4rem; color: #3c3228;">⏳ Altar de Tiempo: <span
+              id="nombreSeleccionado" style="color: #b89047; font-weight: bold;">--</span></h3>
+          <div id="cronometroDisplay"
+            style="font-size: 3.5rem; font-weight: bold; margin-bottom: 15px; color: #8c6d31; font-family: monospace;">
+            0.00s</div>
+
+          <div style="display: flex; gap: 10px; justify-content: center;">
+            <button id="btnStartCrono" onclick="iniciarCronometro()"
+              style="font-family: 'Cinzel', serif; font-size: 1.1rem; background: #b89047; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-weight: bold; box-shadow: 0 3px 6px rgba(184,144,71,0.2);">Iniciar</button>
+            <button id="btnStopCrono" onclick="detenerYCargarTiempo()" disabled
+              style="font-family: 'Cinzel', serif; font-size: 1.1rem; background: #6d8c31; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-weight: bold; box-shadow: 0 3px 6px rgba(109,140,49,0.2);">Detener
+              y Guardar</button>
+          </div>
+        </div>
+
+        <!-- NOTIFICACIÓN DE ERROR INTEGRADA -->
+        <div id="aviso-jugador-vacio"
+          style="display: none; color: #b23b3b; border: 1px solid #d99696; background: #fdf3f3; padding: 10px; border-radius: 6px; margin-top: 15px; text-align: center; font-size: 0.95rem;">
+          ⚠️ Por favor, selecciona primero un mortal en el panel superior.
         </div>
       </div>
 
-      <div style="flex: 0.8; background: #1a1a1a; padding: 20px; border-radius: 15px; border: 2px solid #ffc107;">
-        <h3 style="margin-top: 0; color: #ffc107; font-size: 1.6rem; text-align: center;">⚡ TOP TIEMPOS ⚡</h3>
-        <hr style="border-color: #333;">
-        <div id="tvLeaderboardVasos" style="font-size: 1.4rem;"></div>
+      <!-- COLUMNA DERECHA: LEADERBOARD -->
+      <div
+        style="flex: 0.8; background: #fff; padding: 25px; border-radius: 15px; border: 2px solid #b89047; box-shadow: 0 8px 24px rgba(184,144,71,0.1);">
+        <h3
+          style="margin-top: 0; color: #8c6d31; font-size: 1.6rem; text-align: center; font-family: 'Cinzel Decorative', serif; letter-spacing: 1px;">
+          TEMPLO DE LA VELOCIDAD</h3>
+        <hr style="border-color: #f4eae1; margin-bottom: 20px;">
+        <div id="tvLeaderboardVasos" style="font-size: 1.25rem; line-height: 1.6;"></div>
       </div>
 
     </div>
-    <div style="margin-top: 25px; text-align: center;">
+
+    <!-- PIE DE PANTALLA -->
+    <div style="margin-top: 30px; max-width: 1200px; margin-left: auto; margin-right: auto; text-align: center;">
+      <div id="aviso-marcas-vacias"
+        style="display: none; color: #8c6d31; border: 1px solid #b89047; background: #fdfbf7; padding: 12px; border-radius: 6px; margin-bottom: 15px;">
+        No hay marcas registradas en el oráculo para poder computar el reparto.
+      </div>
+
       <button onclick="finalizarJuegoVasos()"
-        style="font-size: 1.3rem; background: #dc3545; color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);">
-        🏁 Finalizar Juego y Sumar Puntos
+        style="font-family: 'Cinzel', serif; font-size: 1.3rem; background: linear-gradient(135deg, #e6dfd5 0%, #c8bdae 100%); color: #4e4031; border: 2px solid #b89047; padding: 15px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; box-shadow: 0 4px 15px rgba(184,144,71,0.15); transition: 0.2s;">
+        Clausurar la Torre y Distribuir Puntos Globales
       </button>
     </div>
   </div>
-
-  <!-- Juego 4º IrrationalPrice-->
   <div id="screenIrrationalPrice" class="screen"
-    style="background: #111; color: white; padding: 30px; font-family: sans-serif; display: none;">
+    style="background: #fdfbf7; color: #3c3228; padding: 30px; font-family: 'Cinzel', serif; display: none;">
 
     <div style="text-align: center; margin-bottom: 30px;">
-      <h1 style="color: #00e676; margin: 0; font-size: 3rem; text-shadow: 0 0 10px rgba(0,230,118,0.3);">🫙 Irrational
-        Price</h1>
-      <p style="color: #aaa; font-size: 1.2rem; margin-top: 5px;">¿Quién se acercará más al número exacto?</p>
+      <h1
+        style="font-family: 'Cinzel Decorative', serif; color: #b89047; font-size: 3rem; margin: 0; text-shadow: 1px 1px 2px rgba(0,0,0,0.1);">
+        El conteo de las Moiras</h1>
+      <p style="color: #7d6e5e; font-size: 1.15rem; letter-spacing: 2px; margin-top: 5px;">¿Quién se acercará más al
+        número exacto de lentejas del tarro sagrado?</p>
     </div>
 
-    <div style="display: flex; gap: 30px; align-items: flex-start;">
+    <div style="display: flex; gap: 30px; align-items: flex-start; max-width: 1200px; margin: 0 auto;">
 
-      <div style="flex: 1.2; background: #222; padding: 25px; border-radius: 15px; border: 2px solid #444;">
-        <h2 style="margin-top: 0; font-size: 1.6rem; color: #007bff;">📋 ¿Cómo se juega?</h2>
-        <p style="font-size: 1.2rem; line-height: 1.6; color: #ddd;">
-          Hay un tarro lleno de lentejas en la mesa. Míralo bien, concéntrate y piensa una cifra. <br><br>
-          📱 <strong>¡Entra en tu móvil!</strong> Te aparecerá un cuadro para enviar tu respuesta.
+      <div
+        style="flex: 1.2; background: #fcf9f2; padding: 25px; border-radius: 15px; border: 2px solid #e3dac9; box-shadow: 0 8px 24px rgba(184,144,71,0.15);">
+        <h2 style="margin-top: 0; font-size: 1.5rem; color: #8c6d31; font-family: 'Cinzel Decorative', serif;">El
+          Destino en una Semilla</h2>
+        <p style="font-size: 1.15rem; line-height: 1.6; color: #5a4630; text-align: left;">
+          Las Moiras han depositado sobre la mesa un tarro repleto de lentejas. Cada una de ellas ha sido contada con
+          precisión milimétrica por las hilanderas del destino. Míralo bien, concéntrate y calcula tu cifra. ¡Abrid
+          vuestro pergamino digital! Utilizad vuestro dispositivo móvil para enviar vuestra predicción antes de que las
+          deidades corten el hilo y revelen la verdad.
         </p>
 
-        <hr style="border-color: #333; margin: 20px 0;">
+        <hr style="border-color: #e8e4d8; margin: 20px 0;">
 
-        <div style="text-align: center; padding: 15px; background: #1a1a1a; border-radius: 10px;">
-          <h3 style="margin: 0; font-size: 1.3rem; color: #ffc107;">Respuestas recibidas:</h3>
+        <div
+          style="text-align: center; padding: 20px; background: #fff; border-radius: 12px; border: 2px solid #b89047; box-shadow: 0 4px 12px rgba(184,144,71,0.08);">
+          <h3 style="margin: 0; font-size: 1.3rem; color: #8c6d31; letter-spacing: 1px;">Profecías Recibidas:</h3>
           <div id="tvContadorRespuestasPrice"
-            style="font-size: 2.5rem; font-weight: bold; margin-top: 10px; color: #fff;">0 / 0</div>
+            style="font-size: 3rem; font-weight: bold; margin-top: 10px; color: #3c3228; font-family: monospace;">0 / 0
+          </div>
         </div>
       </div>
 
       <div
-        style="flex: 0.8; background: #1a1a1a; padding: 25px; border-radius: 15px; border: 2px solid #00e676; display: flex; flex-direction: column; gap: 20px;">
-        <h3 style="margin-top: 0; color: #00e676; font-size: 1.5rem; text-align: center;">⚙️ Control del Presentador
-        </h3>
+        style="flex: 0.8; background: #fff; padding: 25px; border-radius: 15px; border: 2px solid #b89047; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 8px 24px rgba(184,144,71,0.1);">
+        <h3
+          style="margin-top: 0; color: #8c6d31; font-size: 1.6rem; text-align: center; font-family: 'Cinzel Decorative', serif;">
+          SENTENCIA DE LAS MOIRAS</h3>
 
-        <div>
-          <label style="display: block; margin-bottom: 8px; color: #aaa;">Número exacto de lentejas:</label>
-          <input type="number" id="inputLentejasExactas" placeholder="Ej: 1420"
-            style="width: 100%; box-sizing: border-box; font-size: 1.4rem; padding: 8px; text-align: center; border-radius: 6px; border: none; font-weight: bold;">
+        <div
+          style="background: #fdfbf7; border: 1px solid #dcd1c4; border-radius: 8px; padding: 15px; min-height: 160px; display: flex; align-items: center; justify-content: center;">
+          <div id="tvResultadoPrice"
+            style="width: 100%; font-size: 1.15rem; max-height: 280px; overflow-y: auto; color: #3c3228;">
+            <p style="text-align: center; color: #9c8e7e; font-style: italic; margin: 0;">Esperando a que las deidades
+              cuenten las lentejas del destino...</p>
+          </div>
         </div>
 
         <button onclick="calcularGanadoresPrice()"
-          style="font-size: 1.2rem; background: #00e676; color: black; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s;">
-          🧮 Revelar y Calcular Ganadores
+          style="font-family: 'Cinzel', serif; font-size: 1.2rem; background: linear-gradient(135deg, #d4af37, #aa7c11); color: white; border: none; padding: 14px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; box-shadow: 0 4px 12px rgba(170,124,17,0.3);">
+          Cortar el Hilo y Revelar las Lentejas
         </button>
-
-        <div id="tvResultadoPrice" style="margin-top: 10px; font-size: 1.1rem; max-height: 250px; overflow-y: auto;">
-        </div>
       </div>
 
     </div>
-    <button onclick="pointsIrrationalPrice()"
-      style="font-size: 1.1rem; background: #007bff; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px;">
-      🏆 Finalizar juego y Sumar Puntos
-    </button>
-    <button onclick="goToRanking()">Ranking</button>
-  </div>
 
-  <!-- 5º Juego Votes-->
-  <div id="screenVotes" class="screen"
-    style="background: #111; color: white; padding: 30px; font-family: sans-serif; display: none;">
-
-    <div style="text-align: center; margin-bottom: 20px;">
-      <h1 style="color: #e91e63; margin: 0; font-size: 3rem;">🗳️ Fase de Votación</h1>
-      <p style="color: #aaa; font-size: 1.2rem;">¡Vota a un compañero! Cada voto recibido otorgará +2 puntos globales.
-      </p>
+    <div style="margin-top: 30px; max-width: 1200px; margin-left: auto; margin-right: auto; display: flex; gap: 15px;">
+      <button onclick="pointsIrrationalPrice()"
+        style="flex: 1; font-family: 'Cinzel', serif; font-size: 1.25rem; background: linear-gradient(135deg, #e6dfd5 0%, #c8bdae 100%); color: #4e4031; border: 2px solid #b89047; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 15px rgba(184,144,71,0.15);">
+        Otorgar Gracia y Distribuir Puntos
+      </button>
+      <button onclick="goToRanking()"
+        style="font-family: 'Cinzel', serif; font-size: 1.25rem; background: #fff; color: #8c6d31; border: 1px solid #b89047; padding: 15px 25px; border-radius: 8px; cursor: pointer; font-weight: bold;">
+        Ver Ranking
+      </button>
     </div>
 
-    <div style="display: flex; gap: 30px;">
+  </div>
+  <!-- 5º Juego: El Veredicto de los Dioses -->
+  <div id="screenVotes" class="screen"
+    style="background: #fdfbf7; color: #3c3228; padding: 30px; font-family: 'Cinzel', serif; display: none;">
 
+    <!-- CABECERA MITOLÓGICA -->
+    <div style="text-align: center; margin-bottom: 25px;">
+      <h1
+        style="font-family: 'Cinzel Decorative', serif; color: #b89047; font-size: 3rem; margin: 0; text-shadow: 1px 1px 2px rgba(0,0,0,0.1);">
+        El Veredicto de los Dioses</h1>
+      <p style="color: #7d6e5e; font-size: 1.15rem; letter-spacing: 1px;">Ofreced vuestro favor a un héroe en el Ágora.
+        Cada bendición otorgará <strong>+2 puntos</strong> en el Ranking Global.</p>
+    </div>
+
+    <!-- CUERPO PRINCIPAL -->
+    <div style="display: flex; gap: 30px; max-width: 1200px; margin: 0 auto; align-items: flex-start;">
+
+      <!-- PANEL DE CONTROL IZQUIERDO -->
       <div
-        style="flex: 0.9; background: #222; padding: 25px; border-radius: 15px; border: 2px solid #e91e63; text-align: center; height: fit-content;">
-        <h2 style="color: #fff; margin-top: 0;">Panel de Control</h2>
+        style="flex: 0.9; background: #fcf9f2; padding: 25px; border-radius: 15px; border: 2px solid #e3dac9; text-align: center; box-shadow: 0 8px 24px rgba(184,144,71,0.15);">
+        <h2 style="color: #8c6d31; margin-top: 0; font-family: 'Cinzel Decorative', serif; font-size: 1.4rem;">Voluntad
+          de las Deidades</h2>
 
         <button onclick="abrirVotacion()"
-          style="background: #e91e63; color: white; border: none; padding: 12px 20px; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 1.1rem; width: 100%; margin-bottom: 15px;">
-          🔓 Abrir Nueva Votación
+          style="font-family: 'Cinzel', serif; background: linear-gradient(135deg, #b89047, #8c6d31); color: white; border: none; padding: 14px 20px; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 1.1rem; width: 100%; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(140,109,49,0.2); transition: 0.2s;">
+          Abrir Nueva Urna Olímpica
         </button>
 
         <div
-          style="background: #1a1a1a; padding: 15px; border-radius: 8px; border: 1px solid #333; margin-bottom: 15px;">
-          <span style="color: #aaa;">Estado de Privacidad:</span>
-          <div id="tvEstadoPrivacidad" style="font-size: 1.5rem; font-weight: bold; color: #ffc107; margin-top: 5px;">
-            ANÓNIMA</div>
+          style="background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #b89047; margin-bottom: 15px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
+          <span
+            style="color: #7d6e5e; font-size: 0.9rem; letter-spacing: 1px; display: block; margin-bottom: 5px;">ESTADO
+            DEL VEREDICTO</span>
+          <div id="tvEstadoPrivacidad"
+            style="font-size: 1.4rem; font-weight: bold; color: #aa7c11; font-family: 'Cinzel', serif;">
+            Anónimo
+          </div>
         </div>
 
         <button onclick="revelarVotos()"
-          style="background: #ffc107; color: black; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1.1rem; width: 100%; margin-bottom: 15px;">
-          👁️ Revelar Votos (Hacer Visibles)
+          style="font-family: 'Cinzel', serif; background: #fff; color: #8c6d31; border: 2px solid #b89047; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1.05rem; width: 100%; margin-bottom: 15px; transition: 0.2s;">
+          Ver resultados
         </button>
 
         <button onclick="finalizarYSumarVotos()"
-          style="background: #00e676; color: black; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1.1rem; width: 100%;">
-          💾 Aplicar Puntos (+2 pts por Voto)
+          style="font-family: 'Cinzel', serif; background: linear-gradient(135deg, #e6dfd5 0%, #c8bdae 100%); color: #4e4031; border: 2px solid #b89047; padding: 14px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1.1rem; width: 100%; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+          Dictar Sentencia de Zeus (+2 pts)
         </button>
       </div>
 
-      <div style="flex: 1.1; background: #1a1a1a; padding: 25px; border-radius: 15px; border: 2px solid #333;">
-        <h3 style="margin-top: 0; color: #e91e63; text-align: center;">📊 Urna de Votos en Tiempo Real</h3>
+      <!-- URNA DERECHA EN TIEMPO REAL -->
+      <div
+        style="flex: 1.1; background: #fff; padding: 25px; border-radius: 15px; border: 2px solid #b89047; box-shadow: 0 8px 24px rgba(184,144,71,0.1);">
+        <h3
+          style="margin-top: 0; color: #8c6d31; text-align: center; font-family: 'Cinzel Decorative', serif; font-size: 1.4rem; letter-spacing: 1px; margin-bottom: 20px;">
+          Tablillas del Ágora
+        </h3>
         <div id="tvListaVotos" style="display: flex; flex-direction: column; gap: 10px;">
-          <p style="color: #666; text-align: center;">Esperando a que se inicie la votación...</p>
+          <p style="color: #9c8e7e; text-align: center; font-style: italic; margin: 30px 0;">Esperando a que el Oráculo
+            abra el Consejo del Olimpo...</p>
         </div>
       </div>
 
     </div>
-    <button onclick="goToRanking()"> Ranking </button>
-  </div>
-  <!-- 6º Juego SymbolZone -->
-  <div id="screenSymbolZone" class="screen"
-    style="background: #111; color: white; padding: 30px; font-family: sans-serif; display: none;">
 
-    <div style="text-align: center; margin-bottom: 20px;">
-      <h1 style="color: #ff3d00; margin: 0; font-size: 3rem; text-shadow: 0 0 10px rgba(255,61,0,0.3);">🔺 SymbolZone 🔵
-      </h1>
-      <p style="color: #aaa; font-size: 1.2rem; margin-top: 5px;">¡Adivina el símbolo de tu espalda antes de que el
-        tiempo se agote!</p>
+    <!-- BOTÓN DE SALIDA -->
+    <div style="text-align: center; margin-top: 30px;">
+      <button onclick="goToRanking()"
+        style="font-family: 'Cinzel', serif; font-size: 1.2rem; background: #fff; color: #8c6d31; border: 1px solid #b89047; padding: 12px 35px; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+        Ir al Ranking
+      </button>
     </div>
 
-    <div style="display: flex; gap: 30px;">
+  </div>
+  <!-- 6º Juego: El Oráculo de Delfos -->
+  <div id="screenSymbolZone" class="screen"
+    style="background: #fdfbf7; color: #3c3228; padding: 30px; font-family: 'Times New Roman', Times, serif; display: none;">
 
+    <!-- CABECERA MITOLÓGICA -->
+    <div style="text-align: center; margin-bottom: 25px;">
+      <h1
+        style="color: #b89047; font-size: 3rem; margin: 0; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); letter-spacing: 2px;">
+        EL ORÁCULO DE DELFOS</h1>
+      <p style="color: #7d6e5e; font-size: 1.15rem; letter-spacing: 1px; font-style: italic;">¡Desvela el símbolo
+        sagrado antes de que las arenas del templo se consuman!</p>
+    </div>
+
+    <!-- CUERPO PRINCIPAL -->
+    <div style="display: flex; gap: 30px; max-width: 1200px; margin: 0 auto; align-items: flex-start;">
+
+      <!-- COLUMNA IZQUIERDA: RELOJ Y ACCIONES -->
       <div
-        style="flex: 0.8; background: #222; padding: 25px; border-radius: 15px; border: 2px solid #444; text-align: center;">
-        <h2 id="tvRondaSymbol" style="color: #ff3d00; font-size: 2rem; margin-top: 0;">Ronda 1 / 5</h2>
+        style="flex: 0.8; background: #fcf9f2; padding: 25px; border-radius: 15px; border: 2px solid #e3dac9; text-align: center; box-shadow: 0 8px 24px rgba(184,144,71,0.15);">
+        <h2 id="tvRondaSymbol" style="color: #8c6d31; font-size: 1.8rem; margin-top: 0; letter-spacing: 1px;">Profecía 1
+          / 5</h2>
 
+        <!-- Reloj del Templo -->
         <div id="tvCronometroSymbol"
-          style="font-size: 5rem; font-weight: bold; font-family: monospace; color: #fff; margin: 20px 0; background: #1a1a1a; padding: 15px; border-radius: 10px; border: 2px solid #ff3d00;">
+          style="font-size: 4.5rem; font-weight: bold; font-family: monospace; color: #3c3228; margin: 20px 0; background: #fff; padding: 15px; border-radius: 10px; border: 2px solid #b89047; box-shadow: inset 0 2px 8px rgba(0,0,0,0.05);">
           01:00
         </div>
 
+        <!-- Mandos del Reloj de Arena -->
         <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 20px;">
           <button onclick="controlarTiempoSymbol('iniciar')"
-            style="background: #00e676; color: black; border: none; padding: 10px 20px; font-weight: bold; border-radius: 5px; cursor: pointer;">▶️
+            style="font-family: inherit; background: #fff; color: #4e6c1e; border: 2px solid #6d8c31; padding: 10px 15px; font-weight: bold; border-radius: 6px; cursor: pointer; flex: 1;">▶️
             Iniciar</button>
           <button onclick="controlarTiempoSymbol('pausar')"
-            style="background: #ffc107; color: black; border: none; padding: 10px 20px; font-weight: bold; border-radius: 5px; cursor: pointer;">⏸️
+            style="font-family: inherit; background: #fff; color: #aa7c11; border: 2px solid #b89047; padding: 10px 15px; font-weight: bold; border-radius: 6px; cursor: pointer; flex: 1;">⏸️
             Pausar</button>
           <button onclick="controlarTiempoSymbol('acabar')"
-            style="background: #e53935; color: white; border: none; padding: 10px 20px; font-weight: bold; border-radius: 5px; cursor: pointer;">⏹️
-            Acabar</button>
+            style="font-family: inherit; background: #fff; color: #9e2a2b; border: 2px solid #9e2a2b; padding: 10px 15px; font-weight: bold; border-radius: 6px; cursor: pointer; flex: 1;">⏹️
+            Consumar</button>
         </div>
 
-        <hr style="border-color: #333; margin: 20px 0;">
+        <hr style="border-color: #e8e4d8; margin: 20px 0;">
 
+        <!-- Botones del Sacerdote -->
         <div style="display: flex; flex-direction: column; gap: 12px;">
           <button onclick="pointsSymbolZone()"
-            style="font-size: 1.1rem; background: #007bff; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold;">
-            💾 Guardar Ronda y Sumar Puntos
+            style="font-family: inherit; font-size: 1.1rem; background: linear-gradient(135deg, #b89047, #8c6d31); color: white; border: none; padding: 14px; border-radius: 6px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 12px rgba(140,109,49,0.2);">
+            Revelar Destinos y Juzgar Traiciones
           </button>
           <button onclick="siguienteRondaSymbol()"
-            style="font-size: 1.1rem; background: #fff; color: black; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold;">
-            ➡️ Pasar a la Siguiente Ronda
+            style="font-family: inherit; font-size: 1.1rem; background: linear-gradient(135deg, #e6dfd5 0%, #c8bdae 100%); color: #4e4031; border: 2px solid #b89047; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold;">
+            Siguiente Visión Divina
           </button>
         </div>
       </div>
 
-      <div style="flex: 1.2; background: #1a1a1a; padding: 25px; border-radius: 15px; border: 2px solid #ff3d00;">
-        <h3 style="margin-top: 0; color: #ff3d00; font-size: 1.5rem; text-align: center;">🎯 Panel del Presentador</h3>
-        <p style="color: #aaa; text-align: center; font-size: 0.95rem; margin-bottom: 15px;">Haz clic en los jugadores
-          que **SE EQUIVOCARON** (se pondrán en rojo y recibirán 0 pts).</p>
+      <!-- COLUMNA DERECHA: SELECCIÓN DE MORTALES -->
+      <div
+        style="flex: 1.2; background: #fff; padding: 25px; border-radius: 15px; border: 2px solid #b89047; box-shadow: 0 8px 24px rgba(184,144,71,0.15);">
+        <h3
+          style="margin-top: 0; color: #8c6d31; font-size: 1.5rem; text-align: center; margin-bottom: 10px; letter-spacing: 1px;">
+          Registro del Santuario</h3>
+        <p style="color: #7d6e5e; text-align: center; font-size: 0.95rem; margin-bottom: 20px; font-style: italic;">
+          Señala a los mortales cuyas visiones FUERON RECHAZADAS POR APOLO</p>
 
         <div id="tvListaJugadoresSymbol"
           style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; max-height: 400px; overflow-y: auto; padding: 5px;">
@@ -439,152 +525,172 @@
       </div>
 
     </div>
-    <button onclick="goToRanking()">Ranking</button>
+
+    <!-- BOTÓN REGRESAR -->
+    <div style="text-align: center; margin-top: 30px;">
+      <button onclick="goToRanking()"
+        style="font-family: inherit; font-size: 1.2rem; background: #fff; color: #8c6d31; border: 1px solid #b89047; padding: 12px 35px; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+        Ir al Ranking
+      </button>
+    </div>
+
   </div>
+
 
   <!--7º Juego: Números de números y letras-->
   <div id="screenNumbersAndLetters" class="screen"
-    style="background: #111; color: white; padding: 30px; font-family: sans-serif; display: none;">
+  style="background: #fdfbf7; color: #2c221e; padding: 35px; font-family: 'Cinzel Decorative', 'Times New Roman', serif; display: none; border: 6px double #b89047; box-shadow: inset 0 0 30px rgba(184,144,71,0.15);">
 
-    <div style="text-align: center; margin-bottom: 20px;">
-      <h1 style="color: #00e676; margin: 0; font-size: 3rem;">🔢 Cifras y Letras</h1>
-      <p style="color: #aaa; font-size: 1.2rem;">¡Consigue el número objetivo usando las cifras dadas!</p>
-    </div>
-
-    <div style="display: flex; gap: 30px;">
-
-      <div
-        style="flex: 0.9; background: #222; padding: 25px; border-radius: 15px; border: 2px solid #00e676; text-align: center;">
-        <h2 style="color: #ffc107; margin-top: 0;">Ronda de Cifras</h2>
-
-        <button onclick="generarRetoCifras()"
-          style="background: #ffc107; color: black; border: none; padding: 12px 20px; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 1.1rem; width: 100%; margin-bottom: 20px;">
-          🎲 Generar Nuevo Reto
-        </button>
-
-        <div style="color: #aaa; margin-bottom: 5px;">Cifras disponibles:</div>
-        <div id="tvNumerosDisponibles" style="display: flex; gap: 10px; justify-content: center; margin-bottom: 20px;">
-          <span style="color: #666; font-style: italic;">Pulsa generar...</span>
-        </div>
-
-        <div style="color: #aaa; margin-bottom: 5px;">Número a obtener:</div>
-        <div id="tvNumeroObjetivo"
-          style="font-size: 4rem; font-weight: bold; color: #00e676; background: #1a1a1a; padding: 10px; border-radius: 8px; border: 1px solid #333; margin-bottom: 20px;">
-          ---
-        </div>
-
-        <button onclick="validarRespuestasCifras()"
-          style="background: #007bff; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1.1rem; width: 100%;">
-          🧐 Validar Fórmulas y Sumar Puntos
-        </button>
-      </div>
-
-      <div style="flex: 1.1; background: #1a1a1a; padding: 25px; border-radius: 15px; border: 2px solid #333;">
-        <h3 style="margin-top: 0; color: #00e676; text-align: center;">📱 Respuestas de los Jugadores</h3>
-
-        <div id="tvListaRespuestasCifras" style="display: flex; flex-direction: column; gap: 10px;">
-          <p style="color: #666; text-align: center;">Esperando respuestas de los móviles...</p>
-        </div>
-      </div>
-
-    </div>
-    <button onclick="goToRanking()">Ranking</button>
+  <div style="text-align: center; margin-bottom: 25px; border-bottom: 2px double #b89047; padding-bottom: 15px;">
+    <h1 style="color: #8c6d31; margin: 0; font-size: 3rem; font-variant: small-caps; letter-spacing: 3px;">El Cálculo de Láquesis</h1>
+    <p style="color: #6e5d4f; font-size: 1.2rem; font-style: italic; margin-top: 5px;">Mide con precisión el hilo del destino antes de que el tiempo de arena se agote</p>
   </div>
 
+  <div style="display: flex; gap: 30px;">
 
+    <div style="flex: 0.9; background: #fffdfa; padding: 25px; border: 2px solid #b89047; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+      <h2 style="color: #8c6d31; margin-top: 0; font-variant: small-caps; letter-spacing: 1px;">El Telar de las Moiras</h2>
 
+      <button onclick="generarRetoCifras()"
+        style="background: linear-gradient(135deg, #b89047, #967333); color: white; border: 1px solid #7a5c26; padding: 12px 20px; font-weight: bold; font-family: inherit; font-size: 1.1rem; width: 100%; margin-bottom: 20px; cursor: pointer; font-variant: small-caps; letter-spacing: 1px;">
+        Mover Hilos del Destino
+      </button>
 
-  <!-- -->
-  <div id="screenTheLiar" class="screen"
-    style="background: #0f172a; color: white; padding: 30px; font-family: sans-serif; display: none;">
+      <div style="background: #fcfaf2; padding: 12px; border: 1px dashed #b89047; margin-bottom: 20px;">
+        <div style="color: #6e5d4f; font-size: 0.9rem; font-variant: small-caps; font-weight: bold; letter-spacing: 1px;">Tiempo de Arena Restante</div>
+        <div id="tvCronometroCifras" style="font-size: 3.5rem; font-weight: bold; font-family: monospace; color: #2c221e; margin: 5px 0;">02:00</div>
+        
+        <div style="display: flex; gap: 8px; justify-content: center;">
+          <button onclick="controlarTiempoCifras('iniciar')" style="font-family: inherit; background: #fff; color: #2e4225; border: 1px solid #2e4225; padding: 6px 12px; font-size: 0.85rem; font-weight: bold; cursor: pointer; font-variant: small-caps;">Liberar</button>
+          <button onclick="controlarTiempoCifras('pausar')" style="font-family: inherit; background: #fff; color: #a37a1a; border: 1px solid #a37a1a; padding: 6px 12px; font-size: 0.85rem; font-weight: bold; cursor: pointer; font-variant: small-caps;">Pausar</button>
+          <button onclick="controlarTiempoCifras('acabar')" style="font-family: inherit; background: #fff; color: #912b2b; border: 1px solid #912b2b; padding: 6px 12px; font-size: 0.85rem; font-weight: bold; cursor: pointer; font-variant: small-caps;">Cortar</button>
+        </div>
+      </div>
 
-    <div style="text-align: center; margin-bottom: 20px;">
-      <h1 style="color: #38bdf8; margin: 0; font-size: 2.8rem;">🤫 El Mentiroso</h1>
-      <p style="color: #94a3b8; font-size: 1.1rem; margin-top: 5px;">4 afirman algo, pero ¡solo uno dice la verdad!
-        Organiza los votos y descubre al mentiroso.</p>
+      <div style="color: #6e5d4f; font-variant: small-caps; font-weight: bold; margin-bottom: 5px;">Cifras del Telar:</div>
+      <div id="tvNumerosDisponibles" style="display: flex; gap: 10px; justify-content: center; margin-bottom: 20px;">
+        <span style="color: #9c8e7f; font-style: italic;">Esperando el designio de las Moiras...</span>
+      </div>
+
+      <div style="color: #6e5d4f; font-variant: small-caps; font-weight: bold; margin-bottom: 5px;">Cifra Divina a Alcanzar:</div>
+      <div id="tvNumeroObjetivo"
+        style="font-size: 4rem; font-weight: bold; color: #8c6d31; background: #fffdf5; padding: 10px; border: 2px solid #b89047; margin-bottom: 20px; font-family: monospace;">
+        ---
+      </div>
+
+      <button onclick="validarRespuestasCifras()"
+        style="background: #2e4225; color: white; border: none; padding: 14px; font-family: inherit; font-weight: bold; font-size: 1.1rem; width: 100%; cursor: pointer; font-variant: small-caps; letter-spacing: 1px;">
+        Examinar Ofrendas y Sumar Favor
+      </button>
     </div>
 
-    <div style="display: flex; gap: 25px;">
+    <div style="flex: 1.1; background: #fffdfd; padding: 25px; border: 1px solid #e3dac9; box-shadow: inset 0 0 20px rgba(0,0,0,0.02);">
+      <h3 style="margin-top: 0; color: #8c6d31; text-align: center; font-variant: small-caps; letter-spacing: 1px; border-bottom: 1px solid #e3dac9; padding-bottom: 10px;">Pergaminos Entregados en el Altar</h3>
 
-      <div
-        style="flex: 0.8; background: #1e293b; padding: 20px; border-radius: 12px; border: 2px solid #38bdf8; height: fit-content; display: flex; flex-direction: column; gap: 12px;">
-        <h3 style="color: #fff; margin: 0; text-align: center;">Control de Juego</h3>
+      <div id="tvListaRespuestasCifras" style="display: flex; flex-direction: column; gap: 10px;">
+        <p style="color: #9c8e7f; text-align: center; font-style: italic;">Esperando las plegarias matemáticas de los mortales...</p>
+      </div>
+    </div>
 
-        <button onclick="elegirSospechososAlAzar()"
-          style="background: #38bdf8; color: #0f172a; border: none; padding: 12px; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 1rem; width: 100%;">
-          🎲 Elegir 4 Sospechosos
+  </div>
+
+  <div style="text-align: center; margin-top: 25px;">
+    <button onclick="goToRanking()" style="font-family: inherit; font-size: 1rem; font-variant: small-caps; background: none; color: #8c6d31; border: 1px solid #b89047; padding: 8px 25px; cursor: pointer;">Ir al Ranking</button>
+  </div>
+</div>
+
+
+
+<div id="screenTheLiar" class="screen"
+  style="background: #fbf9f3; color: #2c251e; padding: 30px; font-family: 'Georgia', 'Times New Roman', serif; display: none; border: 6px double #b89047; box-shadow: inset 0 0 30px rgba(184,144,71,0.15);">
+
+  <div style="text-align: center; margin-bottom: 25px; border-bottom: 2px double #b89047; padding-bottom: 15px;">
+    <h1 style="color: #8c6d31; margin: 0; font-size: 3rem; font-variant: small-caps; letter-spacing: 3px;">El Juicio de Epimeteo</h1>
+    <p style="color: #6e5d4f; font-size: 1.2rem; font-style: italic; margin-top: 5px;">Cuatro almas declaran ante el altar, pero tres han sido cegadas por la imprudencia. Descubre quién custodia la verdad.</p>
+  </div>
+
+  <div style="display: flex; gap: 25px;">
+
+    <div style="flex: 0.8; background: #fffdfa; padding: 20px; border: 2px solid #b89047; height: fit-content; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+      <h3 style="color: #8c6d31; margin: 0; text-align: center; font-variant: small-caps; letter-spacing: 1px;">Decretos del Tribunal</h3>
+
+      <button onclick="elegirSospechososAlAzar()"
+        style="background: linear-gradient(135deg, #b89047, #967333); color: white; border: 1px solid #7a5c26; padding: 12px; font-weight: bold; font-family: inherit; font-size: 1rem; width: 100%; cursor: pointer; font-variant: small-caps; letter-spacing: 1px;">
+        Convocar Cuatro Sospechosos
+      </button>
+
+      <div style="background: #fdfcf7; padding: 12px; border: 1px dashed #b89047; text-align: center;">
+        <span style="color: #6e5d4f; font-size: 0.9rem; font-variant: small-caps; font-weight: bold;">Dictamen Divino:</span>
+        <div id="tvSolucionMentiroso" style="font-size: 1.3rem; font-weight: bold; color: #a37a1a; margin-top: 5px; font-variant: small-caps; letter-spacing: 1px;">
+          OCULTO
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 8px;">
+        <button onclick="revelarVerdadMentiroso()"
+          style="background: #2e4225; color: white; border: none; padding: 10px; font-family: inherit; font-weight: bold; font-size: 0.9rem; flex: 1; cursor: pointer; font-variant: small-caps;">
+          Revelar
         </button>
+        <button onclick="ocultarVerdadMentiroso()"
+          style="background: #912b2b; color: white; border: none; padding: 10px; font-family: inherit; font-weight: bold; font-size: 0.9rem; flex: 1; cursor: pointer; font-variant: small-caps;">
+          Ocultar
+        </button>
+        <button onclick="siguienteEvidenciaMentiroso()" id="btnSiguienteEvidencia"
+          style="background: #fffdfa; color: #8c6d31; border: 1px solid #b89047; padding: 10px; font-family: inherit; font-weight: bold; font-size: 0.85rem; flex: 1; cursor: pointer; font-variant: small-caps;">
+          Siguiente Prueba
+        </button>
+      </div>
+
+      <hr style="border: 0; border-top: 1px double #b89047; margin: 5px 0;">
+
+      <button onclick="validarVotosYAcertantesMentiroso()"
+        style="background: #4a3b52; color: white; border: none; padding: 12px; font-family: inherit; font-weight: bold; font-size: 1rem; width: 100%; cursor: pointer; font-variant: small-caps; letter-spacing: 1px;">
+        Escrutar Votos de esta Ofrenda
+      </button>
+
+      <button onclick="finalizarMinijuegoMentiroso()"
+        style="background: #2e4225; color: white; border: none; padding: 12px; font-family: inherit; font-weight: bold; font-size: 1rem; width: 100%; cursor: pointer; font-variant: small-caps; letter-spacing: 1px;">
+        Consagrar Juicio y Volcar Favor
+      </button>
+    </div>
+
+    <div style="flex: 1.2; display: flex; flex-direction: column; gap: 20px;">
+
+      <div id="tvSospechososContenedor" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 15px;">
 
         <div
-          style="background: #0f172a; padding: 12px; border-radius: 6px; text-align: center; border: 1px solid #334155;">
-          <span style="color: #94a3b8; font-size: 0.9rem;">Solución de la Ronda:</span>
-          <div id="tvSolucionMentiroso" style="font-size: 1.3rem; font-weight: bold; color: #ffc107; margin-top: 5px;">
-            OCULTA</div>
-        </div>
-
-        <div style="display: flex; gap: 10px;">
-          <button onclick="revelarVerdadMentiroso()"
-            style="background: #22c55e; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9rem; flex: 1;">
-            👁️ Revelar
-          </button>
-          <button onclick="ocultarVerdadMentiroso()"
-            style="background: #ef4444; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9rem; flex: 1;">
-            🙈 Ocultar
-          </button>
-          <button onclick="siguienteEvidenciaMentiroso()" id="btnSiguienteEvidencia"
-            style="background: #38bdf8; color: #0f172a; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9rem; flex: 1;">
-            ➡️ Siguiente Evidencia
-          </button>
-        </div>
-
-        <hr style="border: 0; border-top: 1px solid #334155; margin: 5px 0;">
-
-        <button onclick="validarVotosYAcertantesMentiroso()"
-          style="background: #a855f7; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1rem; width: 100%;">
-          🎯 Validar Votos de esta Ronda
-        </button>
-
-        <button onclick="finalizarMinijuegoMentiroso()"
-          style="background: #00e676; color: #0f172a; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1rem; width: 100%;">
-          🏆 Finalizar y Volcar Puntos
-        </button>
-      </div>
-
-      <div style="flex: 1.2; display: flex; flex-direction: column; gap: 20px;">
-
-        <div id="tvSospechososContenedor" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 15px;">
-
-          <div
-            style="background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 180px;">
-            <h4 style="margin: 0 0 10px 0; color: #94a3b8;">Prueba Gráfica (Evidencia)</h4>
-            <div id="tvMultimediaMentiroso" style="width: 100%; display: none;">
-              <img id="imgMentiroso" src="https://via.placeholder.com/400x200?text=Evidencia+Grafica"
-                style="max-width: 100%; max-height: 180px; border-radius: 6px; border: 2px solid #38bdf8;">
-            </div>
-            <div id="tvMultimediaOculta" style="color: #64748b; font-style: italic;">
-              Bloqueada hasta que el presentador pulse "Revelar".
-            </div>
+          style="background: #fffdfa; padding: 15px; border: 1px solid #e3dac9; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 180px; box-shadow: inset 0 0 15px rgba(0,0,0,0.02);">
+          <h4 style="margin: 0 0 10px 0; color: #6e5d4f; font-variant: small-caps; letter-spacing: 1px;">Evidencia del Oráculo</h4>
+          <div id="tvMultimediaMentiroso" style="width: 100%; display: none;">
+            <img id="imgMentiroso" src="https://via.placeholder.com/400x200?text=Evidencia+Grafica"
+              style="max-width: 100%; max-height: 180px; border-radius: 4px; border: 2px solid #b89047;">
           </div>
-
-          <div id="tvRankingLocalMentiroso"
-            style="background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; overflow-y: auto; max-height: 240px;">
-            <h4 style="margin: 0 0 10px 0; color: #ffc107; text-align: center;">📊 Clasificación del Juego</h4>
-            <div id="listaPuntosLocalesMentiroso"
-              style="font-size: 0.95rem; color: #cbd5e1; display: flex; flex-direction: column; gap: 5px;">
-              <p style="color: #64748b; font-style: italic; text-align: center;">Sin empezar...</p>
-            </div>
+          <div id="tvMultimediaOculta" style="color: #9c8e7f; font-style: italic; font-size: 0.95rem;">
+            Sello custodiado hasta que el tribunal ordene Revelar.
           </div>
+        </div>
 
+        <div id="tvRankingLocalMentiroso"
+          style="background: #fffdf9; padding: 15px; border: 1px solid #e3dac9; overflow-y: auto; max-height: 240px;">
+          <h4 style="margin: 0 0 10px 0; color: #8c6d31; text-align: center; font-variant: small-caps; letter-spacing: 1px; border-bottom: 1px solid #f2ede4; padding-bottom: 5px;">Panteón del Juicio</h4>
+          <div id="listaPuntosLocalesMentiroso"
+            style="font-size: 0.95rem; color: #2c251e; display: flex; flex-direction: column; gap: 6px;">
+            <p style="color: #9c8e7f; font-style: italic; text-align: center;">Tribunal inactivo...</p>
+          </div>
         </div>
 
       </div>
+
     </div>
-    <button onclick="goToRanking()"> Ranking </button>
   </div>
 
+  <div style="text-align: center; margin-top: 25px;">
+    <button onclick="goToRanking()" style="font-family: inherit; font-size: 1rem; font-variant: small-caps; background: none; color: #8c6d31; border: 1px solid #b89047; padding: 8px 25px; cursor: pointer;">Ir al Ranking</button>
+  </div>
+</div>
   <!-- 8º Juego El último teorema -->
   <div id="screenLastTheorem" class="screen"
     style="display: none; background: #111; color: white; padding: 30px; font-family: sans-serif;">

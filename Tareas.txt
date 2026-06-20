@@ -1,31 +1,33 @@
 	TV:
-Intro con video o algo
-Quitar iconos de chatGPT
-Nombres de juegos
-Header cambiar color (bordes como las cartas)
+(Falta meerlo) Intro con video o algo
+✔️Quitar iconos de chatGPT
+✔️Nombres de juegos
+➖Header cambiar color (bordes como las cartas)
 
-Cambiar fondo
-cAMBIAR AUTODESTRUCCION POR apocatástasis
+➖Cambiar fondo
+✔️cAMBIAR AUTODESTRUCCION POR apocatástasis
 
-Boton para ver qr.
-Añadir teclas
+➖Boton para ver qr.
+✔️Añadir teclas
 
-	Ruleta:
+❌	Ruleta:
 aparece la anterior tirada.
 Cambiar colores
-	Ranking
-Que apaerezca el icono uy visual
 
-nombres pruebas: Worldguessr El viaje de Ulises
-El canto de Orfeo
-La torre de Dédalo
-El conteo de las moiras
-Veredicto de los dioses
-El oráculo de Delfos
-El cálculo de Laquesis
-El Juicio de Epimeteo
+❌	Ranking
+...Que apaerezca el icono uy visual
 
-	cANTO DE ORFEO
+nombres pruebas: 
+✔️Worldguessr El viaje de Ulises
+❌El canto de Orfeo
+✔️La torre de Dédalo
+✔️El conteo de las moiras
+✔️Veredicto de los dioses
+✔️El oráculo de Delfos
+✔️El cálculo de Laquesis
+✔️❌El Juicio de Epimeteo
+
+❌	cANTO DE ORFEO
 Quitar barra reproductor. 
 Fondo de pantalla con música
 Nombre del juego
@@ -33,52 +35,52 @@ Que se pueda deseleccionar el botón de puntuación
 
 Quitar alertas
 
-	Torre dédalo
-Estilo. Fondo torre
+✔️	Torre dédalo
+➖Estilo. Fondo torre
 
-	El conteo de las Moiras
-Estilo. Cambiar número exacto.
-Fondo de pantalla de vasija
-
-
-Meter tiempo cifras y letras
-
-El Juicio de Epimeteo
+✔️	El conteo de las Moiras
+✔️Estilo. Cambiar número exacto.
+➖Fondo de pantalla de vasija
 
 
+✔️Meter tiempo cifras y letras
+
+❌✔️El Juicio de Epimeteo
 
 
 
-El ultimo teorema: reiniciar a 0
+
+
+❌El ultimo teorema: reiniciar a 0
 
 	Móvil:
-Intro
-Cambiar iconos header personajes
-Fondo blanco.7
-Intentar que no se pueda bajar la pantalla, que se vea todo en la pantalla
-Quitar icono chatgpt
-Cambiar letras borde doreado, más granes
-Fondo blanco en titulo
+❌Intro
+✔️Cambiar iconos header personajes
+✔️Fondo blanco
+✔️Intentar que no se pueda bajar la pantalla, que se vea todo en la pantalla
+✔️Quitar icono chatgpt
+✔️Cambiar letras borde doreado, más granes
+✔️Fondo blanco en titulo
 
 
 Reiniciar valor en la ruleta
 
-Worldgueessr
+	Worldgueessr
 Mirar que no baje la pantalla ene lo movil
 
-Ranking
-Que aparezca el icono, 
+	Ranking
+✔️Que aparezca el icono, 
 
 
 
-Canto:
-Poner fondo color marroncito
-Quitar azul y emotes
-Poner en P e I nuestros iconos
+	Canto:
+✔️Poner fondo color marroncito
+✔️Quitar azul y emotes
+✔️Poner en P e I nuestros iconos
 A veces no lo escucha bien y no se ve. (pasa cuando se revela antes de que se acabe el tiempo)
 
 
-Cambiar alerta
+✔️Cambiar alerta
 
 El juicio de Epimeteo
 Meter showRaning
