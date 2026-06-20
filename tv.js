@@ -147,16 +147,17 @@ window.inicializarRuletaJuegos = function () {
   const colores = [
     "#2c231e", // Negro Ático / Cerámica oscura
     "#d97d4b", // Terracota clásico
-    "#e6dfcf", // Mármol / Crema
-    "#8a9a86", // Verde Oliva húmedo
+    "#9b7826", // Mármol / Crema
+    "#6e8944", // Verde Oliva húmedo
     "#b89728", // Oro Viejo
-    "#1c2833", // Azul Profundo del Egeo
+    "#624513", // Azul Profundo del Egeo
     "#bd5332"  // Rojo Cerámico
   ];
 
   constGames.forEach((game, i) => {
     const anguloInicio = i * angularArco;
     const anguloFin = anguloInicio + angularArco;
+    const gameTitle = ["El viaje de Ulises", "El canto de Orfeo", "La torre de Dédalo","El conteo de las Moiras","El veredicto de los dioses","El oráculo de Delfos","El cálculo de Láquesis","El juicio de Epimeteo","El último teorema"];
 
     // Pintar trozo de tarta
     ctx.beginPath();
@@ -171,9 +172,9 @@ window.inicializarRuletaJuegos = function () {
     ctx.translate(centro, centro);
     ctx.rotate(anguloInicio + angularArco / 2);
     ctx.fillStyle = "#ffffff";
-    ctx.font = "bold 13px sans-serif";
+    ctx.font = "bold 8px sans-serif";
     ctx.textAlign = "right";
-    ctx.fillText(game, centro - 20, 5); // Desfase hacia fuera
+    ctx.fillText(gameTitle[i], centro - 20, 5); // Desfase hacia fuera
     ctx.restore();
   });
 };
