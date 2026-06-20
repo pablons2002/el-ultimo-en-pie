@@ -142,51 +142,65 @@
   </div>
 
   <!-- Juego 1º WorldGuessr -->
- <!-- El Viaje de Ulises -->
-<div id="screenWorldGuessr" class="screen"
-  style="background: #fbf9f3; color: #2c251e; padding: 30px; font-family: 'Georgia', 'Times New Roman', serif; display: none; border: 6px double #b89047; box-shadow: inset 0 0 30px rgba(184,144,71,0.15);">
+  <!-- El Viaje de Ulises -->
+  <div id="screenWorldGuessr" class="screen"
+    style="background: #fbf9f3; color: #2c251e; padding: 30px; font-family: 'Georgia', 'Times New Roman', serif; display: none; border: 6px double #b89047; box-shadow: inset 0 0 30px rgba(184,144,71,0.15);">
 
-  <div style="text-align: center; margin-bottom: 25px; border-bottom: 2px double #b89047; padding-bottom: 15px;">
-    <h1 style="color: #8c6d31; margin: 0; font-size: 3rem; font-variant: small-caps; letter-spacing: 3px;">El Viaje de Ulises</h1>
-    <p style="color: #6e5d4f; font-size: 1.2rem; font-style: italic; margin-top: 5px;">Navega por las brumas del ancho mar. Reconoce los reinos ignotos antes de que los vientos de Eolo desvien tu rumbo.</p>
-  </div>
-
-  <!-- Espejo del Oráculo (Iframe del Mapa) -->
-  <div style="display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%;">
-    <div style="width: 100%; max-width: 1400px; height: calc(100vh - 290px); border: 4px solid #b89047; box-shadow: 0 8px 20px rgba(0,0,0,0.15); background: #000;">
-      <iframe src="https://www.worldguessr.com" width="100%" height="100%" style="border: none; display: block;"></iframe>
+    <div style="text-align: center; margin-bottom: 25px; border-bottom: 2px double #b89047; padding-bottom: 15px;">
+      <h1 style="color: #8c6d31; margin: 0; font-size: 3rem; font-variant: small-caps; letter-spacing: 3px;">El Viaje de
+        Ulises</h1>
+      <p style="color: #6e5d4f; font-size: 1.2rem; font-style: italic; margin-top: 5px;">Navega por las brumas del ancho
+        mar. Reconoce los reinos ignotos antes de que los vientos de Eolo desvien tu rumbo.</p>
     </div>
 
-    <!-- Velo de Visiones (Overlay de imágenes por teclas) -->
-    <div id="overlayImg" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(20,16,12,0.85); z-index: 9999; justify-content: center; align-items: center; transition: all 0.3s;">
-      <div style="border: 5px solid #b89047; background: #fbf9f3; padding: 10px; box-shadow: 0 0 40px rgba(184,144,71,0.4); max-width: 85%; max-height: 85%;">
-        <img id="imgShow" style="max-width: 100%; max-height: 75vh; display: block; border: 1px solid #b89047;">
-        <p style="text-align: center; color: #8c6d31; font-variant: small-caps; margin: 8px 0 0 0; font-size: 0.9rem; letter-spacing: 1px;">Pulsa la tecla Escape para regresar a la travesia</p>
+    <!-- Espejo del Oráculo (Iframe del Mapa) -->
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%;">
+      <div
+        style="width: 100%; max-width: 1400px; height: calc(100vh - 290px); border: 4px solid #b89047; box-shadow: 0 8px 20px rgba(0,0,0,0.15); background: #000;">
+        <iframe src="https://www.worldguessr.com" width="100%" height="100%"
+          style="border: none; display: block;"></iframe>
       </div>
-    </div>
 
-    <button id="endGameBtn" 
-      style="background: linear-gradient(135deg, #b89047, #967333); color: white; border: 1px solid #7a5c26; padding: 12px 35px; font-weight: bold; font-family: inherit; font-size: 1.1rem; cursor: pointer; font-variant: small-caps; letter-spacing: 1px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-      Anclar Naves y Evaluar la Ruta
-    </button>
-  </div>
+      <!-- Velo de Visiones (Overlay de imágenes por teclas) -->
+      <div id="overlayImg"
+        style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(20,16,12,0.85); z-index: 9999; justify-content: center; align-items: center; transition: all 0.3s;">
+        <div
+          style="border: 5px solid #b89047; background: #fbf9f3; padding: 10px; box-shadow: 0 0 40px rgba(184,144,71,0.4); max-width: 85%; max-height: 85%;">
+          <img id="imgShow" style="max-width: 100%; max-height: 75vh; display: block; border: 1px solid #b89047;">
+          <p
+            style="text-align: center; color: #8c6d31; font-variant: small-caps; margin: 8px 0 0 0; font-size: 0.9rem; letter-spacing: 1px;">
+            Pulsa la tecla Escape para regresar a la travesia</p>
+        </div>
+      </div>
 
-  <!-- Altar de Escrutinio (Panel de Finalización) -->
-  <div id="finalizePanel" style="display: none; margin-top: 30px; background: #fffdfa; padding: 25px; border: 2px solid #b89047; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-    <h3 style="color: #8c6d31; margin: 0 0 15px 0; text-align: center; font-variant: small-caps; font-size: 1.6rem; letter-spacing: 1px; border-bottom: 1px double #e3dac9; padding-bottom: 10px;">Orden de Arribo a Itaca</h3>
-    <p style="color: #6e5d4f; font-size: 0.95rem; font-style: italic; text-align: center; margin-bottom: 20px;">Selecciona a los navegantes en el orden exacto en que descifraron las coordenadas del mundo.</p>
-    
-    <!-- Contenedor de Tripulantes -->
-    <div id="playersContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px;"></div>
-
-    <div style="text-align: center;">
-      <button id="confirmRanking" 
-        style="background: #2e4225; color: white; border: none; padding: 12px 40px; font-family: inherit; font-weight: bold; font-size: 1.1rem; cursor: pointer; font-variant: small-caps; letter-spacing: 1px;">
-        Consagrar Ofrendas de Viaje
+      <button id="endGameBtn"
+        style="background: linear-gradient(135deg, #b89047, #967333); color: white; border: 1px solid #7a5c26; padding: 12px 35px; font-weight: bold; font-family: inherit; font-size: 1.1rem; cursor: pointer; font-variant: small-caps; letter-spacing: 1px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+        Anclar Naves y Evaluar la Ruta
       </button>
     </div>
+
+    <!-- Altar de Escrutinio (Panel de Finalización) -->
+    <div id="finalizePanel"
+      style="display: none; margin-top: 30px; background: #fffdfa; padding: 25px; border: 2px solid #b89047; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+      <h3
+        style="color: #8c6d31; margin: 0 0 15px 0; text-align: center; font-variant: small-caps; font-size: 1.6rem; letter-spacing: 1px; border-bottom: 1px double #e3dac9; padding-bottom: 10px;">
+        Orden de Arribo a Itaca</h3>
+      <p style="color: #6e5d4f; font-size: 0.95rem; font-style: italic; text-align: center; margin-bottom: 20px;">
+        Selecciona a los navegantes en el orden exacto en que descifraron las coordenadas del mundo.</p>
+
+      <!-- Contenedor de Tripulantes -->
+      <div id="playersContainer"
+        style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px;">
+      </div>
+
+      <div style="text-align: center;">
+        <button id="confirmRanking"
+          style="background: #2e4225; color: white; border: none; padding: 12px 40px; font-family: inherit; font-weight: bold; font-size: 1.1rem; cursor: pointer; font-variant: small-caps; letter-spacing: 1px;">
+          Consagrar Ofrendas de Viaje
+        </button>
+      </div>
+    </div>
   </div>
-</div>
 
   <!--Pantalla Ranking-->
   <div id="screenRanking" style="display:none;">
@@ -209,15 +223,16 @@
 
   <div id="pantalla-juego">
     <div id="screenGuessSong" style="display:none;">
-      <div id="contenedor-crono" style="font-size: 24px; font-weight: bold; margin-bottom: 10px; color: #e74c3c;">
+      <div class="espaciador"></div>
+      <div id="contenedor-crono">
         Tiempo restante: <span id="segundos-crono">10</span>s
       </div>
 
-        <button id="btn-play">Empezar Juego</button>
+      <button id="btn-play">Empezar Juego</button>
 
-        <button id="btn-siguiente" disabled>Revelar Respuesta</button>
+      <button id="btn-siguiente" disabled>Revelar Respuesta</button>
 
-      <div style="margin-top: 15px; display: flex; justify-content: center; align-items: center; gap: 10px;">
+      <div style="margin-top: 15px; display: none; ">
         <span id="tiempo-actual">0:00</span>
         <input type="range" id="barra-progreso" value="0" min="0" max="100" style="width: 300px; cursor: pointer;">
         <span id="tiempo-total">0:00</span>
@@ -228,13 +243,13 @@
   <div id="pantalla-respuesta"
     style="display: none; background: #f8f9fa; padding: 20px; border-radius: 10px; border: 2px solid #2ecc71; margin-top: 20px;">
 
-    <h2 style="color: #2ecc71; margin-bottom: 5px;">¡Respuesta Correcta! 🎉</h2>
+    <h2 style="color: #2ecc71; margin-bottom: 5px;">¡Respuesta Correcta!</h2>
     <p style="font-size: 20px; margin: 10px 0;"><strong>Canción:</strong> <span id="txt-nombre-cancion">-</span></p>
     <p style="font-size: 20px; margin: 10px 0;"><strong>Autor:</strong> <span id="txt-autor">-</span></p>
 
     <button id="btn-ver-respuestas"
       style="background: #34495e; color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 5px; cursor: pointer; margin-top: 15px;">
-      Ver qué ha respondido la gente 👀
+      Ver qué ha respondido la gente
     </button>
 
     <div id="contenedor-respuestas-usuarios"
@@ -244,7 +259,7 @@
 
       <button id="btn-continuar"
         style="background: #2ecc71; color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 5px; cursor: pointer; margin-top: 15px; width: 100%;">
-        Siguiente Canción ➡️
+        Siguiente Canción
       </button>
     </div>
   </div>
@@ -572,158 +587,188 @@
 
   <!--7º Juego: Números de números y letras-->
   <div id="screenNumbersAndLetters" class="screen"
-  style="background: #fdfbf7; color: #2c221e; padding: 35px; font-family: 'Cinzel Decorative', 'Times New Roman', serif; display: none; border: 6px double #b89047; box-shadow: inset 0 0 30px rgba(184,144,71,0.15);">
+    style="background: #fdfbf7; color: #2c221e; padding: 35px; font-family: 'Cinzel Decorative', 'Times New Roman', serif; display: none; border: 6px double #b89047; box-shadow: inset 0 0 30px rgba(184,144,71,0.15);">
 
-  <div style="text-align: center; margin-bottom: 25px; border-bottom: 2px double #b89047; padding-bottom: 15px;">
-    <h1 style="color: #8c6d31; margin: 0; font-size: 3rem; font-variant: small-caps; letter-spacing: 3px;">El Cálculo de Láquesis</h1>
-    <p style="color: #6e5d4f; font-size: 1.2rem; font-style: italic; margin-top: 5px;">Mide con precisión el hilo del destino antes de que el tiempo de arena se agote</p>
-  </div>
-
-  <div style="display: flex; gap: 30px;">
-
-    <div style="flex: 0.9; background: #fffdfa; padding: 25px; border: 2px solid #b89047; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-      <h2 style="color: #8c6d31; margin-top: 0; font-variant: small-caps; letter-spacing: 1px;">El Telar de las Moiras</h2>
-
-      <button onclick="generarRetoCifras()"
-        style="background: linear-gradient(135deg, #b89047, #967333); color: white; border: 1px solid #7a5c26; padding: 12px 20px; font-weight: bold; font-family: inherit; font-size: 1.1rem; width: 100%; margin-bottom: 20px; cursor: pointer; font-variant: small-caps; letter-spacing: 1px;">
-        Mover Hilos del Destino
-      </button>
-
-      <div style="background: #fcfaf2; padding: 12px; border: 1px dashed #b89047; margin-bottom: 20px;">
-        <div style="color: #6e5d4f; font-size: 0.9rem; font-variant: small-caps; font-weight: bold; letter-spacing: 1px;">Tiempo de Arena Restante</div>
-        <div id="tvCronometroCifras" style="font-size: 3.5rem; font-weight: bold; font-family: monospace; color: #2c221e; margin: 5px 0;">02:00</div>
-        
-        <div style="display: flex; gap: 8px; justify-content: center;">
-          <button onclick="controlarTiempoCifras('iniciar')" style="font-family: inherit; background: #fff; color: #2e4225; border: 1px solid #2e4225; padding: 6px 12px; font-size: 0.85rem; font-weight: bold; cursor: pointer; font-variant: small-caps;">Liberar</button>
-          <button onclick="controlarTiempoCifras('pausar')" style="font-family: inherit; background: #fff; color: #a37a1a; border: 1px solid #a37a1a; padding: 6px 12px; font-size: 0.85rem; font-weight: bold; cursor: pointer; font-variant: small-caps;">Pausar</button>
-          <button onclick="controlarTiempoCifras('acabar')" style="font-family: inherit; background: #fff; color: #912b2b; border: 1px solid #912b2b; padding: 6px 12px; font-size: 0.85rem; font-weight: bold; cursor: pointer; font-variant: small-caps;">Cortar</button>
-        </div>
-      </div>
-
-      <div style="color: #6e5d4f; font-variant: small-caps; font-weight: bold; margin-bottom: 5px;">Cifras del Telar:</div>
-      <div id="tvNumerosDisponibles" style="display: flex; gap: 10px; justify-content: center; margin-bottom: 20px;">
-        <span style="color: #9c8e7f; font-style: italic;">Esperando el designio de las Moiras...</span>
-      </div>
-
-      <div style="color: #6e5d4f; font-variant: small-caps; font-weight: bold; margin-bottom: 5px;">Cifra Divina a Alcanzar:</div>
-      <div id="tvNumeroObjetivo"
-        style="font-size: 4rem; font-weight: bold; color: #8c6d31; background: #fffdf5; padding: 10px; border: 2px solid #b89047; margin-bottom: 20px; font-family: monospace;">
-        ---
-      </div>
-
-      <button onclick="validarRespuestasCifras()"
-        style="background: #2e4225; color: white; border: none; padding: 14px; font-family: inherit; font-weight: bold; font-size: 1.1rem; width: 100%; cursor: pointer; font-variant: small-caps; letter-spacing: 1px;">
-        Examinar Ofrendas y Sumar Favor
-      </button>
+    <div style="text-align: center; margin-bottom: 25px; border-bottom: 2px double #b89047; padding-bottom: 15px;">
+      <h1 style="color: #8c6d31; margin: 0; font-size: 3rem; font-variant: small-caps; letter-spacing: 3px;">El Cálculo
+        de Láquesis</h1>
+      <p style="color: #6e5d4f; font-size: 1.2rem; font-style: italic; margin-top: 5px;">Mide con precisión el hilo del
+        destino antes de que el tiempo de arena se agote</p>
     </div>
 
-    <div style="flex: 1.1; background: #fffdfd; padding: 25px; border: 1px solid #e3dac9; box-shadow: inset 0 0 20px rgba(0,0,0,0.02);">
-      <h3 style="margin-top: 0; color: #8c6d31; text-align: center; font-variant: small-caps; letter-spacing: 1px; border-bottom: 1px solid #e3dac9; padding-bottom: 10px;">Pergaminos Entregados en el Altar</h3>
+    <div style="display: flex; gap: 30px;">
 
-      <div id="tvListaRespuestasCifras" style="display: flex; flex-direction: column; gap: 10px;">
-        <p style="color: #9c8e7f; text-align: center; font-style: italic;">Esperando las plegarias matemáticas de los mortales...</p>
-      </div>
-    </div>
+      <div
+        style="flex: 0.9; background: #fffdfa; padding: 25px; border: 2px solid #b89047; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+        <h2 style="color: #8c6d31; margin-top: 0; font-variant: small-caps; letter-spacing: 1px;">El Telar de las Moiras
+        </h2>
 
-  </div>
-
-  <div style="text-align: center; margin-top: 25px;">
-    <button onclick="goToRanking()" style="font-family: inherit; font-size: 1rem; font-variant: small-caps; background: none; color: #8c6d31; border: 1px solid #b89047; padding: 8px 25px; cursor: pointer;">Ir al Ranking</button>
-  </div>
-</div>
-
-
-
-<div id="screenTheLiar" class="screen"
-  style="background: #fbf9f3; color: #2c251e; padding: 30px; font-family: 'Georgia', 'Times New Roman', serif; display: none; border: 6px double #b89047; box-shadow: inset 0 0 30px rgba(184,144,71,0.15);">
-
-  <div style="text-align: center; margin-bottom: 25px; border-bottom: 2px double #b89047; padding-bottom: 15px;">
-    <h1 style="color: #8c6d31; margin: 0; font-size: 3rem; font-variant: small-caps; letter-spacing: 3px;">El Juicio de Epimeteo</h1>
-    <p style="color: #6e5d4f; font-size: 1.2rem; font-style: italic; margin-top: 5px;">Cuatro almas declaran ante el altar, pero tres han sido cegadas por la imprudencia. Descubre quién custodia la verdad.</p>
-  </div>
-
-  <div style="display: flex; gap: 25px;">
-
-    <div style="flex: 0.8; background: #fffdfa; padding: 20px; border: 2px solid #b89047; height: fit-content; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-      <h3 style="color: #8c6d31; margin: 0; text-align: center; font-variant: small-caps; letter-spacing: 1px;">Decretos del Tribunal</h3>
-
-      <button onclick="elegirSospechososAlAzar()"
-        style="background: linear-gradient(135deg, #b89047, #967333); color: white; border: 1px solid #7a5c26; padding: 12px; font-weight: bold; font-family: inherit; font-size: 1rem; width: 100%; cursor: pointer; font-variant: small-caps; letter-spacing: 1px;">
-        Convocar Cuatro Sospechosos
-      </button>
-
-      <div style="background: #fdfcf7; padding: 12px; border: 1px dashed #b89047; text-align: center;">
-        <span style="color: #6e5d4f; font-size: 0.9rem; font-variant: small-caps; font-weight: bold;">Dictamen Divino:</span>
-        <div id="tvSolucionMentiroso" style="font-size: 1.3rem; font-weight: bold; color: #a37a1a; margin-top: 5px; font-variant: small-caps; letter-spacing: 1px;">
-          OCULTO
-        </div>
-      </div>
-
-      <div style="display: flex; gap: 8px;">
-        <button onclick="revelarVerdadMentiroso()"
-          style="background: #2e4225; color: white; border: none; padding: 10px; font-family: inherit; font-weight: bold; font-size: 0.9rem; flex: 1; cursor: pointer; font-variant: small-caps;">
-          Revelar
+        <button onclick="generarRetoCifras()"
+          style="background: linear-gradient(135deg, #b89047, #967333); color: white; border: 1px solid #7a5c26; padding: 12px 20px; font-weight: bold; font-family: inherit; font-size: 1.1rem; width: 100%; margin-bottom: 20px; cursor: pointer; font-variant: small-caps; letter-spacing: 1px;">
+          Mover Hilos del Destino
         </button>
-        <button onclick="ocultarVerdadMentiroso()"
-          style="background: #912b2b; color: white; border: none; padding: 10px; font-family: inherit; font-weight: bold; font-size: 0.9rem; flex: 1; cursor: pointer; font-variant: small-caps;">
-          Ocultar
-        </button>
-        <button onclick="siguienteEvidenciaMentiroso()" id="btnSiguienteEvidencia"
-          style="background: #fffdfa; color: #8c6d31; border: 1px solid #b89047; padding: 10px; font-family: inherit; font-weight: bold; font-size: 0.85rem; flex: 1; cursor: pointer; font-variant: small-caps;">
-          Siguiente Prueba
-        </button>
-      </div>
 
-      <hr style="border: 0; border-top: 1px double #b89047; margin: 5px 0;">
-
-      <button onclick="validarVotosYAcertantesMentiroso()"
-        style="background: #4a3b52; color: white; border: none; padding: 12px; font-family: inherit; font-weight: bold; font-size: 1rem; width: 100%; cursor: pointer; font-variant: small-caps; letter-spacing: 1px;">
-        Escrutar Votos de esta Ofrenda
-      </button>
-
-      <button onclick="finalizarMinijuegoMentiroso()"
-        style="background: #2e4225; color: white; border: none; padding: 12px; font-family: inherit; font-weight: bold; font-size: 1rem; width: 100%; cursor: pointer; font-variant: small-caps; letter-spacing: 1px;">
-        Consagrar Juicio y Volcar Favor
-      </button>
-    </div>
-
-    <div style="flex: 1.2; display: flex; flex-direction: column; gap: 20px;">
-
-      <div id="tvSospechososContenedor" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
-      </div>
-
-      <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 15px;">
-
-        <div
-          style="background: #fffdfa; padding: 15px; border: 1px solid #e3dac9; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 180px; box-shadow: inset 0 0 15px rgba(0,0,0,0.02);">
-          <h4 style="margin: 0 0 10px 0; color: #6e5d4f; font-variant: small-caps; letter-spacing: 1px;">Evidencia del Oráculo</h4>
-          <div id="tvMultimediaMentiroso" style="width: 100%; display: none;">
-            <img id="imgMentiroso" src="https://via.placeholder.com/400x200?text=Evidencia+Grafica"
-              style="max-width: 100%; max-height: 180px; border-radius: 4px; border: 2px solid #b89047;">
+        <div style="background: #fcfaf2; padding: 12px; border: 1px dashed #b89047; margin-bottom: 20px;">
+          <div
+            style="color: #6e5d4f; font-size: 0.9rem; font-variant: small-caps; font-weight: bold; letter-spacing: 1px;">
+            Tiempo de Arena Restante</div>
+          <div id="tvCronometroCifras"
+            style="font-size: 3.5rem; font-weight: bold; font-family: monospace; color: #2c221e; margin: 5px 0;">02:00
           </div>
-          <div id="tvMultimediaOculta" style="color: #9c8e7f; font-style: italic; font-size: 0.95rem;">
-            Sello custodiado hasta que el tribunal ordene Revelar.
+
+          <div style="display: flex; gap: 8px; justify-content: center;">
+            <button onclick="controlarTiempoCifras('iniciar')"
+              style="font-family: inherit; background: #fff; color: #2e4225; border: 1px solid #2e4225; padding: 6px 12px; font-size: 0.85rem; font-weight: bold; cursor: pointer; font-variant: small-caps;">Liberar</button>
+            <button onclick="controlarTiempoCifras('pausar')"
+              style="font-family: inherit; background: #fff; color: #a37a1a; border: 1px solid #a37a1a; padding: 6px 12px; font-size: 0.85rem; font-weight: bold; cursor: pointer; font-variant: small-caps;">Pausar</button>
+            <button onclick="controlarTiempoCifras('acabar')"
+              style="font-family: inherit; background: #fff; color: #912b2b; border: 1px solid #912b2b; padding: 6px 12px; font-size: 0.85rem; font-weight: bold; cursor: pointer; font-variant: small-caps;">Cortar</button>
           </div>
         </div>
 
-        <div id="tvRankingLocalMentiroso"
-          style="background: #fffdf9; padding: 15px; border: 1px solid #e3dac9; overflow-y: auto; max-height: 240px;">
-          <h4 style="margin: 0 0 10px 0; color: #8c6d31; text-align: center; font-variant: small-caps; letter-spacing: 1px; border-bottom: 1px solid #f2ede4; padding-bottom: 5px;">Panteón del Juicio</h4>
-          <div id="listaPuntosLocalesMentiroso"
-            style="font-size: 0.95rem; color: #2c251e; display: flex; flex-direction: column; gap: 6px;">
-            <p style="color: #9c8e7f; font-style: italic; text-align: center;">Tribunal inactivo...</p>
-          </div>
+        <div style="color: #6e5d4f; font-variant: small-caps; font-weight: bold; margin-bottom: 5px;">Cifras del Telar:
+        </div>
+        <div id="tvNumerosDisponibles" style="display: flex; gap: 10px; justify-content: center; margin-bottom: 20px;">
+          <span style="color: #9c8e7f; font-style: italic;">Esperando el designio de las Moiras...</span>
         </div>
 
+        <div style="color: #6e5d4f; font-variant: small-caps; font-weight: bold; margin-bottom: 5px;">Cifra Divina a
+          Alcanzar:</div>
+        <div id="tvNumeroObjetivo"
+          style="font-size: 4rem; font-weight: bold; color: #8c6d31; background: #fffdf5; padding: 10px; border: 2px solid #b89047; margin-bottom: 20px; font-family: monospace;">
+          ---
+        </div>
+
+        <button onclick="validarRespuestasCifras()"
+          style="background: #2e4225; color: white; border: none; padding: 14px; font-family: inherit; font-weight: bold; font-size: 1.1rem; width: 100%; cursor: pointer; font-variant: small-caps; letter-spacing: 1px;">
+          Examinar Ofrendas y Sumar Favor
+        </button>
+      </div>
+
+      <div
+        style="flex: 1.1; background: #fffdfd; padding: 25px; border: 1px solid #e3dac9; box-shadow: inset 0 0 20px rgba(0,0,0,0.02);">
+        <h3
+          style="margin-top: 0; color: #8c6d31; text-align: center; font-variant: small-caps; letter-spacing: 1px; border-bottom: 1px solid #e3dac9; padding-bottom: 10px;">
+          Pergaminos Entregados en el Altar</h3>
+
+        <div id="tvListaRespuestasCifras" style="display: flex; flex-direction: column; gap: 10px;">
+          <p style="color: #9c8e7f; text-align: center; font-style: italic;">Esperando las plegarias matemáticas de los
+            mortales...</p>
+        </div>
       </div>
 
     </div>
+
+    <div style="text-align: center; margin-top: 25px;">
+      <button onclick="goToRanking()"
+        style="font-family: inherit; font-size: 1rem; font-variant: small-caps; background: none; color: #8c6d31; border: 1px solid #b89047; padding: 8px 25px; cursor: pointer;">Ir
+        al Ranking</button>
+    </div>
   </div>
 
-  <div style="text-align: center; margin-top: 25px;">
-    <button onclick="goToRanking()" style="font-family: inherit; font-size: 1rem; font-variant: small-caps; background: none; color: #8c6d31; border: 1px solid #b89047; padding: 8px 25px; cursor: pointer;">Ir al Ranking</button>
+
+
+  <div id="screenTheLiar" class="screen"
+    style="background: #fbf9f3; color: #2c251e; padding: 30px; font-family: 'Georgia', 'Times New Roman', serif; display: none; border: 6px double #b89047; box-shadow: inset 0 0 30px rgba(184,144,71,0.15);">
+
+    <div style="text-align: center; margin-bottom: 25px; border-bottom: 2px double #b89047; padding-bottom: 15px;">
+      <h1 style="color: #8c6d31; margin: 0; font-size: 3rem; font-variant: small-caps; letter-spacing: 3px;">El Juicio
+        de Epimeteo</h1>
+      <p style="color: #6e5d4f; font-size: 1.2rem; font-style: italic; margin-top: 5px;">Cuatro almas declaran ante el
+        altar, pero tres han sido cegadas por la imprudencia. Descubre quién custodia la verdad.</p>
+    </div>
+
+    <div style="display: flex; gap: 25px;">
+
+      <div
+        style="flex: 0.8; background: #fffdfa; padding: 20px; border: 2px solid #b89047; height: fit-content; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+        <h3 style="color: #8c6d31; margin: 0; text-align: center; font-variant: small-caps; letter-spacing: 1px;">
+          Decretos del Tribunal</h3>
+
+        <button onclick="elegirSospechososAlAzar()"
+          style="background: linear-gradient(135deg, #b89047, #967333); color: white; border: 1px solid #7a5c26; padding: 12px; font-weight: bold; font-family: inherit; font-size: 1rem; width: 100%; cursor: pointer; font-variant: small-caps; letter-spacing: 1px;">
+          Convocar Cuatro Sospechosos
+        </button>
+
+        <div style="background: #fdfcf7; padding: 12px; border: 1px dashed #b89047; text-align: center;">
+          <span style="color: #6e5d4f; font-size: 0.9rem; font-variant: small-caps; font-weight: bold;">Dictamen
+            Divino:</span>
+          <div id="tvSolucionMentiroso"
+            style="font-size: 1.3rem; font-weight: bold; color: #a37a1a; margin-top: 5px; font-variant: small-caps; letter-spacing: 1px;">
+            OCULTO
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 8px;">
+          <button onclick="revelarVerdadMentiroso()"
+            style="background: #2e4225; color: white; border: none; padding: 10px; font-family: inherit; font-weight: bold; font-size: 0.9rem; flex: 1; cursor: pointer; font-variant: small-caps;">
+            Revelar
+          </button>
+          <button onclick="ocultarVerdadMentiroso()"
+            style="background: #912b2b; color: white; border: none; padding: 10px; font-family: inherit; font-weight: bold; font-size: 0.9rem; flex: 1; cursor: pointer; font-variant: small-caps;">
+            Ocultar
+          </button>
+          <button onclick="siguienteEvidenciaMentiroso()" id="btnSiguienteEvidencia"
+            style="background: #fffdfa; color: #8c6d31; border: 1px solid #b89047; padding: 10px; font-family: inherit; font-weight: bold; font-size: 0.85rem; flex: 1; cursor: pointer; font-variant: small-caps;">
+            Siguiente Prueba
+          </button>
+        </div>
+
+        <hr style="border: 0; border-top: 1px double #b89047; margin: 5px 0;">
+
+        <button onclick="validarVotosYAcertantesMentiroso()"
+          style="background: #4a3b52; color: white; border: none; padding: 12px; font-family: inherit; font-weight: bold; font-size: 1rem; width: 100%; cursor: pointer; font-variant: small-caps; letter-spacing: 1px;">
+          Escrutar Votos de esta Ofrenda
+        </button>
+
+        <button onclick="finalizarMinijuegoMentiroso()"
+          style="background: #2e4225; color: white; border: none; padding: 12px; font-family: inherit; font-weight: bold; font-size: 1rem; width: 100%; cursor: pointer; font-variant: small-caps; letter-spacing: 1px;">
+          Consagrar Juicio y Volcar Favor
+        </button>
+      </div>
+
+      <div style="flex: 1.2; display: flex; flex-direction: column; gap: 20px;">
+
+        <div id="tvSospechososContenedor" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 15px;">
+
+          <div
+            style="background: #fffdfa; padding: 15px; border: 1px solid #e3dac9; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 180px; box-shadow: inset 0 0 15px rgba(0,0,0,0.02);">
+            <h4 style="margin: 0 0 10px 0; color: #6e5d4f; font-variant: small-caps; letter-spacing: 1px;">Evidencia del
+              Oráculo</h4>
+            <div id="tvMultimediaMentiroso" style="width: 100%; display: none;">
+              <img id="imgMentiroso" src="https://via.placeholder.com/400x200?text=Evidencia+Grafica"
+                style="max-width: 100%; max-height: 180px; border-radius: 4px; border: 2px solid #b89047;">
+            </div>
+            <div id="tvMultimediaOculta" style="color: #9c8e7f; font-style: italic; font-size: 0.95rem;">
+              Sello custodiado hasta que el tribunal ordene Revelar.
+            </div>
+          </div>
+
+          <div id="tvRankingLocalMentiroso"
+            style="background: #fffdf9; padding: 15px; border: 1px solid #e3dac9; overflow-y: auto; max-height: 240px;">
+            <h4
+              style="margin: 0 0 10px 0; color: #8c6d31; text-align: center; font-variant: small-caps; letter-spacing: 1px; border-bottom: 1px solid #f2ede4; padding-bottom: 5px;">
+              Panteón del Juicio</h4>
+            <div id="listaPuntosLocalesMentiroso"
+              style="font-size: 0.95rem; color: #2c251e; display: flex; flex-direction: column; gap: 6px;">
+              <p style="color: #9c8e7f; font-style: italic; text-align: center;">Tribunal inactivo...</p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 25px;">
+      <button onclick="goToRanking()"
+        style="font-family: inherit; font-size: 1rem; font-variant: small-caps; background: none; color: #8c6d31; border: 1px solid #b89047; padding: 8px 25px; cursor: pointer;">Ir
+        al Ranking</button>
+    </div>
   </div>
-</div>
   <!-- 8º Juego El último teorema -->
   <div id="screenLastTheorem" class="screen"
     style="display: none; background: #111; color: white; padding: 30px; font-family: sans-serif;">
