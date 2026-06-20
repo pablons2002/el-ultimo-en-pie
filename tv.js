@@ -157,7 +157,7 @@ window.inicializarRuletaJuegos = function () {
   constGames.forEach((game, i) => {
     const anguloInicio = i * angularArco;
     const anguloFin = anguloInicio + angularArco;
-    const gameTitle = ["El viaje de Ulises", "El canto de Orfeo", "La torre de Dédalo","El conteo de las Moiras","El veredicto de los dioses","El oráculo de Delfos","El cálculo de Láquesis","El juicio de Epimeteo","El último teorema"];
+    const gameTitle = ["Ulises", "Orfeo", "Dédalo","Moiras","Veredicto","Delfos","Láquesis","Epimeteo","Teorema"];
 
     // Pintar trozo de tarta
     ctx.beginPath();

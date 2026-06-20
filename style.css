@@ -3,7 +3,8 @@
   font-family: 'Cinzel Decorative', serif !important;
 }
 
-html, body {
+html,
+body {
   width: 100%;
   height: 100%;
   margin: 0;
@@ -27,8 +28,10 @@ body {
 }
 
 body {
-  background-color: #d1bf9d; /* Beige místico por defecto */
-  color: #3c3228;            /* Marrón oscuro para los textos */
+  background-color: #d1bf9d;
+  /* Beige místico por defecto */
+  color: #3c3228;
+  /* Marrón oscuro para los textos */
   font-family: 'Cinzel Decorative', serif;
   text-align: center;
   min-height: 100vh;
@@ -87,8 +90,13 @@ body {
   background: rgba(255, 0, 0, 0.25);
 }
 
-#selfDestruct::before { top: 6px; }
-#selfDestruct::after { bottom: 6px; }
+#selfDestruct::before {
+  top: 6px;
+}
+
+#selfDestruct::after {
+  bottom: 6px;
+}
 
 /* ===== NAVEGACIÓN RÁPIDA ===== */
 .quick-nav {
@@ -101,9 +109,9 @@ body {
   font-family: 'Cinzel Decorative', serif;
   font-size: 0.95rem;
   padding: 8px 34px 8px 12px;
-  color: #e8e4d8; 
-  background: linear-gradient(135deg, rgb(44, 34, 26), rgb(32, 24, 18)); 
-  border: 2px solid #d4af37; 
+  color: #e8e4d8;
+  background: linear-gradient(135deg, rgb(44, 34, 26), rgb(32, 24, 18));
+  border: 2px solid #d4af37;
   border-radius: 6px;
   cursor: pointer;
   box-shadow:
@@ -254,28 +262,28 @@ body {
 
 #screenIntro h1 {
   font-family: 'Cinzel Decorative', serif;
-  font-size: clamp(2rem, 5vw, 4rem); 
-  color: #ffd700;    
+  font-size: clamp(2rem, 5vw, 4rem);
+  color: #ffd700;
   text-transform: uppercase;
   letter-spacing: 3px;
   margin: 0;
   font-weight: 700;
-  text-shadow: 
-    0 3px 6px rgba(0, 0, 0, 0.9), 
+  text-shadow:
+    0 3px 6px rgba(0, 0, 0, 0.9),
     0 6px 15px rgba(0, 0, 0, 0.7),
     0 0 20px rgba(0, 0, 0, 0.4);
 }
 
 #screenIntro h1 span {
   font-family: 'Cinzel Decorative', serif;
-  color: #ffd700;          
-  text-transform: none;    
-  font-size: 1.25em;       
+  color: #ffd700;
+  text-transform: none;
+  font-size: 1.25em;
   font-weight: 900;
   display: inline-block;
-  padding-left: 5px;       
-  text-shadow: 
-    0 3px 6px rgba(0, 0, 0, 0.9), 
+  padding-left: 5px;
+  text-shadow:
+    0 3px 6px rgba(0, 0, 0, 0.9),
     0 6px 15px rgba(0, 0, 0, 0.7),
     0 0 20px rgba(0, 0, 0, 0.4);
 }
@@ -314,29 +322,29 @@ body {
   font-weight: 700;
   color: #e8e4d8;
   line-height: 1.4;
-  text-shadow: 
-    0 3px 30px rgba(0, 0, 0, 0.9), 
+  text-shadow:
+    0 3px 30px rgba(0, 0, 0, 0.9),
     0 6px 30px rgba(0, 0, 0, 0.7),
     0 0 30px rgba(0, 0, 0, 0.4);
 }
 
 #startBtn {
-  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%); 
-  color: #8c6d31; 
-  font-family: 'Cinzel Decorative', serif !important; 
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+  color: #8c6d31;
+  font-family: 'Cinzel Decorative', serif !important;
   font-size: clamp(1rem, 1.5vw, 1.4rem);
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 2px;
   padding: clamp(10px, 1vw, 15px) clamp(20px, 2vw, 35px);
-  border: 3px double #d4af37; 
-  border-radius: 4px; 
+  border: 3px double #d4af37;
+  border-radius: 4px;
   cursor: pointer;
-  outline: none; 
-  box-shadow: 
-    0 0 0 4px #f5f7fa, 
-    0 0 15px rgba(212, 175, 55, 0.4), 
-    inset 0 0 10px rgba(0, 0, 0, 0.05); 
+  outline: none;
+  box-shadow:
+    0 0 0 4px #f5f7fa,
+    0 0 15px rgba(212, 175, 55, 0.4),
+    inset 0 0 10px rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease-in-out;
   position: relative;
   overflow: hidden;
@@ -344,19 +352,19 @@ body {
 
 #startBtn:focus {
   outline: none;
-  box-shadow: 
-    0 0 0 4px #f5f7fa, 
-    0 0 15px rgba(212, 175, 55, 0.4); 
+  box-shadow:
+    0 0 0 4px #f5f7fa,
+    0 0 15px rgba(212, 175, 55, 0.4);
 }
 
 #startBtn:hover {
   color: #fff;
-  background: linear-gradient(135deg, #d4af37 0%, #aa7c11 100%); 
+  background: linear-gradient(135deg, #d4af37 0%, #aa7c11 100%);
   border-color: #f5f7fa;
-  box-shadow: 
+  box-shadow:
     0 0 0 4px #d4af37,
-    0 0 25px rgba(212, 175, 55, 0.8); 
-  transform: translateY(-2px); 
+    0 0 25px rgba(212, 175, 55, 0.8);
+  transform: translateY(-2px);
 }
 
 #startBtn:active {
@@ -364,7 +372,8 @@ body {
   box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
 }
 
-#startBtn::before, #startBtn::after {
+#startBtn::before,
+#startBtn::after {
   content: "";
   position: absolute;
   left: 10%;
@@ -372,8 +381,14 @@ body {
   height: 1px;
   background: rgba(212, 175, 55, 0.3);
 }
-#startBtn::before { top: 6px; }
-#startBtn::after { bottom: 6px; }
+
+#startBtn::before {
+  top: 6px;
+}
+
+#startBtn::after {
+  bottom: 6px;
+}
 
 /* ===== OTROS JUEGOS / MAPAS ===== */
 .panel {
@@ -444,7 +459,11 @@ button {
   flex-direction: column;
   align-items: center;
   gap: 12px;
-  background: linear-gradient(135deg, rgb(244, 240, 230), rgb(232, 228, 216));
+  background-color: rgba(255, 255, 255, 0.4);
+  /* negro con 40% de opacidad */
+  backdrop-filter: blur(4px);
+  /* opcional, efecto cristal */
+  -webkit-backdrop-filter: blur(4px);
   padding: 18px;
   border-radius: 8px;
   border: 3px solid #d4af37;
@@ -660,7 +679,7 @@ button {
   border: 1px solid #c9b77d;
   border-radius: 10px;
   background: rgba(255, 250, 235, 0.7);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
   position: relative;
   overflow: hidden;
 }
@@ -702,7 +721,7 @@ button {
   position: relative;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: inset 0 0 3px rgba(0,0,0,0.2);
+  box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.2);
 }
 
 /* Hover */
@@ -768,10 +787,11 @@ button {
   padding: 30px;
   border-radius: 20px;
 
-  border: 3px solid #d4af37; /* dorado */
+  border: 3px solid #d4af37;
+  /* dorado */
   background: #fffdf7;
 
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 
   text-align: center;
 }
@@ -797,7 +817,8 @@ button {
 .greek-name {
   font-size: 40px;
   font-weight: bold;
-  color: #b8860b; /* dorado oscuro */
+  color: #b8860b;
+  /* dorado oscuro */
 }
 
 #viewWinner {
@@ -818,17 +839,18 @@ button {
    2. HEADER PERMANENTE Y COMPACTO (REPARADO)
    ========================================== */
 #userHeader {
-  background-color: #3e3220; 
-  border-bottom: 3px solid #b89047; 
-  color: #f4efe2; 
+  background-color: #3e3220;
+  border-bottom: 3px solid #b89047;
+  color: #f4efe2;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
   flex-wrap: nowrap;
-  padding: 6px 10px; /* Un pelo más compacto en los bordes */
-  flex-shrink: 0;     
+  padding: 6px 10px;
+  /* Un pelo más compacto en los bordes */
+  flex-shrink: 0;
   width: 100%;
   z-index: 9999;
 }
@@ -837,7 +859,8 @@ button {
   display: flex;
   align-items: center;
   gap: 6px;
-  min-width: 0; /* OBLIGATORIO: Permite que el contenedor se encoja si el texto es largo */
+  min-width: 0;
+  /* OBLIGATORIO: Permite que el contenedor se encoja si el texto es largo */
 }
 
 /* Reducimos el logo un poco si la pantalla se vuelve muy enana */
@@ -850,23 +873,25 @@ button {
 
 #userHeader h1 {
   margin: 0;
-  font-size: 1rem; /* Bajamos de 1.1em a 1rem base */
+  font-size: 1rem;
+  /* Bajamos de 1.1em a 1rem base */
   color: #f1e983;
-  white-space: nowrap; 
+  white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis; /* Si aun así no cabe el título, añade "..." con elegancia en vez de salirse */
+  text-overflow: ellipsis;
+  /* Si aun así no cabe el título, añade "..." con elegancia en vez de salirse */
 }
 
 
 #userHeader {
-  background-color: #3e3220; 
-  border-bottom: 3px solid #b89047; 
-  color: #f4efe2; 
+  background-color: #3e3220;
+  border-bottom: 3px solid #b89047;
+  color: #f4efe2;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-  
+
   display: flex;
   flex-direction: row;
-  justify-content: space-between; 
+  justify-content: space-between;
   align-items: center;
   padding: 6px 10px;
   width: 100%;
@@ -878,11 +903,13 @@ button {
 
 #btn-play,
 #btn-siguiente {
-  width: 20%;      /* 🔥 antes 100% */
+  width: 20%;
+  /* 🔥 antes 100% */
   margin: 10px auto;
   display: block;
 
-  padding: 10px 12px;  /* 🔥 más pequeños */
+  padding: 10px 12px;
+  /* 🔥 más pequeños */
 
   font-size: 14px;
   letter-spacing: 1.5px;
@@ -894,8 +921,8 @@ button {
   background: linear-gradient(#fffdf6, #f7f0dc);
   border: 2px solid #c9a24a;
   box-shadow:
-    0 6px 15px rgba(0,0,0,0.15),
-    inset 0 0 8px rgba(212,175,55,0.2);
+    0 6px 15px rgba(0, 0, 0, 0.15),
+    inset 0 0 8px rgba(212, 175, 55, 0.2);
 }
 
 #segundos-crono {
@@ -904,7 +931,8 @@ button {
 }
 
 .espaciador {
-  height: 60px; /* ajusta el espacio que quieras */
+  height: 60px;
+  /* ajusta el espacio que quieras */
 }
 
 
@@ -918,7 +946,7 @@ button {
   border: 3px solid #c9a24a;
   border-radius: 16px;
 
-  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
 
   font-family: "Georgia", serif;
   text-align: center;
@@ -931,8 +959,8 @@ button {
   letter-spacing: 2px;
 
   text-shadow:
-    1px 1px 2px rgba(0,0,0,0.2),
-    0 0 6px rgba(212,175,55,0.3);
+    1px 1px 2px rgba(0, 0, 0, 0.2),
+    0 0 6px rgba(212, 175, 55, 0.3);
 }
 
 #pantalla-respuesta p {
@@ -971,7 +999,7 @@ button {
   cursor: pointer;
   letter-spacing: 1px;
 
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 #btn-ver-respuestas:hover {
@@ -990,7 +1018,7 @@ button {
   border-radius: 12px;
   border: 2px solid #d4af37;
 
-  box-shadow: inset 0 0 10px rgba(212,175,55,0.2);
+  box-shadow: inset 0 0 10px rgba(212, 175, 55, 0.2);
 }
 
 #btn-continuar {
@@ -1010,7 +1038,7 @@ button {
 
   cursor: pointer;
 
-  box-shadow: 0 5px 12px rgba(0,0,0,0.2);
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.2);
 }
 
 #btn-continuar:hover {
@@ -1019,22 +1047,22 @@ button {
 
 
 #btnEmpezar {
-  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%); 
-  color: #8c6d31; 
-  font-family: 'Cinzel Decorative', serif !important; 
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+  color: #8c6d31;
+  font-family: 'Cinzel Decorative', serif !important;
   font-size: clamp(1rem, 1.5vw, 1.4rem);
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 2px;
   padding: clamp(10px, 1vw, 15px) clamp(20px, 2vw, 35px);
-  border: 3px double #d4af37; 
-  border-radius: 4px; 
+  border: 3px double #d4af37;
+  border-radius: 4px;
   cursor: pointer;
-  outline: none; 
-  box-shadow: 
-    0 0 0 4px #f5f7fa, 
-    0 0 15px rgba(212, 175, 55, 0.4), 
-    inset 0 0 10px rgba(0, 0, 0, 0.05); 
+  outline: none;
+  box-shadow:
+    0 0 0 4px #f5f7fa,
+    0 0 15px rgba(212, 175, 55, 0.4),
+    inset 0 0 10px rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease-in-out;
   position: relative;
   overflow: hidden;
