@@ -400,23 +400,23 @@ document.addEventListener("keydown", (e) => {
   console.log("Invocando visiones del mapa antiguo");
   console.log(currentGame);
   if (currentGame !== "WorldGuessr") return;
-  
+
   const key = e.key.toLowerCase();
   const img = imagenesPorTecla[key];
   console.log(img);
 
-  if (!img) return; 
+  if (!img) return;
 
   showImage(img);
 });
 
-function showImage(src) { 
+function showImage(src) {
   document.getElementById("imgShow").src = src;
   document.getElementById("overlayImg").style.display = "flex";
 }
 
 // Disipar el velo de la vision con la tecla de escape
-document.addEventListener("keydown", (e) => { 
+document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     document.getElementById("overlayImg").style.display = "none";
   }
@@ -452,7 +452,7 @@ document.getElementById("endGameBtn").onclick = async () => {
   } catch (error) {
     console.error("Error al convocar a la tripulacion activa:", error);
   }
-  
+
   finalizeMode = true;
   document.getElementById("finalizePanel").style.display = "block";
   renderPlayers();
@@ -513,11 +513,11 @@ document.getElementById("confirmRanking").onclick = async () => {
 
     querySnapshot.forEach(async (playerDoc) => {
       const playerData = playerDoc.data();
-      const docId = playerDoc.id; 
+      const docId = playerDoc.id;
 
       if (scores[playerData.name] !== undefined) {
         const puntosNuevos = scores[playerData.name];
-        const puntosActuales = playerData.score || 0; 
+        const puntosActuales = playerData.score || 0;
         const puntuacionTotal = puntosActuales + puntosNuevos;
 
         await updateDoc(doc(window.db, "players", docId), {
@@ -623,7 +623,7 @@ const gameRef = doc(window.db, "game", "songState");
 // 4. VARIABLES DE CONTROL DEL JUEGO Y CRONÓMETRO
 let listaCanciones = [];  // Array con todas las canciones de Firestore
 let indiceActual = 0;     // Posición de la canción actual
-let tiempoRestante = 10;  // Tiempo límite por canción
+let tiempoRestante = 120;  // Tiempo límite por canción
 let IDIntervalo = null;   // ID del temporizador
 let juegoTerminado = false; // Controla si el juego ha llegado al final
 
@@ -657,7 +657,7 @@ function pausarCronometro() {
 
 async function reiniciarCronometro() {
   pausarCronometro();
-  tiempoRestante = 10;
+  tiempoRestante = 120;
   segundosCronoTxt.textContent = tiempoRestante;
 
   try {
@@ -681,8 +681,27 @@ async function revelarRespuesta() {
   pausarCronometro();
 
   const cancionActual = listaCanciones[indiceActual];
+
   txtNombreCancion.textContent = cancionActual.nombreCancion || "Desconocido";
   txtAutor.textContent = cancionActual.autor || "Desconocido";
+
+  const imgOwner = document.getElementById("img-owner");
+
+  // 🔥 RESET SIEMPRE (IMPORTANTE)
+  imgOwner.style.display = "none";
+  imgOwner.src = "";
+
+  // 🔥 OWNER LIMPIO
+  const owner = (cancionActual.owner || "").trim();
+
+  if (owner === "I") {
+    imgOwner.src = "images/personajesIconos/InesGCircle.png";
+    imgOwner.style.display = "block";
+  }
+  else if (owner === "P") {
+    imgOwner.src = "images/personajesIconos/PabloCircle.png";
+    imgOwner.style.display = "block";
+  }
 
   contenedorRespuestasUsuarios.style.display = "none";
   btnVerRespuestas.style.display = "inline-block";
@@ -828,10 +847,14 @@ btnVerRespuestas.addEventListener('click', async () => {
 
 // 8. FUNCIÓN PARA CARGAR LA SIGUIENTE CANCIÓN LOCAL
 function cargarCancion(indice) {
+  const imgOwner = document.getElementById("img-owner");
   if (indice < listaCanciones.length) {
     pantallaRespuesta.style.display = "none";
     contenedorRespuestasUsuarios.style.display = "none";
     pantallaJuego.style.display = "block";
+
+    imgOwner.style.display = "none";
+    imgOwner.src = "";
 
     reproductor.src = listaCanciones[indice].url;
     barraProgreso.value = 0;
@@ -1011,7 +1034,7 @@ botonContinuar.addEventListener('click', async () => {
   }
 
   botonContinuar.disabled = false;
-  botonContinuar.textContent = "Siguiente Canción ➡️";
+  botonContinuar.textContent = "Siguiente melodía";
 
   indiceActual++;
   cargarCancion(indiceActual);
@@ -1069,8 +1092,8 @@ async function renderizarControlesYRanking() {
     const urlAvatar = p.img ? p.img : 'https://via.placeholder.com/40/e3dac9/8c6d31?text=H';
 
     // Iluminación divina clara: si está seleccionado, resalta con borde de oro brillante
-    const claseActiva = (id === jugadorSeleccionadoId) 
-      ? "background: #fff; border-color: #b89047; box-shadow: 0 0 12px rgba(184,144,71,0.4);" 
+    const claseActiva = (id === jugadorSeleccionadoId)
+      ? "background: #fff; border-color: #b89047; box-shadow: 0 0 12px rgba(184,144,71,0.4);"
       : "background: #fdfbf7; border-color: #dcd1c4;";
 
     // Renderizado del botón usando la etiqueta IMG en lugar del emoji antiguo
@@ -1104,7 +1127,7 @@ async function renderizarControlesYRanking() {
     listaClasificacion.forEach((jugador, index) => {
       const times = [];
       const esPrimero = index === 0 ? "background: #fdf7ec; border: 1px solid #b89047;" : "background: #fff; border: 1px solid #f4eae1;";
-      
+
       times.push(`R1: ${(typeof jugador.r1 === 'number' && jugador.r1 > 0) ? jugador.r1.toFixed(2) + 's' : '---'}`);
       times.push(`R2: ${(typeof jugador.r2 === 'number' && jugador.r2 > 0) ? jugador.r2.toFixed(2) + 's' : '---'}`);
 
@@ -1229,7 +1252,7 @@ window.finalizarJuegoVasos = async function () {
         });
       }
     }
-    
+
     setScreen("screenRanking");
     showScreenTV("screenRanking");
 
@@ -1241,7 +1264,7 @@ window.finalizarJuegoVasos = async function () {
 // ==========================================
 let jugadoresConRespuesta = [];
 // El número definitivo fijado por los dioses
-const VALOR_FIJO_LENTEJAS = 1037; 
+const VALOR_FIJO_LENTEJAS = 1037;
 
 export function iniciarTvIrrationalPrice() {
   // Escuchar jugadores activos para saber cuántos han respondido ya
@@ -1535,7 +1558,7 @@ window.finalizarYSumarVotos = async function () {
     fila.style.display = "flex";
     fila.style.alignItems = "center";
     fila.style.justifyContent = "space-between";
-    
+
     fila.innerHTML = `
       <div style="display: flex; align-items: center; gap: 12px;">
         <img src="${j.avatar}" style="width: 32px; height: 32px; border-radius: 50%; border: 1px solid #b89047; object-fit: cover;">
@@ -1571,12 +1594,12 @@ window.finalizarYSumarVotos = async function () {
 // ==========================================
 
 let rondaActualSymbol = 1;
-let tiempoRestanteSymbol = 60; 
+let tiempoRestanteSymbol = 60;
 let intervaloCronometroSymbol = null;
-let listaJugadoresSymbol = []; 
+let listaJugadoresSymbol = [];
 
 // MARCADOR LOCAL INTERNO
-let puntuacionJuegoSymbol = {}; 
+let puntuacionJuegoSymbol = {};
 
 function symbolZone() {
   console.log("🏛️ Iniciando El Oráculo de Delfos en la TV");
@@ -1724,7 +1747,7 @@ window.pointsSymbolZone = async function () {
   const contenedorLista = document.getElementById("tvListaJugadoresSymbol");
   if (contenedorLista) {
     contenedorLista.setAttribute("data-bloqueado", "true"); // Bloqueo temporal anti-snapshot
-    
+
     let tablaHtml = `
       <div style="width: 100%; background: #fdfbf7; padding: 15px; border-radius: 8px; border: 1px solid #b89047; box-sizing: border-box; grid-column: 1 / -1;">
         <h3 style="color: #8c6d31; margin-top: 0; text-align: center; font-size: 1.2rem; letter-spacing: 1px;"> CRÓNICA PROVISIONAL (Profecía ${rondaActualSymbol} / 5)</h3>
@@ -1763,7 +1786,7 @@ window.pointsSymbolZone = async function () {
 
     for (let index = 0; index < rankingJuego.length; index++) {
       const jugadorRanking = rankingJuego[index];
-      
+
       // Si empata en puntos con el jugador anterior, mantiene la misma posicionReal
       if (index > 0 && jugadorRanking.scoreJuego === rankingJuego[index - 1].scoreJuego) {
         // Mantiene empate
@@ -1776,7 +1799,7 @@ window.pointsSymbolZone = async function () {
       if (puntosGlobalesInyeccion > 0) {
         try {
           const playerRef = doc(window.db, "players", jugadorRanking.id);
-          
+
           // Traer la puntuación real acumulada del torneo en Firebase
           const snap = await getDocs(query(collection(window.db, "players")));
           let scoreTorneoActual = 0;
@@ -1794,13 +1817,13 @@ window.pointsSymbolZone = async function () {
         }
       }
     }
-    
+
   }
 };
 
 window.siguienteRondaSymbol = function () {
   if (rondaActualSymbol >= 5) {
- 
+
     return;
   }
 
@@ -1830,11 +1853,11 @@ function reiniciarRondaInterfaceSymbol() {
 // ==========================================
 // Juego 7º: El Cálculo de Láquesis (Cifras y Letras)
 // ==========================================
-let cifrasDeLaRonda = []; 
-let objetivoDeLaRonda = 0; 
-let jugadoresCifras = [];  
-let rondaActualCifras = 0;        
-let puntuacionJuegoCifras = {};  
+let cifrasDeLaRonda = [];
+let objetivoDeLaRonda = 0;
+let jugadoresCifras = [];
+let rondaActualCifras = 0;
+let puntuacionJuegoCifras = {};
 
 let tiempoRestanteCifras = 120; // 2 minutos exactos
 let intervaloCronometroCifras = null;
@@ -1906,13 +1929,13 @@ cifrasLetras();
 window.generarRetoCifras = async function () {
   const contenedor = document.getElementById("tvListaRespuestasCifras");
   if (contenedor) contenedor.removeAttribute("data-validado");
-  
+
   rondaActualCifras++;
   if (rondaActualCifras === 1 || rondaActualCifras > 5) {
     rondaActualCifras = 1;
-    puntuacionJuegoCifras = {}; 
+    puntuacionJuegoCifras = {};
     jugadoresCifras.forEach(j => {
-      puntuacionJuegoCifras[j.id] = 0; 
+      puntuacionJuegoCifras[j.id] = 0;
     });
   }
 
@@ -1980,7 +2003,7 @@ window.controlarTiempoCifras = function (accion) {
       elReloj.innerText = "00:00";
       elReloj.style.color = "#912b2b";
     }
-  
+
   }
 };
 
@@ -2081,9 +2104,9 @@ window.validarRespuestasCifras = async function () {
       const esExacto = j.distancia === 0;
 
       if (esExacto) {
-        puntosRondaLocal = 2; 
+        puntosRondaLocal = 2;
       } else if (!alguienAcertoExacto && j.distancia === menorDistanciaRonda) {
-        puntosRondaLocal = 1; 
+        puntosRondaLocal = 1;
       }
 
       puntuacionJuegoCifras[j.id] += puntosRondaLocal;
@@ -2174,7 +2197,7 @@ window.validarRespuestasCifras = async function () {
         }
       }
     }
-   
+
   }
 };
 
@@ -2182,11 +2205,11 @@ window.validarRespuestasCifras = async function () {
 // ==========================================
 // Juego: El Juicio de Epimeteo
 // ==========================================
-let listaSospechososRonda = [];   
-let todosLosActivosMentiroso = []; 
-let indiceVerdadero = -1;         
-let puntosLocalesMentiroso = {};  
-let rondaActualMentiroso = 0;     
+let listaSospechososRonda = [];
+let todosLosActivosMentiroso = [];
+let indiceVerdadero = -1;
+let puntosLocalesMentiroso = {};
+let rondaActualMentiroso = 0;
 
 window.loadVideosMentiroso = async function () {
   const cont = document.getElementById("tvMultimediaMentiroso");
@@ -2246,7 +2269,7 @@ window.loadVideosMentiroso();
 window.elegirSospechososAlAzar = async function () {
   try {
     rondaActualMentiroso++;
-    window.ocultarVerdadMentiroso(); 
+    window.ocultarVerdadMentiroso();
 
     const contenedor = document.getElementById("tvSospechososContenedor");
 
@@ -2355,7 +2378,7 @@ window.registrarVotoHaciaSospechoso = function (indiceSospechoso, selectElement)
   ficha.onclick = () => { ficha.remove(); };
 
   contenedorFichas.appendChild(ficha);
-  selectElement.value = ""; 
+  selectElement.value = "";
 };
 
 window.revelarVerdadMentiroso = function () {
@@ -2375,18 +2398,18 @@ window.revelarVerdadMentiroso = function () {
         card.style.borderColor = "#2e4225";
         card.style.background = "#f4f7f1";
       }
-      if (rolTexto) { 
-        rolTexto.innerText = "HONESTO"; 
-        rolTexto.style.color = "#2e4225"; 
+      if (rolTexto) {
+        rolTexto.innerText = "HONESTO";
+        rolTexto.style.color = "#2e4225";
       }
     } else {
       if (card) {
         card.style.borderColor = "#912b2b";
         card.style.opacity = "0.6";
       }
-      if (rolTexto) { 
-        rolTexto.innerText = "MENTIROSO"; 
-        rolTexto.style.color = "#912b2b"; 
+      if (rolTexto) {
+        rolTexto.innerText = "MENTIROSO";
+        rolTexto.style.color = "#912b2b";
       }
     }
   });
@@ -2410,9 +2433,9 @@ window.ocultarVerdadMentiroso = function () {
       card.style.background = "#fffdfa";
       card.style.opacity = "1";
     }
-    if (rolTexto) { 
-      rolTexto.innerText = "SOSPECHOSO"; 
-      rolTexto.style.color = "#8c6d31"; 
+    if (rolTexto) {
+      rolTexto.innerText = "SOSPECHOSO";
+      rolTexto.style.color = "#8c6d31";
     }
   });
 
@@ -2429,7 +2452,7 @@ window.validarVotosYAcertantesMentiroso = function () {
 
   const idGanadorVerdadero = listaSospechososRonda[indiceVerdadero].id;
 
-  let recuentoVotosPorSospechoso = {}; 
+  let recuentoVotosPorSospechoso = {};
   let totalVotosEnMentiras = 0;
   let totalVotosEnVerdad = 0;
   let desgloseAlert = "Escrutinio del Tribunal de Epimeteo:\n\n";
@@ -2632,18 +2655,16 @@ function abrirFullscreen() {
 }
 
 let videoStarted = false;
-
 videoFinal.addEventListener("play", () => {
   videoStarted = true;
 });
 
+/*
 videoFinal.addEventListener("ended", async () => {
-  if (!videoStarted) return; // 🔥 si no empezó, no hacer nada
-
   const ganador = await obtenerGanador();
 
   viewVideo.style.display = "none";
-  viewWinner.style.display = "flex";
+  viewWinner.style.display = "block";
 
   const img = document.getElementById("winnerImg");
   const texto = document.getElementById("textoGanador");
@@ -2651,6 +2672,7 @@ videoFinal.addEventListener("ended", async () => {
   img.src = ganador.img || "default.png";
   texto.innerHTML = ganador.name;
 });
+*/
 
 // Diccionario de reglas traducidas (Asegúrate de tener este elemento 'textoRegla' en tu HTML)
 const textosReglas = {

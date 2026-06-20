@@ -224,13 +224,21 @@
   <div id="pantalla-juego">
     <div id="screenGuessSong" style="display:none;">
       <div class="espaciador"></div>
+
+      <div style="text-align: center; margin-bottom: 25px; border-bottom: 2px double #b89047; padding-bottom: 15px;">
+        <h1 style="color: #8c6d31; margin: 0; font-size: 3rem; font-variant: small-caps; letter-spacing: 3px;">El canto
+          de Orfeo</h1>
+        <p style="color: #6e5d4f; font-size: 1.2rem; font-style: italic; margin-top: 5px;">Escucha el canto de Orfeo,
+          que abre las sombras. Antes de que el silencio lo devore, deja que su música te guíe.</p>
+      </div>
+
       <div id="contenedor-crono">
         Tiempo restante: <span id="segundos-crono">10</span>s
       </div>
 
-      <button id="btn-play">Empezar Juego</button>
+      <button id="btn-play">Iniciar el canto de Orfeo</button>
 
-      <button id="btn-siguiente" disabled>Revelar Respuesta</button>
+      <button id="btn-siguiente" disabled>El canto verdadero</button>
 
       <div style="margin-top: 15px; display: none; ">
         <span id="tiempo-actual">0:00</span>
@@ -242,7 +250,7 @@
 
   <div id="pantalla-respuesta">
 
-    <h2>¡Respuesta Correcta!</h2>
+    <h2>El canto ha sido revelado</h2>
 
     <p>
       <strong>Canción:</strong>
@@ -254,16 +262,18 @@
       <span id="txt-autor">-</span>
     </p>
 
+    <img id="img-owner" style="width:120px; margin-top:10px; display:none;" />
+
     <button id="btn-ver-respuestas">
-      Ver qué ha respondido la gente
+      Qué habrán dicho los dioses...
     </button>
 
     <div id="contenedor-respuestas-usuarios">
-      <h3>Respuestas de los jugadores:</h3>
+      <h3>Respuestas de los dioses:</h3>
       <ul id="lista-respuestas-jugadores"></ul>
 
       <button id="btn-continuar">
-        Siguiente Canción
+        Siguiente melodía
       </button>
     </div>
 
@@ -537,13 +547,13 @@
         <!-- Mandos del Reloj de Arena -->
         <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 20px;">
           <button onclick="controlarTiempoSymbol('iniciar')"
-            style="font-family: inherit; background: #fff; color: #4e6c1e; border: 2px solid #6d8c31; padding: 10px 15px; font-weight: bold; border-radius: 6px; cursor: pointer; flex: 1;">▶️
+            style="font-family: inherit; background: #fff; color: #4e6c1e; border: 2px solid #6d8c31; padding: 10px 15px; font-weight: bold; border-radius: 6px; cursor: pointer; flex: 1;">▶
             Iniciar</button>
           <button onclick="controlarTiempoSymbol('pausar')"
-            style="font-family: inherit; background: #fff; color: #aa7c11; border: 2px solid #b89047; padding: 10px 15px; font-weight: bold; border-radius: 6px; cursor: pointer; flex: 1;">⏸️
+            style="font-family: inherit; background: #fff; color: #aa7c11; border: 2px solid #b89047; padding: 10px 15px; font-weight: bold; border-radius: 6px; cursor: pointer; flex: 1;">⏸
             Pausar</button>
           <button onclick="controlarTiempoSymbol('acabar')"
-            style="font-family: inherit; background: #fff; color: #9e2a2b; border: 2px solid #9e2a2b; padding: 10px 15px; font-weight: bold; border-radius: 6px; cursor: pointer; flex: 1;">⏹️
+            style="font-family: inherit; background: #fff; color: #9e2a2b; border: 2px solid #9e2a2b; padding: 10px 15px; font-weight: bold; border-radius: 6px; cursor: pointer; flex: 1;">⏹
             Consumar</button>
         </div>
 

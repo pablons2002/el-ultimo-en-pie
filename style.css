@@ -878,7 +878,7 @@ button {
 
 #btn-play,
 #btn-siguiente {
-  width: 80%;      /* 🔥 antes 100% */
+  width: 20%;      /* 🔥 antes 100% */
   margin: 10px auto;
   display: block;
 
@@ -908,26 +908,6 @@ button {
 }
 
 
-#screenGuessSong {
-  background-image: url('assets/wallpaper/musica.png');
-
-  /* 2. EVITA QUE SE DUPLIQUE */
-  background-repeat: no-repeat;
-
-  /* 3. Centra la imagen perfectamente */
-  background-position: center center;
-
-  /* 4. Hace que la imagen cubra todo el fondo del móvil sin deformarse */
-  background-size: cover;
-
-  /* 5. Deja el fondo fijo */
-  background-attachment: fixed;
-
-  /* 🔥 EXTRA PARA MÓVIL: Fuerza a que el contenedor ocupe el 100% del alto de la pantalla */
-  min-height: 100vh;
-  width: 100%;
-  box-sizing: border-box;
-}
 
 #pantalla-respuesta {
   display: none;
@@ -968,6 +948,12 @@ button {
 #txt-autor {
   color: #3e3220;
   font-weight: bold;
+}
+
+#img-owner {
+  display: block;
+  margin: 15px auto 0 auto;
+  width: 120px;
 }
 
 #btn-ver-respuestas {
