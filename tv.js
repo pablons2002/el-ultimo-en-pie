@@ -191,7 +191,7 @@ window.inicializarRuletaJuegos = function () {
   constGames.forEach((game, i) => {
     const anguloInicio = i * angularArco;
     const anguloFin = anguloInicio + angularArco;
-    const gameTitle = ["Ulises", "Orfeo", "Dédalo","Moiras","Veredicto","Delfos","Láquesis","Epimeteo","Teorema"];
+    const gameTitle = ["Ulises", "Orfeo", "Dédalo", "Moiras", "Veredicto", "Delfos", "Láquesis", "Epimeteo", "Teorema"];
 
     // Pintar trozo de tarta
     ctx.beginPath();
@@ -269,7 +269,16 @@ document.getElementById("spinBtn").onclick = async () => {
 
   // 4. AL TERMINAR EL GIRO (Esperamos los 4.5 segundos de la animación)
   await new Promise(resolve => setTimeout(resolve, 4500));
-  txtResultado.innerHTML = `Destino dictado: <span style="color:#bd5332; font-weight:900;">${gameSelected}</span>`;
+  const jj = constGames.indexOf(gameSelected);
+  const juegos = ["El viaje de Ulises",
+    "El canto de Orfeo",
+    "La torre de Dédalo",
+    "El conteo de las moiras",
+    "Veredicto de los dioses",
+    "El oráculo de Delfos",
+    "El cálculo de Laquesis",
+    "El Juicio de Epimeteo"];
+  txtResultado.innerHTML = `Destino dictado: <span style="color:#bd5332; font-weight:900;">${juegos[jj]}</span>`;
   // Hacer aparecer de forma triunfal el botón de Jugar
   btnJugar.style.display = "block";
 
@@ -965,7 +974,7 @@ btnVerRespuestas.addEventListener('click', async () => {
         contenedorTexto.style.display = "flex";
         contenedorTexto.style.alignItems = "center";
         contenedorTexto.style.gap = "8px";
-        
+
         contenedorTexto.innerHTML = `
           <img src="${fotoJugador}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover;" alt="Avatar">
           <span>
@@ -1228,13 +1237,13 @@ botonContinuar.addEventListener('click', async () => {
       });
     }
     console.log("✅ Respuestas limpias para la nueva ronda.");
-      try {
-        // Forzar notificación a clientes móviles para que refresquen UI
-        await updateDoc(gameRef, { state: true, lastReset: Date.now() });
-        console.log('🔁 Notificación de reinicio enviada (game.songState.lastReset actualizado).');
-      } catch (notifyErr) {
-        console.error('❌ No se pudo notificar el reinicio a game.songState:', notifyErr);
-      }
+    try {
+      // Forzar notificación a clientes móviles para que refresquen UI
+      await updateDoc(gameRef, { state: true, lastReset: Date.now() });
+      console.log('🔁 Notificación de reinicio enviada (game.songState.lastReset actualizado).');
+    } catch (notifyErr) {
+      console.error('❌ No se pudo notificar el reinicio a game.songState:', notifyErr);
+    }
   } catch (e) {
     console.error("Error al limpiar respuestas en Firestore:", e);
   }
@@ -3321,7 +3330,7 @@ async function resetGame() {
         lentejasGuess: null,
         cifrasFormula: null,
         votoEnviado: null,
-        tenbin: {currentNumber: null, hasAnswered: false, isAlive: true, score: 0}
+        tenbin: { currentNumber: null, hasAnswered: false, isAlive: true, score: 0 }
       };
 
       if (playerData.attemptsSong !== undefined) {
