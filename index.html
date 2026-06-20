@@ -141,19 +141,51 @@
   </div>
 
   <!-- Juego 1º WorldGuessr -->
-  <div id="screenWorldGuessr" style="display: none;">
-    <iframe src="https://www.worldguessr.com" width="600" height="400"></iframe>
-    <div id="overlayImg" style="display:none;">
-      <img id="imgShow">
-    </div>
-    <button id="endGameBtn">Finalizar partida</button>
-    <div id="finalizePanel">
-      <h3>Finalizar partida</h3>
-      <div id="playersContainer"></div>
+ <!-- El Viaje de Ulises -->
+<div id="screenWorldGuessr" class="screen"
+  style="background: #fbf9f3; color: #2c251e; padding: 30px; font-family: 'Georgia', 'Times New Roman', serif; display: none; border: 6px double #b89047; box-shadow: inset 0 0 30px rgba(184,144,71,0.15);">
 
-      <button id="confirmRanking">Confirmar ranking</button>
+  <div style="text-align: center; margin-bottom: 25px; border-bottom: 2px double #b89047; padding-bottom: 15px;">
+    <h1 style="color: #8c6d31; margin: 0; font-size: 3rem; font-variant: small-caps; letter-spacing: 3px;">El Viaje de Ulises</h1>
+    <p style="color: #6e5d4f; font-size: 1.2rem; font-style: italic; margin-top: 5px;">Navega por las brumas del ancho mar. Reconoce los reinos ignotos antes de que los vientos de Eolo desvien tu rumbo.</p>
+  </div>
+
+  <!-- Espejo del Oráculo (Iframe del Mapa) -->
+  <div style="display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%;">
+    <div style="width: 100%; max-width: 1400px; height: calc(100vh - 290px); border: 4px solid #b89047; box-shadow: 0 8px 20px rgba(0,0,0,0.15); background: #000;">
+      <iframe src="https://www.worldguessr.com" width="100%" height="100%" style="border: none; display: block;"></iframe>
+    </div>
+
+    <!-- Velo de Visiones (Overlay de imágenes por teclas) -->
+    <div id="overlayImg" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(20,16,12,0.85); z-index: 9999; justify-content: center; align-items: center; transition: all 0.3s;">
+      <div style="border: 5px solid #b89047; background: #fbf9f3; padding: 10px; box-shadow: 0 0 40px rgba(184,144,71,0.4); max-width: 85%; max-height: 85%;">
+        <img id="imgShow" style="max-width: 100%; max-height: 75vh; display: block; border: 1px solid #b89047;">
+        <p style="text-align: center; color: #8c6d31; font-variant: small-caps; margin: 8px 0 0 0; font-size: 0.9rem; letter-spacing: 1px;">Pulsa la tecla Escape para regresar a la travesia</p>
+      </div>
+    </div>
+
+    <button id="endGameBtn" 
+      style="background: linear-gradient(135deg, #b89047, #967333); color: white; border: 1px solid #7a5c26; padding: 12px 35px; font-weight: bold; font-family: inherit; font-size: 1.1rem; cursor: pointer; font-variant: small-caps; letter-spacing: 1px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+      Anclar Naves y Evaluar la Ruta
+    </button>
+  </div>
+
+  <!-- Altar de Escrutinio (Panel de Finalización) -->
+  <div id="finalizePanel" style="display: none; margin-top: 30px; background: #fffdfa; padding: 25px; border: 2px solid #b89047; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+    <h3 style="color: #8c6d31; margin: 0 0 15px 0; text-align: center; font-variant: small-caps; font-size: 1.6rem; letter-spacing: 1px; border-bottom: 1px double #e3dac9; padding-bottom: 10px;">Orden de Arribo a Itaca</h3>
+    <p style="color: #6e5d4f; font-size: 0.95rem; font-style: italic; text-align: center; margin-bottom: 20px;">Selecciona a los navegantes en el orden exacto en que descifraron las coordenadas del mundo.</p>
+    
+    <!-- Contenedor de Tripulantes -->
+    <div id="playersContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px;"></div>
+
+    <div style="text-align: center;">
+      <button id="confirmRanking" 
+        style="background: #2e4225; color: white; border: none; padding: 12px 40px; font-family: inherit; font-weight: bold; font-size: 1.1rem; cursor: pointer; font-variant: small-caps; letter-spacing: 1px;">
+        Consagrar Ofrendas de Viaje
+      </button>
     </div>
   </div>
+</div>
 
   <!--Pantalla Ranking-->
   <div id="screenRanking" style="display:none;">

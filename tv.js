@@ -339,10 +339,44 @@ window.aplicarAjusteManualFirebase = async function (boton) {
     boton.innerText = "⚙️ Aplicar";
   }
 };
+// ==========================================
+// Juego: El Viaje de Ulises (WorldGuessr)
+// ==========================================
 
-// =====================
-// Juego WorldGuessr, que aparezca la imagen por cada tecla pulsada.
-// =====================
+// Estructura de estilos inyectados para las tarjetas de tripulantes
+const styleMitologia = document.createElement('style');
+styleMitologia.innerHTML = `
+  .player {
+    background: #fffdfa;
+    border: 2px solid #e3dac9;
+    padding: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .player:hover {
+    border-color: #b89047;
+    background: #fdfcf7;
+  }
+  .player.selected {
+    border-color: #8c6d31;
+    background: #faf4e8;
+    box-shadow: inset 0 0 10px rgba(140,109,49,0.1);
+  }
+  .player .pos {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #8c6d31;
+    font-variant: small-caps;
+    min-height: 20px;
+  }
+`;
+document.head.appendChild(styleMitologia);
+
 const imagenesPorTecla = {
   "a": "images/fotosGeoguessr/A-Alghero.jpg",
   "c": "images/fotosGeoguessr/C-Cercedilla.jpg",
@@ -360,102 +394,91 @@ const imagenesPorTecla = {
   "z": "images/fotosGeoguessr/Z-Azores.jpg"
 };
 
-document.addEventListener("keydown", (e) => { // enseña las imágenes pulsando teclas
-  console.log("estoy aquí")
-  console.log(currentGame)
+// Revelar visiones del mapa pulsando las llaves del destino (teclas)
+document.addEventListener("keydown", (e) => {
+  console.log("Invocando visiones del mapa antiguo");
+  console.log(currentGame);
   if (currentGame !== "WorldGuessr") return;
+  
   const key = e.key.toLowerCase();
-
   const img = imagenesPorTecla[key];
-  console.log(img)
+  console.log(img);
 
-  if (!img) return; // si no existe esa tecla, ignorar
+  if (!img) return; 
 
   showImage(img);
-
 });
-function showImage(src) { // función para mostrar la imagen en pantalla, con un overlay
+
+function showImage(src) { 
   document.getElementById("imgShow").src = src;
   document.getElementById("overlayImg").style.display = "flex";
 }
-document.addEventListener("keydown", (e) => { // cerrar la imagen al pulsar Escape
+
+// Disipar el velo de la vision con la tecla de escape
+document.addEventListener("keydown", (e) => { 
   if (e.key === "Escape") {
     document.getElementById("overlayImg").style.display = "none";
   }
 });
 
-// =====================
-// Suma de puntos 1º WorldGuessr
-// =====================
 let finalizeMode = false;
 let players = [];
 let selectedRanking = [];
 
-// =====================
-// Botón de terminar el juego para pasar a sumar los puntos
-// =====================
-
+// Desplegar las actas del tribunal marino al finalizar la travesia
 document.getElementById("endGameBtn").onclick = async () => {
-  // mostrar panel
   try {
     const q = query(collection(window.db, "players"), where("active", "==", true));
     const querySnapshot = await getDocs(q);
 
-    // Limpiamos el array y metemos los nombres reales de la base de datos
     players = [];
     querySnapshot.forEach((docSnap) => {
       const playerData = docSnap.data();
-      // Usamos el campo "name" del documento (o el id del documento si no tuvieras campo name)
       if (playerData.name) {
         players.push({
           name: playerData.name,
           img: playerData.img
-        })
+        });
       }
     });
 
-    console.log("👥 Jugadores activos recuperados de Firebase:", players);
+    console.log("Tripulantes activos convocados desde el Olimpo:", players);
 
     if (players.length === 0) {
-      alert("⚠️ No hay ningún jugador activo (active: true) en Firebase ahora mismo.");
+      alert("No se han hallado navegantes activos en las bitacoras de destino.");
     }
 
   } catch (error) {
-    console.error("❌ Error al recuperar jugadores activos:", error);
+    console.error("Error al convocar a la tripulacion activa:", error);
   }
+  
   finalizeMode = true;
   document.getElementById("finalizePanel").style.display = "block";
-  // render jugadores
   renderPlayers();
 };
 
-// ====================
-// Renderizar players con foto
-// ====================
 function renderPlayers() {
-
   const container = document.getElementById("playersContainer");
   container.innerHTML = "";
 
   players.forEach(p => {
-
     const position = selectedRanking.indexOf(p.name);
 
     container.innerHTML += `
-            <div class="player ${position !== -1 ? "selected" : ""}" data-player="${p.name}">
-                <div class="avatar"><img src="${p.img}" alt="${p.name}" style="width: 10%; height: 10%; object-fit: cover; border-radius: 50%;"></div>
-                <div>${p.name}</div>
-                <div class="pos">
-                    ${position !== -1 ? position + 1 : ""}
-                </div>
-
-            </div>
-        `;
+      <div class="player ${position !== -1 ? "selected" : ""}" data-player="${p.name}">
+        <div class="avatar">
+          <img src="${p.img}" alt="${p.name}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%; border: 2px solid #b89047;">
+        </div>
+        <div style="font-weight: bold; font-size: 0.95rem; color: #2c251e;">${p.name}</div>
+        <div class="pos">
+          ${position !== -1 ? "Puerto " + (position + 1) : ""}
+        </div>
+      </div>
+    `;
   });
 
   addClickEvents();
 }
-
 
 function addClickEvents() {
   document.querySelectorAll(".player").forEach(el => {
@@ -465,10 +488,8 @@ function addClickEvents() {
       const index = selectedRanking.indexOf(name);
 
       if (index === -1) {
-        // añadir al ranking
         selectedRanking.push(name);
       } else {
-        // quitar del ranking
         selectedRanking.splice(index, 1);
       }
 
@@ -477,66 +498,55 @@ function addClickEvents() {
   });
 }
 
-// ========================
-// Botón de confirmar ranking y sumar puntuaciones
-// ========================
+// Confirmar el orden de llegada y otorgar los favores de los Dioses
 document.getElementById("confirmRanking").onclick = async () => {
-
   const pointsTable = [10, 8, 6, 5, 4, 3, 2, 1];
   const scores = {};
 
   selectedRanking.forEach((player, index) => {
     scores[player] = pointsTable[index] || 0;
   });
+
   try {
     const querySnapshot = await getDocs(collection(window.db, "players"));
 
-    // Recorremos los documentos que hay en Firebase (p1, p2, p3...)
     querySnapshot.forEach(async (playerDoc) => {
       const playerData = playerDoc.data();
-      const docId = playerDoc.id; // Aquí saca el "p1", "p2", etc.
+      const docId = playerDoc.id; 
 
-      // Si el nombre de este documento está en nuestro ranking de la ronda...
       if (scores[playerData.name] !== undefined) {
         const puntosNuevos = scores[playerData.name];
-        const puntosActuales = playerData.score || 0; // Si no tiene score, empieza en 0
+        const puntosActuales = playerData.score || 0; 
         const puntuacionTotal = puntosActuales + puntosNuevos;
 
-        // Actualizamos SU documento exacto (por ejemplo "players/p1") con el nuevo total
         await updateDoc(doc(window.db, "players", docId), {
           score: puntuacionTotal
         });
 
-        console.log(`✨ ¡Puntos sumados a ${playerData.name} en ${docId}! (${puntosActuales} + ${puntosNuevos} = ${puntuacionTotal})`);
+        console.log(`Las mercedes ascienden para ${playerData.name} en la urna ${docId}. (Previo: ${puntosActuales} + Otorgado: ${puntosNuevos} = Total: ${puntuacionTotal})`);
       }
     });
   } catch (error) {
-    console.error("❌ Error al actualizar los scores en la colección players:", error);
+    console.error("Error al inmortalizar las puntuaciones en el Panteon:", error);
   }
 
-  // Cambiamos el estado de la pantalla para la TV
-  setScreen("screenRanking",)
-  showScreenTV("screenRanking")
+  setScreen("screenRanking");
+  showScreenTV("screenRanking");
 };
 
-// =========================================================================
-// RANKING EN TIEMPO REAL: JUGADORES ACTIVOS FILTRADOS EN JAVASCRIPT
-// =========================================================================
 function listenToRankingAndScore() {
   const tablaContenedor = document.getElementById("listaRankingActivos");
 
-  // Si la tabla no existe en el HTML todavía, esperamos un poco y reintentamos
   if (!tablaContenedor) {
     setTimeout(listenToRankingAndScore, 50);
     return;
   }
 
-  // Si Firebase aún no ha cargado en window.db, esperamos un poco y reintentamos
   if (!window.db) {
     setTimeout(listenToRankingAndScore, 50);
     return;
   }
-  console.log("¡Conectando con Firebase para el ranking activo!");
+  console.log("Sincronizando el Oraculo del Ranking en tiempo real");
 
   const q = query(
     collection(window.db, "players"),
@@ -554,9 +564,9 @@ function listenToRankingAndScore() {
       const fila = document.createElement("tr");
 
       fila.innerHTML = `
-        <td>#${posicion}</td>
-        <td>${jugador.name || "Sin nombre"}</td>
-        <td>${jugador.score ?? 0} pts</td>
+        <td>Escala #${posicion}</td>
+        <td style="font-weight: bold; font-variant: small-caps;">${jugador.name || "Navegante Anonimo"}</td>
+        <td style="color: #8c6d31; font-weight: bold;">${jugador.score ?? 0} mercedes</td>
       `;
 
       tablaContenedor.appendChild(fila);
@@ -564,34 +574,25 @@ function listenToRankingAndScore() {
     });
   });
 }
-// LLAMADA DIRECTA AL FINAL DEL ARCHIVO:
+
 listenToRankingAndScore();
 
-// =========================
-// Botón desde Ranking para pasar a la ruleta del siguiente juego
-// =========================
 document.getElementById("nextGameBtn").onclick = async () => {
-  // 1. Buscamos en qué posición de la lista está el juego actual
   console.log(currentGame);
   let currentIndex = games.indexOf(currentGame);
   let nextGame = null;
 
-  // 2. Calculamos cuál es el siguiente
   if (currentIndex !== -1 && currentIndex < games.length - 1) {
-    // Si encuentra el juego y no es el último, pasa al siguiente de la lista
     nextGame = games[currentIndex + 1];
   } else {
-    // Si no encuentra el juego actual o ya era el último, vuelve al primero
     nextGame = games[0];
   }
 
-  console.log(`⏩ Avanzando de ${currentGame} al siguiente juego: ${nextGame}`);
+  console.log(`Girando el timon desde ${currentGame} hacia los nuevos rumbos de: ${nextGame}`);
 
-  // 3. Mandamos a la TV a la pantalla de la Ruleta y configuramos el nuevo juego en Firebase
   await setScreen("screenRoulette", nextGame);
-  showScreenTV("screenRoulette")
+  showScreenTV("screenRoulette");
 };
-
 
 // ========================
 // 2º Juego GuessSong
