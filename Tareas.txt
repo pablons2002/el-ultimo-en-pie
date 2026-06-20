@@ -88,12 +88,12 @@ Meter showRaning
 
 
 El fondo se corta
-Número 1/15 en dos líneas
+✔️Número 1/15 en dos líneas
 Ruleta sale tirada anterior
-10s Al principio de GuessSong
+✔️10s Al principio de GuessSong
 En guessSong pponer personas iconos en la ras respuestas y SongScore
 No se actualiza en móvil el oyente para enviar otra respuesta.
-Give it up to me no funciona
+✔️Give it up to me no funciona
 Se queda veredicto enviado para la siguiente
 
 Que se vea todo en una en la de las lentejas y en la anterior

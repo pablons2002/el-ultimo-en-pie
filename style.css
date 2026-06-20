@@ -1073,3 +1073,58 @@ button {
   position: relative;
   overflow: hidden;
 }
+
+
+body {
+  /* Indica que el fondo usará una imagen */
+  background-image: url('tu-imagen-de-fondo.jpg'); 
+
+  /* Evita que la imagen se repita si es más pequeña que la pantalla */
+  background-repeat: no-repeat; 
+
+  /* 🔥 CLAVE 1: Hace que la imagen se estire para cubrir todo sin deformarse */
+  background-size: cover; 
+
+  /* Centra la imagen para que el reajuste se haga desde el medio */
+  background-position: center; 
+
+  /* 🔥 CLAVE 2: Fija el fondo para que no se mueva al hacer scroll */
+  background-attachment: fixed; 
+
+  /* Asegura que el cuerpo ocupe al menos toda la altura del navegador */
+  min-height: 100vh; 
+  margin: 0;
+}
+
+/* Botón estilo Oro del Olimpo */
+.boton-mitologico {
+  background: linear-gradient(135deg, #b8860b, #ffd700, #aa7c11);
+  color: #1a120b;
+  font-family: 'Cinzel', 'Times New Roman', serif;
+  font-size: 1.1rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  padding: 12px 28px;
+  border: 2px solid #ffd700;
+  border-radius: 4px;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.4), inset 0 0 8px rgba(26, 18, 11, 0.6);
+  cursor: pointer;
+  text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.5);
+  transition: all 0.3s ease-in-out;
+}
+
+/* Efecto al pasar el ratón (Resplandor Divino) */
+.boton-mitologico:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 25px rgba(255, 215, 0, 0.8), inset 0 0 5px rgba(255, 255, 255, 0.4);
+  color: #ffffff;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+  background: linear-gradient(135deg, #ffd700, #fff7c2, #b8860b);
+}
+
+/* Efecto al hacer clic (Presión del Destino) */
+.boton-mitologico:active {
+  transform: scale(0.98);
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
