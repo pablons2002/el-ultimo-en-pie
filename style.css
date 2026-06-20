@@ -1,3 +1,4 @@
+/* ===== CONFIGURACIÓN GLOBAL Y FUENTES ===== */
 * {
   font-family: 'Cinzel Decorative', serif !important;
 }
@@ -6,6 +7,7 @@ html, body {
   width: 100%;
   height: 100%;
   margin: 0;
+  padding: 0;
 }
 
 body {
@@ -17,56 +19,62 @@ body {
 }
 
 body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  background-color: #d1bf9d; /* Beige místico por defecto */
+  color: #3c3228;            /* Marrón oscuro para los textos */
   font-family: 'Cinzel Decorative', serif;
   text-align: center;
-  padding: 0;
   min-height: 100vh;
 }
 
+/* Las pantallas por defecto son transparentes para heredar el beige, 
+   pero permiten que fondos específicos (como #screenSelect) lo pisen */
+.screen {
+  background-color: transparent;
+}
 
+/* ===== BOTÓN AUTODESTRUCCIÓN ===== */
 #selfDestruct {
   background: linear-gradient(135deg, #2b0000 0%, #000000 100%);
   color: #ff3b3b;
-
   font-family: 'Cinzel Decorative', serif;
   font-size: clamp(0.8rem, 1vw, 1rem);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 2px;
-
   padding: clamp(8px, 0.8vw, 12px) clamp(18px, 2vw, 28px);
-
   border: 2px solid #8b0000;
   border-radius: 4px;
-
   cursor: pointer;
   outline: none;
   position: relative;
   overflow: hidden;
-
   box-shadow:
     0 0 0 3px #1a0000,
     0 0 18px rgba(255, 0, 0, 0.25),
     inset 0 0 12px rgba(255, 0, 0, 0.1);
-
   transition: all 0.25s ease-in-out;
 }
 
 #selfDestruct:hover {
   background: linear-gradient(135deg, #8b0000 0%, #2b0000 100%);
   color: #ffffff;
-
   box-shadow:
     0 0 0 3px #8b0000,
     0 0 25px rgba(255, 0, 0, 0.7);
-
   transform: translateY(-2px) scale(1.02);
 }
 
 #selfDestruct:active {
   transform: translateY(1px) scale(0.98);
-  box-shadow:
-    0 0 10px rgba(255, 0, 0, 0.4);
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.4);
 }
 
 #selfDestruct::before,
@@ -82,7 +90,7 @@ body {
 #selfDestruct::before { top: 6px; }
 #selfDestruct::after { bottom: 6px; }
 
-
+/* ===== NAVEGACIÓN RÁPIDA ===== */
 .quick-nav {
   display: flex;
   align-items: center;
@@ -91,36 +99,26 @@ body {
 
 #selectorJuegosRapidos {
   font-family: 'Cinzel Decorative', serif;
-
   font-size: 0.95rem;
   padding: 8px 34px 8px 12px;
-
-  color: #e8e4d8; /* mármol claro legible */
-  background: linear-gradient(135deg, rgb(44, 34, 26), rgb(32, 24, 18)); /* tierra oscura */
-
-  border: 2px solid #d4af37; /* dorado sagrado */
+  color: #e8e4d8; 
+  background: linear-gradient(135deg, rgb(44, 34, 26), rgb(32, 24, 18)); 
+  border: 2px solid #d4af37; 
   border-radius: 6px;
-
   cursor: pointer;
-
   box-shadow:
     0 0 0 3px rgba(245, 247, 250, 0.08),
     0 6px 18px rgba(0, 0, 0, 0.35);
-
   outline: none;
-
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
-
   background-image:
     linear-gradient(45deg, transparent 50%, #d4af37 50%),
     linear-gradient(135deg, #d4af37 50%, transparent 50%);
-
   background-position:
     calc(100% - 18px) center,
     calc(100% - 13px) center;
-
   background-size: 5px 5px, 5px 5px;
   background-repeat: no-repeat;
 }
@@ -128,17 +126,14 @@ body {
 #selectorJuegosRapidos:hover {
   background: linear-gradient(135deg, rgb(74, 56, 40), rgb(44, 34, 26));
   border-color: #f5f0e6;
-
   box-shadow:
     0 0 0 3px rgba(245, 247, 250, 0.1),
     0 0 18px rgba(212, 175, 55, 0.35);
-
   transform: translateY(-1px);
 }
 
 #selectorJuegosRapidos:focus {
   outline: none;
-
   box-shadow:
     0 0 0 3px rgba(245, 247, 250, 0.15),
     0 0 22px rgba(212, 175, 55, 0.6);
@@ -149,10 +144,7 @@ body {
   color: #f5f0e6;
 }
 
-
-
-
-/* ===== CONTENEDOR PRINCIPAL ===== */
+/* ===== DETALLES MITOLÓGICOS (PANEL) ===== */
 .myth-details {
   margin-top: 15px;
   padding: 10px 0;
@@ -161,55 +153,42 @@ body {
   font-family: 'Cinzel Decorative', serif;
 }
 
-/* ===== TÍTULO (SUMARIO) ===== */
 .myth-details summary {
   cursor: pointer;
   user-select: none;
-
   font-weight: 700;
   font-size: 1rem;
   text-align: center;
   letter-spacing: 2px;
-
-  color: #d4af37; /* dorado sagrado */
-
+  color: #d4af37;
   text-shadow:
     0 2px 10px rgba(0, 0, 0, 0.8),
     0 0 10px rgba(212, 175, 55, 0.4);
-
   list-style: none;
 }
 
-/* quitar flecha nativa */
 .myth-details summary::-webkit-details-marker {
   display: none;
 }
 
-/* ===== PANEL ===== */
 .myth-panel {
   margin-top: 12px;
   padding: 12px;
-
   background: linear-gradient(135deg, #f5f0e6 0%, #e8e4d8 100%);
   border: 2px solid #d4af37;
   border-radius: 10px;
-
   box-shadow:
     0 0 0 4px rgba(245, 247, 250, 0.8),
     0 8px 20px rgba(0, 0, 0, 0.3);
-
   color: #3b2f1a;
 }
 
-/* ===== FILA SUPERIOR ===== */
 .myth-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-
   font-size: 0.85rem;
   color: #5a4630;
-
   margin-bottom: 10px;
 }
 
@@ -217,28 +196,21 @@ body {
   background: transparent;
   border: 1px solid #d4af37;
   color: #8c6d31;
-
   border-radius: 4px;
   cursor: pointer;
-
   padding: 2px 6px;
 }
 
-/* ===== SELECT ===== */
 .myth-panel select {
   width: 100%;
   padding: 8px;
-
   border: 2px solid #d4af37;
   border-radius: 6px;
-
   background: #fffaf0;
   color: #3b2f1a;
-
   font-family: inherit;
 }
 
-/* ===== INPUT + BOTÓN ===== */
 .myth-actions {
   display: flex;
   gap: 8px;
@@ -248,28 +220,21 @@ body {
 .myth-actions input {
   width: 50%;
   padding: 8px;
-
   border: 2px solid #d4af37;
   border-radius: 6px;
-
   background: #fffaf0;
   color: #3b2f1a;
-
   text-align: center;
 }
 
 .myth-actions button {
   width: 50%;
-
   background: linear-gradient(135deg, #d4af37, #aa7c11);
   color: #fff;
-
   border: none;
   border-radius: 6px;
-
   font-weight: bold;
   cursor: pointer;
-
   box-shadow: 0 0 12px rgba(212, 175, 55, 0.4);
   transition: 0.2s;
 }
@@ -279,9 +244,7 @@ body {
   box-shadow: 0 0 18px rgba(212, 175, 55, 0.7);
 }
 
-
-
-
+/* ===== PANTALLA INTRO ===== */
 #screenIntro {
   text-align: center;
   padding: 30px 20px;
@@ -289,83 +252,74 @@ body {
   width: 100%;
 }
 
-/* El texto principal "El último en" (Estilo mármol/piedra tallada) */
 #screenIntro h1 {
   font-family: 'Cinzel Decorative', serif;
-  font-size: clamp(2rem, 5vw, 4rem); /* Tamaño imponente y majestuoso */
-  color: #ffd700;    /* Blanco puro */
+  font-size: clamp(2rem, 5vw, 4rem); 
+  color: #ffd700;    
   text-transform: uppercase;
   letter-spacing: 3px;
   margin: 0;
   font-weight: 700;
-  
-  /* Combinación de sombras para que las letras floten y se lean sobre cualquier fondo */
   text-shadow: 
     0 3px 6px rgba(0, 0, 0, 0.9), 
     0 6px 15px rgba(0, 0, 0, 0.7),
     0 0 20px rgba(0, 0, 0, 0.4);
 }
 
-/* El símbolo "πε" (Estilo oro divino del Olimpo) */
 #screenIntro h1 span {
   font-family: 'Cinzel Decorative', serif;
-  color: #ffd700;          /* Oro brillante */
-  text-transform: none;    /* ¡CLAVE! Evita que la 'ε' se convierta en una 'E' mayúscula */
-  font-size: 1.25em;       /* Le da mayor protagonismo visual */
+  color: #ffd700;          
+  text-transform: none;    
+  font-size: 1.25em;       
   font-weight: 900;
   display: inline-block;
-  padding-left: 5px;       /* Un pequeño espacio de separación */
-  
-  /* Resplandor dorado místico */
+  padding-left: 5px;       
   text-shadow: 
     0 3px 6px rgba(0, 0, 0, 0.9), 
     0 6px 15px rgba(0, 0, 0, 0.7),
     0 0 20px rgba(0, 0, 0, 0.4);
 }
 
-
-/* Eliminamos el fondo, bordes y cajas. Ahora el contenido flota libre */
+/* ===== PANTALLA REGISTRO (JOIN) ===== */
 #screenJoin {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
   padding: 20px;
   max-width: 600px;
   margin: 0 auto;
 }
 
-/* QR más pequeño */
 #qrcode {
   background: #ffffff;
   padding: 8px;
-  display: inline-block;
+  display: inline-flex;
+  justify-content: center;
+  margin: 0 auto;
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
-  margin-bottom: 15px;
 }
 
-/* Tamaño real del QR */
 #qrcode img,
 #qrcode canvas {
   width: 150px !important;
   height: 150px !important;
 }
 
-/* Texto grande, en negrita y ultra legible sin fondo */
 #screenJoin p {
   font-family: 'Cinzel Decorative', serif;
   font-size: clamp(1rem, 2vw, 1.5rem);
   font-weight: 700;
   color: #e8e4d8;
   line-height: 1.4;
-
-  
-  /* Contorno negro reforzado para que el texto resalte directamente sobre la imagen */
   text-shadow: 
     0 3px 30px rgba(0, 0, 0, 0.9), 
     0 6px 30px rgba(0, 0, 0, 0.7),
     0 0 30px rgba(0, 0, 0, 0.4);
 }
 
-/* El Botón Mitológico */
 #startBtn {
   background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%); 
   color: #8c6d31; 
@@ -378,7 +332,7 @@ body {
   border: 3px double #d4af37; 
   border-radius: 4px; 
   cursor: pointer;
-  outline: none; /* 🌟 ELIMINA LA LÍNEA AZUL DE ENFOQUE DEL NAVEGADOR */
+  outline: none; 
   box-shadow: 
     0 0 0 4px #f5f7fa, 
     0 0 15px rgba(212, 175, 55, 0.4), 
@@ -388,15 +342,13 @@ body {
   overflow: hidden;
 }
 
-/* Evitamos que la línea azul vuelva al hacer clic */
 #startBtn:focus {
   outline: none;
   box-shadow: 
     0 0 0 4px #f5f7fa, 
-    0 0 15px rgba(212, 175, 55, 0.4); /* Mantiene nuestro brillo dorado en vez del azul */
+    0 0 15px rgba(212, 175, 55, 0.4); 
 }
 
-/* Efecto Hover */
 #startBtn:hover {
   color: #fff;
   background: linear-gradient(135deg, #d4af37 0%, #aa7c11 100%); 
@@ -407,13 +359,11 @@ body {
   transform: translateY(-2px); 
 }
 
-/* Efecto Active */
 #startBtn:active {
   transform: translateY(1px);
   box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
 }
 
-/* Detalles de relieve horizontales dorados */
 #startBtn::before, #startBtn::after {
   content: "";
   position: absolute;
@@ -425,7 +375,7 @@ body {
 #startBtn::before { top: 6px; }
 #startBtn::after { bottom: 6px; }
 
-
+/* ===== OTROS JUEGOS / MAPAS ===== */
 .panel {
   margin: 10px;
 }
@@ -446,7 +396,6 @@ button {
   cursor: pointer;
 }
 
-/* WorldGuessr en iframe a pantalla completa */
 #screenWorldGuessr {
   width: 100%;
   height: 100vh;
@@ -459,25 +408,19 @@ button {
   display: block;
 }
 
-
-
 .userNameHeader {
   margin-left: 10px;
   color: aqua;
 }
 
-/* Imágenes por encima del iframe*/
 #overlayImg {
   display: none;
-  /* Empieza oculto */
   position: fixed;
-  /* Se fija a la pantalla completa */
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
   background-color: rgba(0, 0, 0, 0.85);
-  /* Fondo oscuro semitransparente */
   justify-content: center;
   align-items: center;
   z-index: 99999;
@@ -488,7 +431,6 @@ button {
   max-width: 90%;
   max-height: 90%;
   object-fit: contain;
-  /* Por si acaso, asegúrate de que la imagen también herede un z-index alto */
   z-index: 100000;
 }
 
@@ -501,35 +443,28 @@ button {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-
-  background: linear-gradient(135deg, #f4f1ea, #e8e4d9);
-
-  padding: 15px;
-
-  border-radius: 4px;
-  border: 4px double #d4af37;
-
+  gap: 12px;
+  background: linear-gradient(135deg, rgb(244, 240, 230), rgb(232, 228, 216));
+  padding: 18px;
+  border-radius: 8px;
+  border: 3px solid #d4af37;
   box-shadow:
-    0 10px 25px rgba(0, 0, 0, 0.15),
-    inset 0 0 10px rgba(212, 175, 55, 0.15);
-
-  max-width: 200px;
-
+    0 10px 20px rgba(0, 0, 0, 0.25),
+    inset 0 0 10px rgba(212, 175, 55, 0.12);
+  max-width: 340px;
   margin: 10px auto;
-
-  color: #1c2833;
-
-  font-family: 'Cinzel', 'Georgia', serif;
-
-  position: relative;
+  font-family: 'Cinzel Decorative', serif;
+  color: #3b2f1a;
 }
 
 /* Título del Oráculo */
 .titulo-olimpico {
   color: #b89728;
   margin: 0;
-  font-size: 1rem;
+  font-size: 1.2rem;
+  letter-spacing: 1.5px;
+  color: #8c6d31;
+  text-align: center;
   text-transform: uppercase;
   letter-spacing: 3px;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
@@ -582,16 +517,7 @@ button {
 }
 
 
-
-
-
-
-
-
-
-
-
-/* Contenedor del mazo de cartas */
+/* ===== MAZO DE CARTAS ===== */
 .mazo-cartas-contenedor {
   display: flex;
   flex-direction: column;
@@ -602,17 +528,10 @@ button {
   font-family: 'Cinzel Decorative', serif;
 }
 
-/* El cromo/carta individual con fondo traslúcido */
 .cromo-olimpico {
-  /* CAMBIO: Usamos rgba para darle un fondo crema/mármol con un 85% de opacidad (15% traslúcido) */
-  background: rgba(0, 0, 0, 25%);
-
-  /* EFECTO CRISTAL: Desenfoca sutilmente lo que haya detrás de la carta */
+  background: rgba(0, 0, 0, 0.25);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
-  /* Soporte para Safari/iOS */
-
-  /* Mantenemos el marco doble dorado divino */
   border: 4px double #d4af37;
   border-radius: 8px;
   padding: 20px;
@@ -623,14 +542,9 @@ button {
   transition: transform 0.3s ease;
 }
 
-/* Marco de la imagen del personaje (Se ajusta al tamaño nativo de la imagen) */
 .cromo-foto {
-  /* CAMBIO: Al usar max-width y max-height, la imagen conserva su tamaño real y 
-     la carta se encoge o se agranda para abrazar la foto a la perfección */
   max-width: 260px;
-  /* Ancho máximo recomendado para móvil */
   max-height: 320px;
-  /* Alto máximo recomendado para móvil */
   width: auto;
   height: auto;
   display: block;
@@ -639,7 +553,6 @@ button {
   border-radius: 4px;
 }
 
-/* Nombre del personaje en la carta */
 .cromo-nombre {
   margin-top: 15px;
   font-size: 1.3rem;
@@ -647,7 +560,6 @@ button {
   letter-spacing: 1px;
 }
 
-/* Botones de navegación laterales y de elegir */
 .btn-navegacion {
   background: #1c2833;
   color: #d4af37;
@@ -673,37 +585,8 @@ button {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
-
-#screenJoin {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-  padding: 20px;
-}
-
-#qrcode {
-  display: inline-flex;
-  justify-content: center;
-  margin: 0 auto;
-}
-
-.qrcode {
-  display: flex;
-  align-content: center;
-}
-
-
-
-
-
-
-
-
-/* 📱 FONDO EXCLUSIVO PARA LA PANTALLA DEL MÓVIL */
+/* ===== EXCLUSIVO PANTALLA MÓVIL ===== */
 #screenSelect {
-  /* 1. Ruta de tu imagen (ojo con los espacios en el nombre, usa la barra invertida como tenías) */
   background-image: url('assets/wallpaper/camino.avif');
 
   /* 2. EVITA QUE SE DUPLIQUE */
@@ -734,14 +617,8 @@ button {
 
   /* 3. Centra la imagen perfectamente */
   background-position: center center;
-
-  /* 4. Hace que la imagen cubra todo el fondo del móvil sin deformarse */
-  background-size: cover;
-
-  /* 5. Deja el fondo fijo */
+  background-repeat: no-repeat;
   background-attachment: fixed;
-
-  /* 🔥 EXTRA PARA MÓVIL: Fuerza a que el contenedor ocupe el 100% del alto de la pantalla */
   min-height: 100vh;
   width: 100%;
   box-sizing: border-box;
@@ -935,4 +812,63 @@ button {
   flex-direction: column;
   font-family: "Georgia", serif;
   color: #2b2b2b;
+}
+
+/* ==========================================
+   2. HEADER PERMANENTE Y COMPACTO (REPARADO)
+   ========================================== */
+#userHeader {
+  background-color: #3e3220; 
+  border-bottom: 3px solid #b89047; 
+  color: #f4efe2; 
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: nowrap;
+  padding: 6px 10px; /* Un pelo más compacto en los bordes */
+  flex-shrink: 0;     
+  width: 100%;
+  z-index: 9999;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0; /* OBLIGATORIO: Permite que el contenedor se encoja si el texto es largo */
+}
+
+/* Reducimos el logo un poco si la pantalla se vuelve muy enana */
+.header-left img {
+  max-width: 32px;
+  height: auto;
+}
+
+
+
+#userHeader h1 {
+  margin: 0;
+  font-size: 1rem; /* Bajamos de 1.1em a 1rem base */
+  color: #f1e983;
+  white-space: nowrap; 
+  overflow: hidden;
+  text-overflow: ellipsis; /* Si aun así no cabe el título, añade "..." con elegancia en vez de salirse */
+}
+
+
+#userHeader {
+  background-color: #3e3220; 
+  border-bottom: 3px solid #b89047; 
+  color: #f4efe2; 
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between; 
+  align-items: center;
+  padding: 6px 10px;
+  width: 100%;
+  z-index: 9999;
 }

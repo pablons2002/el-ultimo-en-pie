@@ -329,7 +329,6 @@ window.aplicarAjusteManualFirebase = async function (boton) {
       score: scoreGlobalActual + puntosAAjustar
     });
 
-    alert(`✅ Ajuste aplicado. ${nombreJugador} ahora tiene ${scoreGlobalActual + puntosAAjustar} pts globales.`);
     inputPts.value = ""; // Limpiar input
 
   } catch (error) {
@@ -340,10 +339,44 @@ window.aplicarAjusteManualFirebase = async function (boton) {
     boton.innerText = "⚙️ Aplicar";
   }
 };
+// ==========================================
+// Juego: El Viaje de Ulises (WorldGuessr)
+// ==========================================
 
-// =====================
-// Juego WorldGuessr, que aparezca la imagen por cada tecla pulsada.
-// =====================
+// Estructura de estilos inyectados para las tarjetas de tripulantes
+const styleMitologia = document.createElement('style');
+styleMitologia.innerHTML = `
+  .player {
+    background: #fffdfa;
+    border: 2px solid #e3dac9;
+    padding: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .player:hover {
+    border-color: #b89047;
+    background: #fdfcf7;
+  }
+  .player.selected {
+    border-color: #8c6d31;
+    background: #faf4e8;
+    box-shadow: inset 0 0 10px rgba(140,109,49,0.1);
+  }
+  .player .pos {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #8c6d31;
+    font-variant: small-caps;
+    min-height: 20px;
+  }
+`;
+document.head.appendChild(styleMitologia);
+
 const imagenesPorTecla = {
   "a": "images/fotosGeoguessr/A-Alghero.jpg",
   "c": "images/fotosGeoguessr/C-Cercedilla.jpg",
@@ -361,102 +394,91 @@ const imagenesPorTecla = {
   "z": "images/fotosGeoguessr/Z-Azores.jpg"
 };
 
-document.addEventListener("keydown", (e) => { // enseña las imágenes pulsando teclas
-  console.log("estoy aquí")
-  console.log(currentGame)
+// Revelar visiones del mapa pulsando las llaves del destino (teclas)
+document.addEventListener("keydown", (e) => {
+  console.log("Invocando visiones del mapa antiguo");
+  console.log(currentGame);
   if (currentGame !== "WorldGuessr") return;
+  
   const key = e.key.toLowerCase();
-
   const img = imagenesPorTecla[key];
-  console.log(img)
+  console.log(img);
 
-  if (!img) return; // si no existe esa tecla, ignorar
+  if (!img) return; 
 
   showImage(img);
-
 });
-function showImage(src) { // función para mostrar la imagen en pantalla, con un overlay
+
+function showImage(src) { 
   document.getElementById("imgShow").src = src;
   document.getElementById("overlayImg").style.display = "flex";
 }
-document.addEventListener("keydown", (e) => { // cerrar la imagen al pulsar Escape
+
+// Disipar el velo de la vision con la tecla de escape
+document.addEventListener("keydown", (e) => { 
   if (e.key === "Escape") {
     document.getElementById("overlayImg").style.display = "none";
   }
 });
 
-// =====================
-// Suma de puntos 1º WorldGuessr
-// =====================
 let finalizeMode = false;
 let players = [];
 let selectedRanking = [];
 
-// =====================
-// Botón de terminar el juego para pasar a sumar los puntos
-// =====================
-
+// Desplegar las actas del tribunal marino al finalizar la travesia
 document.getElementById("endGameBtn").onclick = async () => {
-  // mostrar panel
   try {
     const q = query(collection(window.db, "players"), where("active", "==", true));
     const querySnapshot = await getDocs(q);
 
-    // Limpiamos el array y metemos los nombres reales de la base de datos
     players = [];
     querySnapshot.forEach((docSnap) => {
       const playerData = docSnap.data();
-      // Usamos el campo "name" del documento (o el id del documento si no tuvieras campo name)
       if (playerData.name) {
         players.push({
           name: playerData.name,
           img: playerData.img
-        })
+        });
       }
     });
 
-    console.log("👥 Jugadores activos recuperados de Firebase:", players);
+    console.log("Tripulantes activos convocados desde el Olimpo:", players);
 
     if (players.length === 0) {
-      alert("⚠️ No hay ningún jugador activo (active: true) en Firebase ahora mismo.");
+      alert("No se han hallado navegantes activos en las bitacoras de destino.");
     }
 
   } catch (error) {
-    console.error("❌ Error al recuperar jugadores activos:", error);
+    console.error("Error al convocar a la tripulacion activa:", error);
   }
+  
   finalizeMode = true;
   document.getElementById("finalizePanel").style.display = "block";
-  // render jugadores
   renderPlayers();
 };
 
-// ====================
-// Renderizar players con foto
-// ====================
 function renderPlayers() {
-
   const container = document.getElementById("playersContainer");
   container.innerHTML = "";
 
   players.forEach(p => {
-
     const position = selectedRanking.indexOf(p.name);
 
     container.innerHTML += `
-            <div class="player ${position !== -1 ? "selected" : ""}" data-player="${p.name}">
-                <div class="avatar"><img src="${p.img}" alt="${p.name}" style="width: 10%; height: 10%; object-fit: cover; border-radius: 50%;"></div>
-                <div>${p.name}</div>
-                <div class="pos">
-                    ${position !== -1 ? position + 1 : ""}
-                </div>
-
-            </div>
-        `;
+      <div class="player ${position !== -1 ? "selected" : ""}" data-player="${p.name}">
+        <div class="avatar">
+          <img src="${p.img}" alt="${p.name}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%; border: 2px solid #b89047;">
+        </div>
+        <div style="font-weight: bold; font-size: 0.95rem; color: #2c251e;">${p.name}</div>
+        <div class="pos">
+          ${position !== -1 ? "Puerto " + (position + 1) : ""}
+        </div>
+      </div>
+    `;
   });
 
   addClickEvents();
 }
-
 
 function addClickEvents() {
   document.querySelectorAll(".player").forEach(el => {
@@ -466,10 +488,8 @@ function addClickEvents() {
       const index = selectedRanking.indexOf(name);
 
       if (index === -1) {
-        // añadir al ranking
         selectedRanking.push(name);
       } else {
-        // quitar del ranking
         selectedRanking.splice(index, 1);
       }
 
@@ -478,66 +498,55 @@ function addClickEvents() {
   });
 }
 
-// ========================
-// Botón de confirmar ranking y sumar puntuaciones
-// ========================
+// Confirmar el orden de llegada y otorgar los favores de los Dioses
 document.getElementById("confirmRanking").onclick = async () => {
-
   const pointsTable = [10, 8, 6, 5, 4, 3, 2, 1];
   const scores = {};
 
   selectedRanking.forEach((player, index) => {
     scores[player] = pointsTable[index] || 0;
   });
+
   try {
     const querySnapshot = await getDocs(collection(window.db, "players"));
 
-    // Recorremos los documentos que hay en Firebase (p1, p2, p3...)
     querySnapshot.forEach(async (playerDoc) => {
       const playerData = playerDoc.data();
-      const docId = playerDoc.id; // Aquí saca el "p1", "p2", etc.
+      const docId = playerDoc.id; 
 
-      // Si el nombre de este documento está en nuestro ranking de la ronda...
       if (scores[playerData.name] !== undefined) {
         const puntosNuevos = scores[playerData.name];
-        const puntosActuales = playerData.score || 0; // Si no tiene score, empieza en 0
+        const puntosActuales = playerData.score || 0; 
         const puntuacionTotal = puntosActuales + puntosNuevos;
 
-        // Actualizamos SU documento exacto (por ejemplo "players/p1") con el nuevo total
         await updateDoc(doc(window.db, "players", docId), {
           score: puntuacionTotal
         });
 
-        console.log(`✨ ¡Puntos sumados a ${playerData.name} en ${docId}! (${puntosActuales} + ${puntosNuevos} = ${puntuacionTotal})`);
+        console.log(`Las mercedes ascienden para ${playerData.name} en la urna ${docId}. (Previo: ${puntosActuales} + Otorgado: ${puntosNuevos} = Total: ${puntuacionTotal})`);
       }
     });
   } catch (error) {
-    console.error("❌ Error al actualizar los scores en la colección players:", error);
+    console.error("Error al inmortalizar las puntuaciones en el Panteon:", error);
   }
 
-  // Cambiamos el estado de la pantalla para la TV
-  setScreen("screenRanking",)
-  showScreenTV("screenRanking")
+  setScreen("screenRanking");
+  showScreenTV("screenRanking");
 };
 
-// =========================================================================
-// RANKING EN TIEMPO REAL: JUGADORES ACTIVOS FILTRADOS EN JAVASCRIPT
-// =========================================================================
 function listenToRankingAndScore() {
   const tablaContenedor = document.getElementById("listaRankingActivos");
 
-  // Si la tabla no existe en el HTML todavía, esperamos un poco y reintentamos
   if (!tablaContenedor) {
     setTimeout(listenToRankingAndScore, 50);
     return;
   }
 
-  // Si Firebase aún no ha cargado en window.db, esperamos un poco y reintentamos
   if (!window.db) {
     setTimeout(listenToRankingAndScore, 50);
     return;
   }
-  console.log("¡Conectando con Firebase para el ranking activo!");
+  console.log("Sincronizando el Oraculo del Ranking en tiempo real");
 
   const q = query(
     collection(window.db, "players"),
@@ -555,9 +564,9 @@ function listenToRankingAndScore() {
       const fila = document.createElement("tr");
 
       fila.innerHTML = `
-        <td>#${posicion}</td>
-        <td>${jugador.name || "Sin nombre"}</td>
-        <td>${jugador.score ?? 0} pts</td>
+        <td>Escala #${posicion}</td>
+        <td style="font-weight: bold; font-variant: small-caps;">${jugador.name || "Navegante Anonimo"}</td>
+        <td style="color: #8c6d31; font-weight: bold;">${jugador.score ?? 0} mercedes</td>
       `;
 
       tablaContenedor.appendChild(fila);
@@ -565,34 +574,25 @@ function listenToRankingAndScore() {
     });
   });
 }
-// LLAMADA DIRECTA AL FINAL DEL ARCHIVO:
+
 listenToRankingAndScore();
 
-// =========================
-// Botón desde Ranking para pasar a la ruleta del siguiente juego
-// =========================
 document.getElementById("nextGameBtn").onclick = async () => {
-  // 1. Buscamos en qué posición de la lista está el juego actual
   console.log(currentGame);
   let currentIndex = games.indexOf(currentGame);
   let nextGame = null;
 
-  // 2. Calculamos cuál es el siguiente
   if (currentIndex !== -1 && currentIndex < games.length - 1) {
-    // Si encuentra el juego y no es el último, pasa al siguiente de la lista
     nextGame = games[currentIndex + 1];
   } else {
-    // Si no encuentra el juego actual o ya era el último, vuelve al primero
     nextGame = games[0];
   }
 
-  console.log(`⏩ Avanzando de ${currentGame} al siguiente juego: ${nextGame}`);
+  console.log(`Girando el timon desde ${currentGame} hacia los nuevos rumbos de: ${nextGame}`);
 
-  // 3. Mandamos a la TV a la pantalla de la Ruleta y configuramos el nuevo juego en Firebase
   await setScreen("screenRoulette", nextGame);
-  showScreenTV("screenRoulette")
+  showScreenTV("screenRoulette");
 };
-
 
 // ========================
 // 2º Juego GuessSong
@@ -850,7 +850,6 @@ function cargarCancion(indice) {
     botonPlay.disabled = false;
     botonSiguiente.disabled = true;
 
-    alert("¡Has terminado todas las canciones disponibles! Pulsa el botón para ver el Ranking.");
   }
 }
 
@@ -1017,18 +1016,15 @@ botonContinuar.addEventListener('click', async () => {
   cargarCancion(indiceActual);
 });
 
-
 // ==============================
-// Juego 3º GlassTower
+// Juego 3º GlassTower (La Torre de Dédalo)
 // ==============================
-// Variable local para saber a quién hemos hecho click en la pantalla
 let jugadorSeleccionadoId = null;
 let jugadorSeleccionadoNombre = "";
 let currentGlassTowerRound = "Ronda 1";
 let ultimoRankingCalculado = [];
 
 export function iniciarTvVasosLibre() {
-  // 1. Escuchar la Ronda actual en tiempo real
   onSnapshot(doc(window.db, "game", "towerState"), (snap) => {
     if (snap.exists()) {
       currentGlassTowerRound = snap.data().ronda || "Ronda 1";
@@ -1036,7 +1032,6 @@ export function iniciarTvVasosLibre() {
     }
   });
 
-  // 2. Escuchar jugadores activos para pintar sus botones y el ranking
   onSnapshot(query(collection(window.db, "players"), where("active", "==", true)), () => {
     renderizarControlesYRanking();
   });
@@ -1062,7 +1057,6 @@ async function renderizarControlesYRanking() {
     const r2 = p.vasosTimes?.round2;
     const timesText = [];
 
-    // 1. Mostrar --- en los botones si no hay tiempo
     timesText.push(`R1: ${(typeof r1 === 'number' && r1 > 0) ? r1.toFixed(2) + 's' : '---'}`);
     timesText.push(`R2: ${(typeof r2 === 'number' && r2 > 0) ? r2.toFixed(2) + 's' : '---'}`);
 
@@ -1070,22 +1064,29 @@ async function renderizarControlesYRanking() {
     const bestTime = recordedTimes.length > 0 ? Math.min(...recordedTimes) : null;
     const bestText = bestTime !== null ? `Mejor: ${bestTime.toFixed(2)}s` : '';
 
-    // Marcamos con un estilo diferente si es el jugador que tenemos seleccionado actualmente
-    const claseActiva = (id === jugadorSeleccionadoId) ? "background: #007bff; border-color: #fff;" : "background: #444; border-color: #555;";
+    // Manejo adaptativo del avatar de imagen de Firebase
+    const urlAvatar = p.img ? p.img : 'https://via.placeholder.com/40/e3dac9/8c6d31?text=H';
 
-    // A) Generar botón gigante para cada jugador activo
+    // Iluminación divina clara: si está seleccionado, resalta con borde de oro brillante
+    const claseActiva = (id === jugadorSeleccionadoId) 
+      ? "background: #fff; border-color: #b89047; box-shadow: 0 0 12px rgba(184,144,71,0.4);" 
+      : "background: #fdfbf7; border-color: #dcd1c4;";
+
+    // Renderizado del botón usando la etiqueta IMG en lugar del emoji antiguo
     htmlBotones += `
-      <button onclick="seleccionarJugador('${id}', '${p.name}')" style="${claseActiva} color: white; padding: 15px; font-size: 1.2rem; border-radius: 8px; cursor: pointer; transition: 0.2s; font-weight: bold; border: 2px solid; text-align:left; line-height: 1.4;">
-        <strong>👤 ${p.name}</strong>
-        <span style="display:block; font-size:0.9rem; font-weight:normal; opacity:0.85; margin-top:8px;">
-          ${timesText.join(' | ')}${bestText ? ' · ' + bestText : ''}
-        </span>
+      <button onclick="seleccionarJugador('${id}', '${p.name}')" style="${claseActiva} color: #3c3228; padding: 12px; font-size: 1.15rem; border-radius: 8px; cursor: pointer; transition: 0.2s; font-weight: bold; border: 2px solid; text-align:left; line-height: 1.4; font-family: 'Cinzel', serif; display: flex; align-items: center; gap: 12px;">
+        <img src="${urlAvatar}" alt="Avatar" style="width: 42px; height: 42px; border-radius: 50%; border: 2px solid #b89047; object-fit: cover; background: #fff;">
+        <div style="flex: 1;">
+          <strong style="color: #8c6d31; display: block; font-size: 1.1rem;">${p.name}</strong>
+          <span style="display:block; font-size:0.85rem; font-weight:normal; opacity:0.85; margin-top:3px; color: #6d5e4f; font-family: sans-serif;">
+            ${timesText.join(' | ')}${bestText ? ' · ' + bestText : ''}
+          </span>
+        </div>
       </button>
     `;
 
-    // B) Recopilar para la clasificación si ya tienen marca
     if (bestTime !== null) {
-      listaClasificacion.push({ id: id, name: p.name, time: bestTime, r1, r2 });
+      listaClasificacion.push({ id: id, name: p.name, time: bestTime, r1, r2, avatar: urlAvatar });
     }
   });
 
@@ -1095,58 +1096,66 @@ async function renderizarControlesYRanking() {
   ultimoRankingCalculado = [...listaClasificacion];
 
   if (listaClasificacion.length === 0) {
-    leaderboardDiv.innerHTML = `<p style="text-align:center; color:#666;">Esperando marcas...</p>`;
+    leaderboardDiv.innerHTML = `<p style="text-align:center; color:#9c8e7e; font-family:'Cinzel', serif;">Esperando las marcas de los héroes...</p>`;
   } else {
-    let htmlRank = "<ol style='padding-left:25px; margin:0;'>";
+    let htmlRank = "<div style='display: flex; flex-direction: column; gap: 10px;'>";
 
-    // 2. CORREGIDO: Formato de la lista de clasificación derecha con guiones
-    listaClasificacion.forEach((jugador) => {
+    listaClasificacion.forEach((jugador, index) => {
       const times = [];
+      const esPrimero = index === 0 ? "background: #fdf7ec; border: 1px solid #b89047;" : "background: #fff; border: 1px solid #f4eae1;";
+      
       times.push(`R1: ${(typeof jugador.r1 === 'number' && jugador.r1 > 0) ? jugador.r1.toFixed(2) + 's' : '---'}`);
       times.push(`R2: ${(typeof jugador.r2 === 'number' && jugador.r2 > 0) ? jugador.r2.toFixed(2) + 's' : '---'}`);
 
-      htmlRank += `<li style='margin-bottom: 8px;'><strong>${jugador.time.toFixed(2)}s</strong> — ${jugador.name} <span style='color:#aaa; font-size:0.9rem;'>(${times.join(' | ')})</span></li>`;
+      htmlRank += `
+        <div style='display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 8px; ${esPrimero}'>
+          <span style='font-weight: bold; min-width: 24px; color: #8c6d31;'>${index + 1}º</span>
+          <img src="${jugador.avatar}" style="width: 30px; height: 30px; border-radius: 50%; border: 1px solid #b89047; object-fit: cover;">
+          <div style='flex: 1;'>
+            <span style='font-weight: bold; color: #3c3228;'>${jugador.name}</span>
+            <span style='color:#7d6e5e; font-size:0.85rem; display: block; font-family: sans-serif;'>(${times.join(' | ')})</span>
+          </div>
+          <strong style='font-size: 1.3rem; color: #8c6d31;'>${jugador.time.toFixed(2)}s</strong>
+        </div>
+      `;
     });
 
-    htmlRank += "</ol>";
+    htmlRank += "</div>";
     leaderboardDiv.innerHTML = htmlRank;
   }
 }
-// 3. SELECCIONAR AL JUGADOR QUE VA A POLTRONA EN ESE INSTANTE
+
 window.seleccionarJugador = function (id, name) {
   jugadorSeleccionadoId = id;
   jugadorSeleccionadoNombre = name;
 
-  // Si había un cronómetro en marcha, lo paramos y lo reiniciamos
+  document.getElementById("aviso-jugador-vacio").style.display = "none";
+
   if (cronoRunning) {
     clearInterval(cronoInterval);
     cronoRunning = false;
   }
 
-  // Mostramos la caja del cronómetro personalizada
   document.getElementById("nombreSeleccionado").innerText = name;
   document.getElementById("cronometroDisplay").innerText = "0.00s";
   document.getElementById('btnStartCrono').disabled = false;
   document.getElementById('btnStopCrono').disabled = true;
   document.getElementById("zonaCronometro").style.display = "block";
 
-  // Refrescamos los botones para que se vea cuál está iluminado en azul
   renderizarControlesYRanking();
 };
 
-// 4. GUARDAR EL TIEMPO DEL JUGADOR SELECCIONADO
 let cronoInterval = null;
 let cronoStart = null;
 let cronoRunning = false;
 
 window.guardarTiempoDirecto = async function () {
-  // Esta función ya no se usa en el UI, pero dejamos la compatibilidad por si hay llamadas externas.
   return;
 };
 
 window.iniciarCronometro = function () {
   if (!jugadorSeleccionadoId) {
-    alert('Selecciona primero un jugador.');
+    document.getElementById("aviso-jugador-vacio").style.display = "block";
     return;
   }
 
@@ -1190,7 +1199,6 @@ window.detenerYCargarTiempo = async function () {
   renderizarControlesYRanking();
 };
 
-// 5. CONTROL DE RONDAS DIRECTO DESDE LOS BOTONES
 window.cambiarRondaDirecto = async function (nombreRonda) {
   await updateDoc(doc(window.db, 'game', 'towerState'), {
     ronda: nombreRonda
@@ -1199,50 +1207,40 @@ window.cambiarRondaDirecto = async function (nombreRonda) {
   document.getElementById('tvRondaActual').innerText = nombreRonda;
 };
 
-// ==============================================================
-// 🏁 RECUENTO FINAL Y REPARTO DE PUNTOS
-// ==============================================================
 window.finalizarJuegoVasos = async function () {
   if (ultimoRankingCalculado.length === 0) {
-    alert("No hay marcas registradas para puntuar.");
+    document.getElementById("aviso-marcas-vacias").style.display = "block";
     return;
   }
 
-
-  // Escala de puntos [1º, 2º, 3º, 4º...]
   const tablaPuntos = [10, 8, 6, 5, 4, 3, 2, 1];
 
   try {
-    // Recorremos el ranking guardado en tiempo real
     for (let i = 0; i < ultimoRankingCalculado.length; i++) {
       const jugador = ultimoRankingCalculado[i];
-      const puntosAAgregar = tablaPuntos[i] || 0; // Si hay más de 8 jugadores, se llevan 0
+      const puntosAAgregar = tablaPuntos[i] || 0;
 
       if (puntosAAgregar > 0) {
         const jugadorRef = doc(window.db, "players", jugador.id);
 
-        // Sumamos los puntos al score que ya tengan en Firebase
         await updateDoc(jugadorRef, {
           score: increment(puntosAAgregar)
         });
       }
     }
-    // Viaje directo a la pantalla del Ranking
+    
     setScreen("screenRanking");
     showScreenTV("screenRanking");
 
   } catch (error) {
     console.error("Error al procesar los puntos:", error);
-    alert("Hubo un problema al guardar los puntos.");
   }
-}
-
-
-
-// ==========================================
-// Juego 4º: Irrational Price
+}// ==========================================
+// Juego 4º: Irrational Price (El conteo de las Moiras)
 // ==========================================
 let jugadoresConRespuesta = [];
+// El número definitivo fijado por los dioses
+const VALOR_FIJO_LENTEJAS = 1037; 
 
 export function iniciarTvIrrationalPrice() {
   // Escuchar jugadores activos para saber cuántos han respondido ya
@@ -1259,7 +1257,7 @@ export function iniciarTvIrrationalPrice() {
       const p = playerDoc.data();
       const id = playerDoc.id;
 
-      // Buscamos la respuesta del jugador (por ejemplo, guardada en p.lentejasGuess)
+      // Buscamos la respuesta del jugador guardada en p.lentejasGuess
       const respuesta = p.lentejasGuess;
 
       if (respuesta !== undefined && respuesta !== null && respuesta !== "") {
@@ -1267,122 +1265,124 @@ export function iniciarTvIrrationalPrice() {
         jugadoresConRespuesta.push({
           id: id,
           name: p.name,
-          guess: parseFloat(respuesta)
+          guess: parseFloat(respuesta),
+          avatar: p.img ? p.img : 'https://via.placeholder.com/30/e3dac9/8c6d31?text=H' // Trae su avatar de firebase
         });
       }
     });
 
-    // Actualiza el marcador en la TV: "5 / 8"
+    // Actualiza el marcador sagrado en la TV
     contenedorContador.innerText = `${hanRespondido} / ${totalActivos}`;
   });
 }
 
-// Llama a la inicialización (puedes meterla en tu switch de pantallas si tienes uno)
 iniciarTvIrrationalPrice();
 
-// REVELAR EL NÚMERO Y CALCULAR QUIÉN SE HA QUEDADO MÁS CERCA
+// REVELAR EL NÚMERO Y CALCULAR DIRECTAMENTE CON 1037
 window.calcularGanadoresPrice = function () {
-  const inputValor = document.getElementById("inputLentejasExactas").value.trim();
-  if (!inputValor) return alert("Por favor, introduce el número exacto primero.");
-
-  const valorReal = parseFloat(inputValor);
   const resultadoDiv = document.getElementById("tvResultadoPrice");
 
   if (jugadoresConRespuesta.length === 0) {
-    alert("Nadie ha enviado respuestas todavía.");
+    alert("Ningún Dios ha enviado sus profecías todavía.");
     return;
   }
 
-  // Calculamos la diferencia absoluta |valorReal - respuesta| para cada uno
-  // Math.abs asegura que si la respuesta es menor o mayor, la distancia sea positiva siempre
+  // Calculamos la diferencia absoluta con la cifra inmutable de 1037
   jugadoresConRespuesta.forEach(j => {
-    j.diferencia = Math.abs(valorReal - j.guess);
+    j.diferencia = Math.abs(VALOR_FIJO_LENTEJAS - j.guess);
   });
 
-  // Ordenamos de menor diferencia (ganador) a mayor diferencia
+  // Ordenamos de menor diferencia (ganador más cercano) a mayor diferencia
   jugadoresConRespuesta.sort((a, b) => a.diferencia - b.diferencia);
 
-  // Pintamos la lista ordenada en la TV para que todos la vean
-  let htmlResultados = "<h4 style='margin:0 0 10px 0; color:#ffc107;'>Resultados:</h4><ol style='padding-left:20px; margin:0;'>";
+  // Pintamos la lista ordenada con diseño olímpico e imágenes
+  let htmlResultados = `
+    <div style='text-align: center; margin-bottom: 15px;'>
+      <span style='font-size: 0.9rem; letter-spacing:1px; color:#7d6e5e; display:block;'>CIFRA DIVINA</span>
+      <strong style='font-size: 2.2rem; color:#b89047; font-family: monospace;'>${VALOR_FIJO_LENTEJAS}</strong>
+    </div>
+    <div style='display: flex; flex-direction: column; gap: 8px;'>
+  `;
 
   jugadoresConRespuesta.forEach((j, index) => {
-    // Si se queda a 0 de diferencia es un acierto exacto!
+    const esPrimero = index === 0 ? "background: #fdf7ec; border: 1px solid #b89047;" : "background: #fff; border: 1px solid #f4eae1;";
     const detalleDiferencia = j.diferencia === 0 ? "¡EXACTO! 🎯" : `(dif: ${j.diferencia})`;
-    htmlResultados += `<li style='margin-bottom:8px;'><strong>${j.name}</strong> puso <strong>${j.guess}</strong> <span style='color:#aaa; font-size:0.85rem;'>${detalleDiferencia}</span></li>`;
+
+    htmlResultados += `
+      <div style='display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 8px; ${esPrimero}'>
+        <span style='font-weight: bold; min-width: 24px; color: #8c6d31;'>${index + 1}º</span>
+        <img src="${j.avatar}" style="width: 30px; height: 30px; border-radius: 50%; border: 1px solid #b89047; object-fit: cover;">
+        <div style='flex: 1; text-align: left;'>
+          <span style='font-weight: bold; color: #3c3228;'>${j.name}</span>
+          <span style='color:#7d6e5e; font-size:0.85rem; display: block; font-family: sans-serif;'>Puso: ${j.guess}</span>
+        </div>
+        <strong style='font-size: 0.95rem; color: #8c6d31; font-family:sans-serif;'>${detalleDiferencia}</strong>
+      </div>
+    `;
   });
 
-  htmlResultados += "</ol>";
+  htmlResultados += "</div>";
   resultadoDiv.innerHTML = htmlResultados;
 };
 
-
-
-// =========================================================================
-// BOTÓN NUEVO: Sumar puntuaciones en Firebase y mostrar los puntos sumados
-// =========================================================================
+// GUARDAR PUNTUACIONES DEFINITIVAS
 window.pointsIrrationalPrice = async function () {
-  // 1. Verificamos si el presentador ya pulsó el botón de calcular antes
   if (jugadoresConRespuesta.length === 0 || jugadoresConRespuesta[0].diferencia === undefined) {
-    alert("❌ Primero debes pulsar en '🧮 Revelar y Calcular Ganadores' para saber las posiciones.");
+    alert("❌ Primero debes pulsar en 'Revelar Sentencia Divina' para computar las posiciones.");
     return;
   }
 
   const tablaPuntos = [10, 8, 6, 5, 4, 3, 2, 1];
   const resultadoDiv = document.getElementById("tvResultadoPrice");
 
-  // 2. Modificamos el HTML en la TV para añadir la columna de puntos sumados
-  let htmlResultados = "<h4 style='margin:0 0 10px 0; color:#00e676;'>🏆 ¡Puntos Sumados con Éxito!:</h4><ol style='padding-left:20px; margin:0;'>";
+  let htmlResultados = `
+    <div style='text-align: center; margin-bottom: 15px;'>
+      <strong style='font-size: 1.2rem; color:#6d8c31;'>PROFECÍAS REGISTRADAS EN EL OLIMPO</strong>
+    </div>
+    <div style='display: flex; flex-direction: column; gap: 8px;'>
+  `;
 
-  console.log("🚀 Subiendo puntuaciones de Irrational Price a Firebase...");
-
-  // 3. Creamos una copia local para evitar que el onSnapshot actualice jugadoresConRespuesta
-  // mientras aún estamos procesando la suma de puntos.
   const respuestasParaSumar = jugadoresConRespuesta.slice();
 
   for (let index = 0; index < respuestasParaSumar.length; index++) {
     const j = respuestasParaSumar[index];
-    const puntosAAsignar = tablaPuntos[index] || 0; // Si hay más de 8 jugadores, se llevan 0 pts
-
+    const puntosAAsignar = tablaPuntos[index] || 0;
     const detalleDiferencia = j.diferencia === 0 ? "¡EXACTO! 🎯" : `(dif: ${j.diferencia})`;
 
-    // Aquí generamos la línea de la tabla mostrando los puntos sumados en verde claro
     htmlResultados += `
-      <li style='margin-bottom:8px;'>
-        <strong>${j.name}</strong> puso <strong>${j.guess}</strong> 
-        <span style='color:#aaa; font-size:0.85rem;'>${detalleDiferencia}</span>
-        <strong style='color:#00e676; margin-left: 15px;'>[+${puntosAAsignar} pts asignados]</strong>
-      </li>`;
+      <div style='display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 8px; background: #f4fdf0; border: 1px solid #6d8c31;'>
+        <span style='font-weight: bold; min-width: 24px; color: #6d8c31;'>${index + 1}º</span>
+        <img src="${j.avatar}" style="width: 30px; height: 30px; border-radius: 50%; border: 1px solid #6d8c31; object-fit: cover;">
+        <div style='flex: 1; text-align: left;'>
+          <span style='font-weight: bold; color: #3c3228;'>${j.name}</span>
+          <span style='color:#7d6e5e; font-size:0.85rem; display: block; font-family: sans-serif;'>Puso: ${j.guess} ${detalleDiferencia}</span>
+        </div>
+        <strong style='font-size: 1.1rem; color: #4e6c1e;'>+${puntosAAsignar} PTS</strong>
+      </div>
+    `;
 
-    // 4. Conexión y guardado en Firestore
     try {
       const playerRef = doc(window.db, "players", j.id);
-
-      // Sumamos los puntos de forma atómica y limpiamos el guess en el mismo update.
       await updateDoc(playerRef, {
         score: increment(puntosAAsignar),
-        lentejasGuess: null
+        lentejasGuess: null // Limpiamos el campo para próximas partidas
       });
-
-      console.log(`✨ Guardado en BD: ${j.name} +${puntosAAsignar} pts`);
     } catch (error) {
-      console.error(`❌ Error al subir datos de ${j.name}:`, error);
+      console.error(`❌ Error al otorgar gracia divina a ${j.name}:`, error);
     }
   }
 
-  htmlResultados += "</ol>";
-  resultadoDiv.innerHTML = htmlResultados; // Actualizamos la lista en la tele de forma visual
+  htmlResultados += "</div>";
+  resultadoDiv.innerHTML = htmlResultados;
 
-  alert("🏆 ¡Las puntuaciones se han sumado y la tabla se ha actualizado!");
 };
-
 // ==========================================
-// Juego 5º Votes
+// Juego 5º: El Veredicto de los Dioses
 // ==========================================
-// --- VARIABLES GLOBALES NUEVAS PARA EL JUEGO DE VOTACIÓN ---
-let jugadoresVotacion = [];  // Datos locales de los votos recibidos
-let votosVisibles = false;   // Estado de privacidad en la TV
+let jugadoresVotacion = [];  // Datos locales de las bendiciones recibidas
+let votosVisibles = false;   // Estado de privacidad en el Consejo
 
-// 1. INICIALIZAR LA ESCUCHA DE LA VOTACIÓN EN TIEMPO REAL
+// 1. INICIALIZAR LA ESCUCHA EN TIEMPO REAL EN EL ÁGORA
 async function iniciarEscuchaVotaciones() {
   if (document.readyState === "loading") {
     await new Promise((resolve) => document.addEventListener("DOMContentLoaded", resolve, { once: true }));
@@ -1392,7 +1392,6 @@ async function iniciarEscuchaVotaciones() {
     const contenedor = document.getElementById("tvListaVotos");
     if (!contenedor) return;
 
-    // Si ya hemos aplicado puntos y cerrado, no sobreescribir el diseño final
     if (contenedor.getAttribute("data-votado-final") === "true") return;
 
     jugadoresVotacion = [];
@@ -1400,134 +1399,151 @@ async function iniciarEscuchaVotaciones() {
 
     snapshot.forEach((playerDoc) => {
       const p = playerDoc.data();
-      // Asumimos que el móvil guardará en 'votoEnviado' el ID o Nombre del jugador elegido
       jugadoresVotacion.push({
         id: playerDoc.id,
         name: p.name,
-        votoEnviado: p.votoEnviado || ""
+        votoEnviado: p.votoEnviado || "",
+        avatar: p.img ? p.img : 'https://via.placeholder.com/30/e3dac9/8c6d31?text=Ω'
       });
     });
 
-    // Pintar los resultados en la urna de la TV
+    // Pintar las ofrendas en el Ágora
     jugadoresVotacion.forEach((j) => {
       const item = document.createElement("div");
-      item.style.padding = "12px";
-      item.style.background = "#222";
-      item.style.borderRadius = "6px";
-      item.style.border = j.votoEnviado ? "1px solid #e91e63" : "1px solid #444";
-      item.style.marginBottom = "8px";
+      item.style.padding = "12px 16px";
+      item.style.background = "#fdfbf7";
+      item.style.borderRadius = "8px";
+      item.style.display = "flex";
+      item.style.alignItems = "center";
+      item.style.gap = "12px";
+      item.style.transition = "all 0.3s ease";
+      item.style.border = j.votoEnviado ? "1px solid #b89047" : "1px solid #e8e4d8";
+
+      let htmlContenido = `
+        <img src="${j.avatar}" style="width: 32px; height: 32px; border-radius: 50%; border: 1px solid #b89047; object-fit: cover;">
+        <div style="flex: 1; text-align: left;">
+          <strong style="color: #3c3228; font-size: 1.05rem;">${j.name}</strong>
+        </div>
+      `;
 
       if (j.votoEnviado) {
-        // MODO ANÓNIMO: Muestra que votó, pero no a quién
         if (!votosVisibles) {
-          item.innerHTML = `<strong>🗳️ ${j.name}:</strong> <span style="color: #e91e63; font-weight: bold;">¡Voto emitido en la urna! 🔒</span>`;
-        }
-        // MODO VISIBLE: Destapa el pastel
-        else {
-          item.innerHTML = `<strong>👤 ${j.name}:</strong> Ha votado a 👉 <code style="color: #00e676; font-size:1.1rem; font-family:sans-serif;">${j.votoEnviado}</code>`;
+          htmlContenido += `<span style="color: #b89047; font-weight: bold; font-size: 0.95rem;">Ofrenda sellada en la urna 🔒</span>`;
+        } else {
+          htmlContenido += `<span style="color: #7d6e5e; font-size: 0.95rem;">Bendijo a: <strong style="color: #8c6d31; background: #f4eae1; padding: 3px 8px; border-radius: 4px;">${j.votoEnviado}</strong></span>`;
         }
       } else {
-        item.innerHTML = `<strong>⏳ ${j.name}:</strong> <span style="color: #666; font-style: italic;">Pensando su voto...</span>`;
+        htmlContenido += `<span style="color: #a89e94; font-style: italic; font-size: 0.9rem;">Consultando a las deidades... ⏳</span>`;
       }
+
+      item.innerHTML = htmlContenido;
       contenedor.appendChild(item);
     });
   });
 }
 iniciarEscuchaVotaciones();
 
-// 2. BOTÓN PRESENTADOR: ABRIR O REINICIAR VOTACIONES
+// 2. ABRIR CONSEJO DE DIOSES
 window.abrirVotacion = async function () {
   votosVisibles = false;
   const contenedor = document.getElementById("tvListaVotos");
   if (contenedor) contenedor.removeAttribute("data-votado-final");
 
-  document.getElementById("tvEstadoPrivacidad").innerText = "ANÓNIMA";
-  document.getElementById("tvEstadoPrivacidad").style.color = "#ffc107";
+  const privacidadEtiqueta = document.getElementById("tvEstadoPrivacidad");
+  privacidadEtiqueta.innerText = "BAJO EL MANTO DE HADES";
+  privacidadEtiqueta.style.color = "#aa7c11";
 
-  alert("🔓 Votación abierta. Los móviles se están actualizando...");
 
-  // Limpiar los campos de voto en Firebase para que los móviles se desbloqueen
   for (let j of jugadoresVotacion) {
     try {
       await updateDoc(doc(window.db, "players", j.id), { votoEnviado: "" });
     } catch (e) {
-      console.error("Error al resetear voto de " + j.name, e);
+      console.error("Error al resetear ofrenda de " + j.name, e);
     }
   }
 };
 
-// 3. BOTÓN PRESENTADOR: REVELAR QUIÉN VOTÓ A QUIÉN
+// 3. INVOCAR LUZ DE APOLO (REVELAR QUIÉN BENDIJO A QUIÉN)
 window.revelarVotos = function () {
   votosVisibles = true;
 
-  // Cambiar el cartel de la TV
   const privacidadEtiqueta = document.getElementById("tvEstadoPrivacidad");
-  privacidadEtiqueta.innerText = "VISIBLE";
-  privacidadEtiqueta.style.color = "#00e676";
+  privacidadEtiqueta.innerText = "BAJO LA LUZ DE APOLO";
+  privacidadEtiqueta.style.color = "#8c6d31";
 
-  // Forzar el rediseño inmediato leyendo los datos actuales en memoria
   const contenedor = document.getElementById("tvListaVotos");
   if (!contenedor) return;
   contenedor.innerHTML = "";
 
   jugadoresVotacion.forEach((j) => {
     const item = document.createElement("div");
-    item.style.padding = "12px";
-    item.style.background = "#222";
-    item.style.borderRadius = "6px";
-    item.style.border = j.votoEnviado ? "1px solid #00e676" : "1px solid #444";
-    item.style.marginBottom = "8px";
+    item.style.padding = "12px 16px";
+    item.style.background = "#fdfbf7";
+    item.style.borderRadius = "8px";
+    item.style.display = "flex";
+    item.style.alignItems = "center";
+    item.style.gap = "12px";
+    item.style.border = j.votoEnviado ? "1px solid #8c6d31" : "1px solid #e8e4d8";
+
+    let htmlContenido = `
+      <img src="${j.avatar}" style="width: 32px; height: 32px; border-radius: 50%; border: 1px solid #b89047; object-fit: cover;">
+      <div style="flex: 1; text-align: left;">
+        <strong style="color: #3c3228;">${j.name}</strong>
+      </div>
+    `;
 
     if (j.votoEnviado) {
-      item.innerHTML = `<strong>👤 ${j.name}:</strong> Ha votado a 👉 <strong style="color: #ffc107;">${j.votoEnviado}</strong>`;
+      htmlContenido += `<span style="color: #7d6e5e; font-size: 0.95rem;">Entregó su favor a <strong style="color: #8c6d31; background: #f4eae1; padding: 4px 10px; border-radius: 4px;">${j.votoEnviado}</strong></span>`;
     } else {
-      item.innerHTML = `<strong>⏳ ${j.name}:</strong> <span style="color: #666; font-style: italic;">No llegó a votar</span>`;
+      htmlContenido += `<span style="color: #a89e94; font-style: italic; font-size: 0.9rem;">El hilo del destino se cortó sin su voto</span>`;
     }
+
+    item.innerHTML = htmlContenido;
     contenedor.appendChild(item);
   });
 };
 
-// 4. BOTÓN PRESENTADOR: CALCULAR EL RECUENTO GENERAL Y SUMAR +2 A FIREBASE
+// 4. DICTAR SENTENCIA DE ZEUS Y SUBIR AL MARCADOR
 window.finalizarYSumarVotos = async function () {
-  // Asegurarnos de que estén visibles antes de cerrar
   window.revelarVotos();
 
   const contenedor = document.getElementById("tvListaVotos");
   contenedor.setAttribute("data-votado-final", "true");
 
-  // Crear un diccionario para contar cuántos votos ha recibido cada persona
   let recuentoDeVotos = {};
   jugadoresVotacion.forEach(j => { recuentoDeVotos[j.name] = 0; });
 
-  // Contar
   jugadoresVotacion.forEach(j => {
     if (j.votoEnviado && recuentoDeVotos[j.votoEnviado] !== undefined) {
       recuentoDeVotos[j.votoEnviado]++;
     }
   });
 
-  contenedor.innerHTML = "<h3 style='color:#00e676; margin:0 0 15px 0; text-align:center;'>🏆 Escrutinio Final (+2 Pts por Voto):</h3>";
+  contenedor.innerHTML = "<h3 style='color:#8c6d31; margin:0 0 20px 0; text-align:center; font-family: \"Cinzel Decorative\", serif;'>Escrutinio Divino (Favor del Olimpo Concedido):</h3>";
 
-  // Repartir los puntos en Firebase leyendo la nube
   for (let j of jugadoresVotacion) {
     const votosRecibidos = recuentoDeVotos[j.name] || 0;
     const puntosGanadosGlobales = votosRecibidos * 2;
 
-    // Pintar la tarjeta de resultados en la TV
     const fila = document.createElement("div");
-    fila.style.padding = "10px";
-    fila.style.background = votosRecibidos > 0 ? "rgba(0, 230, 118, 0.15)" : "#222";
-    fila.style.borderLeft = votosRecibidos > 0 ? "4px solid #00e676" : "4px solid #444";
+    fila.style.padding = "12px 16px";
+    fila.style.background = votosRecibidos > 0 ? "#fdf7ec" : "#fdfbf7";
+    fila.style.border = votosRecibidos > 0 ? "1px solid #b89047" : "1px solid #e8e4d8";
+    fila.style.borderRadius = "8px";
     fila.style.marginBottom = "8px";
     fila.style.display = "flex";
+    fila.style.alignItems = "center";
     fila.style.justifyContent = "space-between";
+    
     fila.innerHTML = `
-      <span><strong>${j.name}</strong> (Recibió ${votosRecibidos} 🗳️)</span>
-      <strong style="color:#00e676;">+${puntosGanadosGlobales} Pts Globales</strong>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <img src="${j.avatar}" style="width: 32px; height: 32px; border-radius: 50%; border: 1px solid #b89047; object-fit: cover;">
+        <span style="color: #3c3228;"><strong>${j.name}</strong> (Consiguió ${votosRecibidos} voto/s)</span>
+      </div>
+      <strong style="color: #8c6d31; font-size: 1.1rem;">+${puntosGanadosGlobales} PTS</strong>
     `;
     contenedor.appendChild(fila);
 
-    // Guardar en la base de datos real
     if (puntosGanadosGlobales > 0) {
       try {
         const playerRef = doc(window.db, "players", j.id);
@@ -1539,30 +1555,30 @@ window.finalizarYSumarVotos = async function () {
           score: currentScore + puntosGanadosGlobales
         });
       } catch (err) {
-        console.error("Error sumando votos reales a " + j.name, err);
+        console.error("Error ascendiendo puntos a " + j.name, err);
       }
     }
   }
 
-  alert("🏁 ¡Votos procesados y cargados al Score global con éxito!");
 };
-
-
 
 // ==========================================
 // Juego 6º: Symbol Zone (Con Puntuación Local)
 // ==========================================
+// ==========================================
+// Juego 6º: El Oráculo de Delfos
+// ==========================================
 
 let rondaActualSymbol = 1;
-let tiempoRestanteSymbol = 60; // 1 minuto en segundos
+let tiempoRestanteSymbol = 60; 
 let intervaloCronometroSymbol = null;
-let listaJugadoresSymbol = []; // Guarda { id, name, equivocado: true/false }
+let listaJugadoresSymbol = []; 
 
 // MARCADOR LOCAL INTERNO
-let puntuacionJuegoSymbol = {}; // Guardará { idJugador: puntosAcumuladosEnJuego }
+let puntuacionJuegoSymbol = {}; 
 
 function symbolZone() {
-  console.log("🔺 Iniciando juego SymbolZone en la TV");
+  console.log("🏛️ Iniciando El Oráculo de Delfos en la TV");
 
   // 🔥 SOLUCIÓN: Vaciamos por completo el marcador local para la nueva partida
   puntuacionJuegoSymbol = {};
@@ -1583,11 +1599,11 @@ function symbolZone() {
       const p = playerDoc.data();
       const idJugador = playerDoc.id;
 
-      // Al empezar la nueva partida, todos los jugadores entran limpios con 0 puntos locales
       if (puntuacionJuegoSymbol[idJugador] === undefined) {
         puntuacionJuegoSymbol[idJugador] = 0;
       }
 
+      // Removida la carga de avatar propensa a errores. Usamos solo texto seguro.
       listaJugadoresSymbol.push({
         id: idJugador,
         name: p.name,
@@ -1600,7 +1616,6 @@ function symbolZone() {
 }
 symbolZone();
 
-// FUNCIÓN PARA DIBUJAR LOS JUGADORES EN EL PANEL
 function pintarPanelJugadoresSymbol() {
   const contenedorLista = document.getElementById("tvListaJugadoresSymbol");
   if (!contenedorLista) return;
@@ -1610,24 +1625,36 @@ function pintarPanelJugadoresSymbol() {
 
   listaJugadoresSymbol.forEach((jugador, index) => {
     const card = document.createElement("div");
-    card.style.padding = "15px";
+    card.style.padding = "15px 10px";
     card.style.borderRadius = "8px";
     card.style.textAlign = "center";
     card.style.fontWeight = "bold";
     card.style.cursor = "pointer";
     card.style.transition = "0.2s";
     card.style.userSelect = "none";
+    card.style.display = "flex";
+    card.style.flexDirection = "column";
+    card.style.alignItems = "center";
+    card.style.gap = "6px";
 
     if (jugador.equivocado) {
-      card.style.background = "#d32f2f";
-      card.style.color = "white";
-      card.style.border = "2px solid #ff6666";
-      card.innerHTML = `❌<br>${jugador.name}<br><span style='font-size:0.8rem;opacity:0.8;'>+0 pts</span>`;
+      card.style.background = "#fdf0f0";
+      card.style.color = "#9e2a2b";
+      card.style.border = "2px solid #9e2a2b";
+      card.innerHTML = `
+        <span style="font-size: 1.3rem;">⚡</span>
+        <span style="font-size: 1.05rem; letter-spacing: 0.5px;">Traicionado</span>
+        <span style='font-size:0.85rem; color: #7d6e5e; font-weight: normal;'>${jugador.name}</span>
+      `;
     } else {
-      card.style.background = "#2e7d32";
-      card.style.color = "white";
-      card.style.border = "2px solid #66bb6a";
-      card.innerHTML = `✅<br>${jugador.name}<br><span style='font-size:0.8rem;opacity:0.8;'>+2 pts</span>`;
+      card.style.background = "#f4fdf0";
+      card.style.color = "#4e6c1e";
+      card.style.border = "2px solid #6d8c31";
+      card.innerHTML = `
+        <img src="1039662481576695228.jpeg" style="width: 20px; height: 20px; object-fit: contain; margin-bottom: 2px;">
+        <span style="font-size: 1.05rem; letter-spacing: 0.5px;">Supo la verdad</span>
+        <span style='font-size:0.85rem; color: #4e4031; font-weight: normal;'>${jugador.name}</span>
+      `;
     }
 
     card.onclick = () => {
@@ -1639,7 +1666,6 @@ function pintarPanelJugadoresSymbol() {
   });
 }
 
-// CONTROLADOR DEL CRONÓMETRO
 window.controlarTiempoSymbol = function (accion) {
   const elReloj = document.getElementById("tvCronometroSymbol");
 
@@ -1650,8 +1676,7 @@ window.controlarTiempoSymbol = function (accion) {
       if (tiempoRestanteSymbol <= 0) {
         clearInterval(intervaloCronometroSymbol);
         intervaloCronometroSymbol = null;
-        if (elReloj) elReloj.style.color = "#ff3d00";
-        alert("⏰ ¡Tiempo agotado! Turno de revisar los símbolos.");
+        if (elReloj) elReloj.style.color = "#9e2a2b";
         return;
       }
       tiempoRestanteSymbol--;
@@ -1670,50 +1695,44 @@ window.controlarTiempoSymbol = function (accion) {
     tiempoRestanteSymbol = 0;
     if (elReloj) {
       elReloj.innerText = "00:00";
-      elReloj.style.color = "#ff3d00";
+      elReloj.style.color = "#9e2a2b";
     }
-    alert("⏰ ¡Tiempo finalizado manualmente por el presentador!");
+
   }
 };
 
-// BOTÓN: GUARDAR RONDA LOCALMENTE Y MOSTRAR MARCADOR PROVISIONAL
-// BOTÓN: GUARDAR RONDA LOCALMENTE Y MOSTRAR MARCADOR PROVISIONAL
 window.pointsSymbolZone = async function () {
-  if (listaJugadoresSymbol.length === 0) return alert("No hay jugadores en la partida.");
+  if (listaJugadoresSymbol.length === 0) return alert("No hay mortales en la partida.");
 
-  console.log(`🚀 Acumulando puntos locales de la Ronda ${rondaActualSymbol}...`);
+  console.log(`🚀 Computando puntos locales de la Profecía ${rondaActualSymbol}...`);
 
-  // 1. Sumar puntos en la estructura interna de esta partida
   listaJugadoresSymbol.forEach(j => {
     const puntosRonda = j.equivocado ? 0 : 2;
     if (puntuacionJuegoSymbol[j.id] === undefined) puntuacionJuegoSymbol[j.id] = 0;
     puntuacionJuegoSymbol[j.id] += puntosRonda;
   });
 
-  // 2. Crear el ranking provisional del minijuego para pintarlo en pantalla
   let rankingJuego = listaJugadoresSymbol.map(j => ({
     id: j.id,
     name: j.name,
     scoreJuego: puntuacionJuegoSymbol[j.id]
   }));
 
-  // Ordenar de mayor a menor puntuación local
   rankingJuego.sort((a, b) => b.scoreJuego - a.scoreJuego);
 
-  // 3. Transformar temporalmente el panel del presentador en la tabla de clasificación
   const contenedorLista = document.getElementById("tvListaJugadoresSymbol");
   if (contenedorLista) {
     contenedorLista.setAttribute("data-bloqueado", "true"); // Bloqueo temporal anti-snapshot
-
+    
     let tablaHtml = `
-      <div style="width: 100%; background: #000; padding: 15px; border-radius: 8px; border: 1px solid #ff3d00; box-sizing: border-box; grid-column: 1 / -1;">
-        <h3 style="color: #ff3d00; margin-top: 0; text-align: center; font-size: 1.2rem;">🏆 RANKING LOCAL (Ronda ${rondaActualSymbol} / 5)</h3>
-        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 1rem; color: white;">
+      <div style="width: 100%; background: #fdfbf7; padding: 15px; border-radius: 8px; border: 1px solid #b89047; box-sizing: border-box; grid-column: 1 / -1;">
+        <h3 style="color: #8c6d31; margin-top: 0; text-align: center; font-size: 1.2rem; letter-spacing: 1px;"> CRÓNICA PROVISIONAL (Profecía ${rondaActualSymbol} / 5)</h3>
+        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 1rem; color: #3c3228;">
           <thead>
-            <tr style="border-bottom: 2px solid #333; color: #aaa;">
+            <tr style="border-bottom: 2px solid #e3dac9; color: #7d6e5e;">
               <th style="padding: 6px;">Pos</th>
-              <th style="padding: 6px;">Jugador</th>
-              <th style="padding: 6px; text-align: right;">Puntos Acumulados</th>
+              <th style="padding: 6px;">Dios</th>
+              <th style="padding: 6px; text-align: right;">Favor Acumulado</th>
             </tr>
           </thead>
           <tbody>
@@ -1721,10 +1740,12 @@ window.pointsSymbolZone = async function () {
 
     rankingJuego.forEach((jugador, index) => {
       tablaHtml += `
-        <tr style="border-bottom: 1px solid #222;">
-          <td style="padding: 8px; font-weight: bold; color: #ff3d00;">#${index + 1}</td>
-          <td style="padding: 8px;">${jugador.name} ${index === 0 ? '👑' : ''}</td>
-          <td style="padding: 8px; text-align: right; font-weight: bold; color: #ffc107;">${jugador.scoreJuego} pts</td>
+        <tr style="border-bottom: 1px solid #f4eae1;">
+          <td style="padding: 8px; font-weight: bold; color: #8c6d31;">#${index + 1}</td>
+          <td style="padding: 8px;">
+            <span>${jugador.name} ${index === 0 ? '👑' : ''}</span>
+          </td>
+          <td style="padding: 8px; text-align: right; font-weight: bold; color: #b89047;">${jugador.scoreJuego} PTS</td>
         </tr>
       `;
     });
@@ -1733,35 +1754,28 @@ window.pointsSymbolZone = async function () {
     contenedorLista.innerHTML = tablaHtml;
   }
 
-  alert(`🏆 Puntos de la Ronda ${rondaActualSymbol} calculados localmente.`);
-
-  // =========================================================================
-  // EXTRAPOLACIÓN GLOBAL: SI ESTAMOS EN LA RONDA 5, REPARTIR BOTÍN REAL WITH EMPATES
-  // =========================================================================
   if (rondaActualSymbol === 5) {
-    alert("🏁 ¡Fin de la Ronda 5! Calculando posiciones con empates para la Clasificación General.");
+
 
     const tablaPuntosGlobales = [10, 8, 6, 5, 4, 3, 2, 1];
     let posicionReal = 1;
 
     for (let index = 0; index < rankingJuego.length; index++) {
       const jugadorRanking = rankingJuego[index];
-
+      
       // Si empata en puntos con el jugador anterior, mantiene la misma posicionReal
       if (index > 0 && jugadorRanking.scoreJuego === rankingJuego[index - 1].scoreJuego) {
-        // Mantiene la misma posicionReal
+        // Mantiene empate
       } else {
-        // Si no empata, su posición pasa a ser su índice físico real + 1
         posicionReal = index + 1;
       }
 
-      // Sacamos los puntos que le tocan según su rango real de la tabla
       const puntosGlobalesInyeccion = tablaPuntosGlobales[posicionReal - 1] || 0;
 
       if (puntosGlobalesInyeccion > 0) {
         try {
           const playerRef = doc(window.db, "players", jugadorRanking.id);
-
+          
           // Traer la puntuación real acumulada del torneo en Firebase
           const snap = await getDocs(query(collection(window.db, "players")));
           let scoreTorneoActual = 0;
@@ -1770,67 +1784,61 @@ window.pointsSymbolZone = async function () {
             if (d.id === jugadorRanking.id) scoreTorneoActual = d.data().score ?? 0;
           });
 
-          // Guardar e inyectar el nuevo valor escalado con justicia divina
           await updateDoc(playerRef, {
             score: scoreTorneoActual + puntosGlobalesInyeccion
           });
-          console.log(`⚖️ Rango #${posicionReal} | Inyectados +${puntosGlobalesInyeccion} pts de torneo a ${jugadorRanking.name}`);
+          console.log(`⚖️ Destino #${posicionReal} | Concedidos +${puntosGlobalesInyeccion} pts divinos a ${jugadorRanking.name}`);
         } catch (err) {
-          console.error("Error al inyectar puntos globales escalados:", err);
+          console.error("Error al inyectar puntos globales:", err);
         }
       }
     }
-    alert("🏆 ¡El Olimpo ha repartido las puntuaciones de forma justa y el torneo global está actualizado!");
+    
   }
 };
 
-// BOTÓN: PASAR DE RONDA
 window.siguienteRondaSymbol = function () {
   if (rondaActualSymbol >= 5) {
-    alert("🏁 ¡Ya has completado las 5 rondas de SymbolZone!");
+ 
     return;
   }
 
   rondaActualSymbol++;
   reiniciarRondaInterfaceSymbol();
-  alert(`🔺 Iniciando Ronda ${rondaActualSymbol}. ¡Cambiad las pinzas de la espalda!`);
+
 };
 
 function reiniciarRondaInterfaceSymbol() {
   clearInterval(intervaloCronometroSymbol);
   intervaloCronometroSymbol = null;
-
   tiempoRestanteSymbol = 60;
 
   const elReloj = document.getElementById("tvCronometroSymbol");
   if (elReloj) {
     elReloj.innerText = "01:00";
-    elReloj.style.color = "#fff";
+    elReloj.style.color = "#3c3228";
   }
 
   const elTextoRonda = document.getElementById("tvRondaSymbol");
-  if (elTextoRonda) elTextoRonda.innerText = `Ronda ${rondaActualSymbol} / 5`;
+  if (elTextoRonda) elTextoRonda.innerText = `Profecía ${rondaActualSymbol} / 5`;
 
-  // Limpiar selecciones visuales de fallos para la siguiente ronda, manteniendo el marcador intacto
   listaJugadoresSymbol.forEach(j => j.equivocado = false);
   pintarPanelJugadoresSymbol();
 }
 
-
-
-
-
 // ==========================================
-// Juego 6º: Cifras y Letras
+// Juego 7º: El Cálculo de Láquesis (Cifras y Letras)
 // ==========================================
-let cifrasDeLaRonda = []; // Guardará los 6 números generados (ej: [2, 5, 8, 10, 25, 6])
-let objetivoDeLaRonda = 0; // El número al que tienen que llegar (ej: 432)
-let jugadoresCifras = [];  // Datos locales de las respuestas recibidas
-let rondaActualCifras = 0;       // Contador de rondas (de 0 a 5)
-let puntuacionJuegoCifras = {};  // Guardará los puntos internos { idJugador: puntos }
+let cifrasDeLaRonda = []; 
+let objetivoDeLaRonda = 0; 
+let jugadoresCifras = [];  
+let rondaActualCifras = 0;        
+let puntuacionJuegoCifras = {};  
+
+let tiempoRestanteCifras = 120; // 2 minutos exactos
+let intervaloCronometroCifras = null;
 
 async function cifrasLetras() {
-  // Esperar a que el DOM se haya cargado y existan los elementos necesarios
   if (document.readyState === "loading") {
     await new Promise((resolve) => document.addEventListener("DOMContentLoaded", resolve, { once: true }));
   }
@@ -1840,29 +1848,22 @@ async function cifrasLetras() {
   const respuestasContenedor = document.getElementById("tvListaRespuestasCifras");
 
   if (!numerosContenedor || !objetivoElemento || !respuestasContenedor) {
-    console.warn("Cifras y Letras: falta algún elemento del DOM para inicializar.");
+    console.warn("Láquesis: Faltan elementos estructurales en el DOM.");
     return;
   }
 
-  // Limpiar interfaz
-  numerosContenedor.innerHTML = `<span style="color: #666; font-style: italic;">Pulsa generar...</span>`;
+  numerosContenedor.innerHTML = `<span style="color: #9c8e7f; font-style: italic;">Esperando el designio de las Moiras...</span>`;
   objetivoElemento.innerText = "---";
-  respuestasContenedor.innerHTML = `<p style="color: #666; text-align: center;">Genera un reto para empezar.</p>`;
+  respuestasContenedor.innerHTML = `<p style="color: #9c8e7f; text-align: center;">Mueve el telar para iniciar el proceso sagrado.</p>`;
 
-  // Escuchamos en tiempo real si van respondiendo
+  // Escucha en tiempo real de Firebase
   onSnapshot(query(collection(window.db, "players"), where("active", "==", true)), (snapshot) => {
-    console.log("Cifras y Letras: snapshot recibido. jugadores activos=", snapshot.size);
+    console.log("Láquesis: Datos de mortales sincronizados =", snapshot.size);
     const contenedor = document.getElementById("tvListaRespuestasCifras");
-    if (!contenedor) {
-      console.warn("Cifras y Letras: contenedor de respuestas no está disponible.");
-      return;
-    }
+    if (!contenedor) return;
 
-    // --- CANDADO VISUAL ---
-    // Si la pantalla ya está mostrando los resultados validados, ignoramos el snapshot
-    // para que Firebase no machaque la interfaz al limpiar los móviles.
+    // Candado para no borrar la pantalla si ya se le dio a validar
     if (contenedor.getAttribute("data-validado") === "true") {
-      console.log("Cifras y Letras: Snapshot ignorado para proteger la pantalla de resultados.");
       return;
     }
 
@@ -1880,83 +1881,127 @@ async function cifrasLetras() {
       });
 
       if (cifrasDeLaRonda.length === 0) {
-        contenedor.innerHTML = `<p style="color: #666; text-align: center;">Esperando a que generes el reto...</p>`;
+        contenedor.innerHTML = `<p style="color: #9c8e7f; text-align: center;">Las Moiras están preparando las materias numéricas...</p>`;
         return;
       }
 
-      // Crear línea visual en la TV (Tiempo real de quién está pensando o ya respondió)
       const item = document.createElement("div");
       item.style.padding = "10px";
-      item.style.background = "#222";
-      item.style.borderRadius = "6px";
-      item.style.border = "1px solid #444";
+      item.style.background = "#fffdf9";
+      item.style.border = "1px solid #e3dac9";
       item.style.marginBottom = "8px";
 
-      const estado = formulaEnviada ? "📝 Respondido" : "⏳ Pensando...";
-      const colorEstado = formulaEnviada ? "#00e676" : "#ffc107";
+      const estado = formulaEnviada ? "Pergamino Entregado" : "Calculando Destino...";
+      const colorEstado = formulaEnviada ? "#2e4225" : "#a37a1a";
 
-      item.innerHTML = `<strong>${p.name}</strong>: <span style="color: ${colorEstado}; font-weight:bold;">${estado}</span>`;
+      item.innerHTML = `<strong>${p.name}</strong>: <span style="color: ${colorEstado}; font-weight:bold; font-variant: small-caps;">${estado}</span>`;
       contenedor.appendChild(item);
     });
   });
 }
 cifrasLetras();
 
-// 1. GENERAR RETO (6 números aleatorios y 1 objetivo)
+// Generar Reto e iniciar cuenta atrás automáticamente
 window.generarRetoCifras = async function () {
-  // Quitamos el candado visual para que la pantalla vuelva a escuchar en tiempo real
   const contenedor = document.getElementById("tvListaRespuestasCifras");
   if (contenedor) contenedor.removeAttribute("data-validado");
+  
   rondaActualCifras++;
-  // Si es la ronda 1 (o si nos habíamos pasado de 5), reiniciamos el minijuego
   if (rondaActualCifras === 1 || rondaActualCifras > 5) {
     rondaActualCifras = 1;
-    puntuacionJuegoCifras = {}; // Vaciamos el marcador local
+    puntuacionJuegoCifras = {}; 
     jugadoresCifras.forEach(j => {
-      puntuacionJuegoCifras[j.id] = 0; // Todos empiezan con 0 puntos internos
+      puntuacionJuegoCifras[j.id] = 0; 
     });
   }
+
+  // Reinicializar el Reloj de Arena
+  reiniciarCronometroCifrasInterface();
+  controlarTiempoCifras('iniciar');
+
   let opciones = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 25, 50, 75, 100];
   cifrasDeLaRonda = [];
 
-  // Seleccionar exactamente 6 números sin repetir tarjetas
   for (let i = 0; i < 6; i++) {
     const randomIdx = Math.floor(Math.random() * opciones.length);
     const numeroElegido = opciones.splice(randomIdx, 1)[0];
     cifrasDeLaRonda.push(numeroElegido);
   }
 
-  // Generar número objetivo (entre 101 y 999)
   objetivoDeLaRonda = Math.floor(Math.random() * 899) + 101;
 
-  // Pintar en la TV
   const contenedorCifras = document.getElementById("tvNumerosDisponibles");
   contenedorCifras.innerHTML = cifrasDeLaRonda.map(num => `
-    <span style="background:#ffc107; color:black; font-size:1.8rem; font-weight:bold; padding:5px 15px; border-radius:5px; box-shadow:0 2px 4px rgba(0,0,0,0.5); margin: 0 5px;">${num}</span>
+    <span style="background:#fffdf9; color:#8c6d31; font-size:1.8rem; font-weight:bold; padding:5px 15px; border: 2px solid #b89047; box-shadow:2px 2px 5px rgba(0,0,0,0.05); margin: 0 5px; font-family: monospace;">${num}</span>
   `).join("");
 
   document.getElementById("tvNumeroObjetivo").innerText = objetivoDeLaRonda;
-  console.log(cifrasDeLaRonda, objetivoDeLaRonda);
 
-  // Subir reto a Firebase
   try {
     await updateDoc(doc(window.db, "game", "numberState"), {
       cifrasDisponibles: cifrasDeLaRonda,
       cifrasObjetivo: objetivoDeLaRonda
     });
   } catch (e) {
-    console.error("Error subiendo reto a Firebase:", e);
+    console.error("Error al asentar el reto en el Olimpo Firebase:", e);
   }
 };
 
-// 2. 🔥 FUNCIÓN DE VALIDACIÓN MATEMÁTICA (Modificada para aceptar aproximaciones)
+// Sistema de control de la arena del tiempo
+window.controlarTiempoCifras = function (accion) {
+  const elReloj = document.getElementById("tvCronometroCifras");
+
+  if (accion === "iniciar") {
+    if (intervaloCronometroCifras) return;
+
+    intervaloCronometroCifras = setInterval(() => {
+      if (tiempoRestanteCifras <= 0) {
+        clearInterval(intervaloCronometroCifras);
+        intervaloCronometroCifras = null;
+        if (elReloj) elReloj.style.color = "#912b2b";
+        return;
+      }
+      tiempoRestanteCifras--;
+      const minutos = String(Math.floor(tiempoRestanteCifras / 60)).padStart(2, '0');
+      const segundos = String(tiempoRestanteCifras % 60).padStart(2, '0');
+      if (elReloj) elReloj.innerText = `${minutos}:${segundos}`;
+    }, 1000);
+
+  } else if (accion === "pausar") {
+    clearInterval(intervaloCronometroCifras);
+    intervaloCronometroCifras = null;
+  }
+  else if (accion === "acabar") {
+    clearInterval(intervaloCronometroCifras);
+    intervaloCronometroCifras = null;
+    tiempoRestanteCifras = 0;
+    if (elReloj) {
+      elReloj.innerText = "00:00";
+      elReloj.style.color = "#912b2b";
+    }
+  
+  }
+};
+
+function reiniciarCronometroCifrasInterface() {
+  clearInterval(intervaloCronometroCifras);
+  intervaloCronometroCifras = null;
+  tiempoRestanteCifras = 120;
+
+  const elReloj = document.getElementById("tvCronometroCifras");
+  if (elReloj) {
+    elReloj.innerText = "02:00";
+    elReloj.style.color = "#2c221e";
+  }
+}
+
 function analizarFormula(formulaString, numerosPermitidos, resultadoObjetivo) {
   const formulalimpia = formulaString.replace(/\s+/g, "");
-  if (!formulalimpia) return { valido: false, motivo: "Fórmula vacía" };
+  if (!formulalimpia) return { valido: false, motivo: "Pergamino en blanco" };
 
   const caracteresPermitidos = /^[0-9+\-*/().]+$/;
   if (!caracteresPermitidos.test(formulalimpia)) {
-    return { valido: false, motivo: "Contiene caracteres inválidos o letras" };
+    return { valido: false, motivo: "Caracteres profanos introducidos" };
   }
 
   const numerosUsados = formulalimpia.match(/\d+/g).map(Number);
@@ -1965,7 +2010,7 @@ function analizarFormula(formulaString, numerosPermitidos, resultadoObjetivo) {
   for (let num of numerosUsados) {
     const idx = copiaPermitidos.indexOf(num);
     if (idx === -1) {
-      return { valido: false, motivo: `El número ${num} no está en la lista o lo has usado de más` };
+      return { valido: false, motivo: `El numero ${num} viola las leyes del Telar Sagrado` };
     }
     copiaPermitidos.splice(idx, 1);
   }
@@ -1975,32 +2020,31 @@ function analizarFormula(formulaString, numerosPermitidos, resultadoObjetivo) {
     const resultadoReal = calcular();
 
     if (isNaN(resultadoReal) || resultadoReal === Infinity) {
-      return { valido: false, motivo: "Resultado matemático indefinido o erróneo" };
+      return { valido: false, motivo: "Resultado matematico indefinido" };
     }
 
-    // Si la matemática es correcta la damos por válida. La distancia al objetivo se mide en el ranking.
     return { valido: true, resultado: resultadoReal };
-
   } catch (error) {
-    return { valido: false, motivo: "Error de sintaxis en la ecuación (paréntesis, etc.)" };
+    return { valido: false, motivo: "Sintaxis erronea en las uniones aritmeticas" };
   }
 }
 
-// 3. BOTÓN: CALCULAR RANKING LOCAL, ASIGNAR PUNTOS Y PINTAR CLASIFICACIÓN GENERAL PERMANENTE
 window.validarRespuestasCifras = async function () {
-  if (jugadoresCifras.length === 0) return alert("No hay respuestas que validar.");
+  if (jugadoresCifras.length === 0) return alert("Las urnas estan vacias de votos.");
+
+  // Detener el reloj automáticamente durante la evaluación
+  clearInterval(intervaloCronometroCifras);
+  intervaloCronometroCifras = null;
 
   const contenedor = document.getElementById("tvListaRespuestasCifras");
   contenedor.setAttribute("data-validado", "true");
 
-  contenedor.innerHTML = `<h4 style='color:#ffc107; margin:0 0 5px 0;'>Resultados Ronda ${rondaActualCifras} / 5:</h4>`;
+  contenedor.innerHTML = `<h4 style='color:#8c6d31; margin:0 0 12px 0; font-variant: small-caps;'>Juicio de la Ronda ${rondaActualCifras} / 5:</h4>`;
 
-  // Asegurar que todos los jugadores activos existan en el marcador local
   jugadoresCifras.forEach(j => {
     if (puntuacionJuegoCifras[j.id] === undefined) puntuacionJuegoCifras[j.id] = 0;
   });
 
-  // 1. Evaluar matemáticamente las fórmulas
   let jugadoresEvaluados = jugadoresCifras.map(j => {
     const verificacion = analizarFormula(j.formula, cifrasDeLaRonda, objetivoDeLaRonda);
     let resultadoReal = verificacion.resultado;
@@ -2015,14 +2059,12 @@ window.validarRespuestasCifras = async function () {
       valido: verificacion.valido && j.formula !== "",
       resultado: resultadoReal || 0,
       distancia: distancia,
-      motivo: verificacion.motivo || "Sin respuesta enviada"
+      motivo: verificacion.motivo || "Voto ausente"
     };
   });
 
-  // 2. Comprobar condiciones de puntuación de la ronda
   const alguienAcertoExacto = jugadoresEvaluados.some(j => j.valido && j.distancia === 0);
 
-  // Encontrar la menor distancia conseguida por alguien válido
   let menorDistanciaRonda = Infinity;
   jugadoresEvaluados.forEach(j => {
     if (j.valido && j.distancia < menorDistanciaRonda) {
@@ -2030,7 +2072,6 @@ window.validarRespuestasCifras = async function () {
     }
   });
 
-  // 3. Asignar puntos del minijuego (+2 o +1) y pintar el intento en pantalla
   jugadoresEvaluados.forEach(j => {
     let puntosRondaLocal = 0;
     let lineaHtml = "";
@@ -2039,61 +2080,56 @@ window.validarRespuestasCifras = async function () {
       const esExacto = j.distancia === 0;
 
       if (esExacto) {
-        puntosRondaLocal = 2; // Regla: Acierto exacto = 2 puntos
+        puntosRondaLocal = 2; 
       } else if (!alguienAcertoExacto && j.distancia === menorDistanciaRonda) {
-        puntosRondaLocal = 1; // Regla: Nadie exacto, el más cercano = 1 punto
+        puntosRondaLocal = 1; 
       }
 
-      // Sumamos al marcador de este juego interno
       puntuacionJuegoCifras[j.id] += puntosRondaLocal;
 
-      const colorTexto = esExacto ? "#00e676" : "#ffb300";
+      const colorTexto = esExacto ? "#2e4225" : "#a37a1a";
       lineaHtml = `
-        <div style="padding:10px; background:#1b5e20; border-radius:6px; margin-bottom:8px;">
-          <strong>🟢 ${j.name}:</strong> <code>${j.formula}</code> = <strong>${j.resultado}</strong> 
-          <br><span style="color:${colorTexto}; font-size:0.9rem;">(${esExacto ? '¡CORRECTO EXACTO! +2' : `Más cercano a ${j.distancia} u. +1`})</span>
-          <strong style="float:right; color:#ffc107;">Esta ronda: +${puntosRondaLocal} pts</strong>
+        <div style="padding:10px; background:#f4f7f1; border-left: 4px solid #2e4225; margin-bottom:8px; color: #2c221e;">
+          <strong>Ofrenda de ${j.name}:</strong> <code style="background:#fff; padding:2px 4px; border:1px solid #e3dac9;">${j.formula}</code> = <strong>${j.resultado}</strong> 
+          <br><span style="color:${colorTexto}; font-size:0.9rem; font-weight: bold; font-variant: small-caps;">(${esExacto ? 'Calculo exacto bendecido con +2' : `Proximidad al destino concedida a ${j.distancia} unidades. +1`})</span>
+          <strong style="float:right; color:#8c6d31; font-variant: small-caps;">+${puntosRondaLocal} Favor</strong>
         </div>`;
     } else {
       lineaHtml = `
-        <div style="padding:10px; background:#b71c1c; border-radius:6px; margin-bottom:8px; opacity: 0.7;">
-          <strong>🔴 ${j.name}:</strong> <code>${j.formula || "N/A"}</code>
-          <br><span style="font-size:0.85rem; color:#ffcdd2;">❌ Incorrecto: ${j.motivo}</span>
+        <div style="padding:10px; background:#fff2f2; border-left: 4px solid #912b2b; margin-bottom:8px; opacity: 0.8; color: #2c221e;">
+          <strong>Ofrenda de ${j.name}:</strong> <code>${j.formula || "N/A"}</code>
+          <br><span style="font-size:0.85rem; color:#912b2b; font-weight: bold; font-variant: small-caps;">Rechazado por las Moiras: ${j.motivo}</span>
         </div>`;
     }
 
     contenedor.innerHTML += lineaHtml;
   });
 
-  // 4. Limpiar las fórmulas en Firebase para dejar los móviles listos sin alterar puntuaciones globales aún
   for (let j of jugadoresCifras) {
     try {
       await updateDoc(doc(window.db, "players", j.id), { cifrasFormula: "" });
     } catch (err) {
-      console.error("Error limpiando pantalla móvil:", err);
+      console.error("Error al purgar pergaminos antiguos:", err);
     }
   }
 
-  // 5. Construir el ranking interno actual de este juego para mostrarlo en la tabla
   let listaRankingJuego = jugadoresCifras.map(j => ({
     id: j.id,
     name: j.name,
     scoreJuego: puntuacionJuegoCifras[j.id]
   }));
 
-  // Ordenamos de mayor a menor puntuación del juego interno
   listaRankingJuego.sort((a, b) => b.scoreJuego - a.scoreJuego);
 
-  // Pintar la tabla de clasificación interna en la TV
   let tablaHtml = `
-    <div style="margin-top: 20px; background: #000; padding: 15px; border-radius: 8px; border: 1px solid #ffc107;">
-      <h3 style="color: #ffc107; margin-top: 0; text-align: center; font-size: 1.2rem;">🏆 CLASIFICACIÓN DEL JUEGO (Ronda ${rondaActualCifras}/5)</h3>
-      <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 1.05rem;">
+    <div style="margin-top: 25px; background: #fffdf5; padding: 15px; border: 2px solid #b89047;">
+      <h3 style="color: #8c6d31; margin-top: 0; text-align: center; font-size: 1.15rem; font-variant: small-caps; letter-spacing: 1px;">Favor Acumulado en el Altar (Ronda ${rondaActualCifras}/5)</h3>
+      <table style="width: 100%; border-collapse: collapse; font-size: 1.05rem;">
         <thead>
-          <tr style="border-bottom: 2px solid #333; color: #aaa;">
+          <tr style="border-bottom: 2px solid #e3dac9; color: #6e5d4f; font-variant: small-caps;">
             <th style="padding: 6px;">Pos</th>
-            <th style="padding: 6px;">Jugador</th>
-            <th style="padding: 6px; text-align: right;">Puntos Juego</th>
+            <th style="padding: 6px;">Dios</th>
+            <th style="padding: 6px; text-align: right;">Puntuación</th>
           </tr>
         </thead>
         <tbody>
@@ -2101,10 +2137,10 @@ window.validarRespuestasCifras = async function () {
 
   listaRankingJuego.forEach((jugador, index) => {
     tablaHtml += `
-      <tr style="border-bottom: 1px solid #222;">
-        <td style="padding: 8px; font-weight: bold;">#${index + 1}</td>
-        <td style="padding: 8px;">${jugador.name} ${index === 0 ? '👑' : ''}</td>
-        <td style="padding: 8px; text-align: right; font-weight: bold; color: #ffc107;">${jugador.scoreJuego} pts</td>
+      <tr style="border-bottom: 1px solid #f5ede4;">
+        <td style="padding: 8px; font-weight: bold; color: #8c6d31;">#${index + 1}</td>
+        <td style="padding: 8px; font-weight: bold;">${jugador.name} ${index === 0 ? '(Elegido)' : ''}</td>
+        <td style="padding: 8px; text-align: right; font-weight: bold; color: #b89047;">${jugador.scoreJuego} Fv</td>
       </tr>
     `;
   });
@@ -2112,12 +2148,7 @@ window.validarRespuestasCifras = async function () {
   tablaHtml += `</tbody></table></div>`;
   contenedor.innerHTML += tablaHtml;
 
-  // ==========================================
-  // FINAL DEL JUEGO: SI LLEGAMOS A LA RONDA 5, REPARTIMOS EN FIREBASE GLOBAL
-  // ==========================================
   if (rondaActualCifras === 5) {
-    alert("🏁 ¡Fin de la Ronda 5! Calculando posiciones finales para transferir puntos a la clasificación general.");
-
     const tablaPuntosGlobales = [10, 8, 6, 5, 4, 3, 2, 1];
 
     for (let index = 0; index < listaRankingJuego.length; index++) {
@@ -2134,31 +2165,28 @@ window.validarRespuestasCifras = async function () {
             if (d.id === jugadorRanking.id) scoreGlobalActual = d.data().score ?? 0;
           });
 
-          // Sumamos la recompensa a su cuenta real de Firebase
           await updateDoc(playerRef, {
             score: scoreGlobalActual + puntosParaFirebase
           });
-          console.log(`Transferidos +${puntosParaFirebase} pts globales a ${jugadorRanking.name}`);
         } catch (err) {
-          console.error("Error al transferir puntos finales a Firebase:", err);
+          console.error("Error al asentar favor final en el firmamento:", err);
         }
       }
     }
-    alert("🏆 ¡Puntos de torneo asignados en la base de datos global con éxito! El juego se reiniciará en el próximo reto.");
-  } else {
-    alert(`Ronda ${rondaActualCifras} validada. ¡Siguiente reto listo para generar!`);
+   
   }
 };
 
+//========================================
+// ==========================================
+// Juego: El Juicio de Epimeteo
+// ==========================================
+let listaSospechososRonda = [];   
+let todosLosActivosMentiroso = []; 
+let indiceVerdadero = -1;         
+let puntosLocalesMentiroso = {};  
+let rondaActualMentiroso = 0;     
 
-// --- VARIABLES GLOBALES EL MENTIROSO ---
-let listaSospechososRonda = [];   // Los 4 sospechosos seleccionados
-let todosLosActivosMentiroso = []; // Cache de todos los jugadores de la sala
-let indiceVerdadero = -1;         // Quién dice la verdad (0 a 3)
-let puntosLocalesMentiroso = {};  // Puntuación del minijuego { idJugador: puntos }
-let rondaActualMentiroso = 0;     // Contador de rondas ejecutadas
-
-// CARGAR Y REPRODUCIR VIDEOS DE LA CARPETA assets/videosMentiroso
 window.loadVideosMentiroso = async function () {
   const cont = document.getElementById("tvMultimediaMentiroso");
   if (!cont) return;
@@ -2169,17 +2197,15 @@ window.loadVideosMentiroso = async function () {
     const lista = await resp.json();
     if (!Array.isArray(lista) || lista.length === 0) return;
 
-    // Guardamos la lista y el índice globalmente para control manual
     window._mentirosoVideosList = lista;
     window._mentirosoVideoIdx = 0;
 
-    // Crear un único elemento <video> que reproducirá el archivo actual
     const video = document.createElement('video');
     video.id = 'videoMentirosoPlayer';
     video.style.maxWidth = '100%';
     video.style.maxHeight = '180px';
-    video.style.borderRadius = '6px';
-    video.style.border = '2px solid #38bdf8';
+    video.style.borderRadius = '4px';
+    video.style.border = '2px solid #b89047';
     video.controls = true;
 
     const basePath = 'assets/videosMentiroso/';
@@ -2191,25 +2217,21 @@ window.loadVideosMentiroso = async function () {
       video.load();
     }
 
-    // Inicializar con el primer video
     cargarIndice(0);
-
-    // Vaciar contenedor y añadir video
     cont.innerHTML = '';
     cont.appendChild(video);
 
   } catch (e) {
-    console.error('Error cargando videos del mentiroso:', e);
+    console.error('Error cargando los testimonios sagrados:', e);
   }
 };
 
-// Función que avanza manualmente a la siguiente evidencia (llamada desde el botón en el HTML)
 window.siguienteEvidenciaMentiroso = function () {
-  if (!window._mentirosoVideosList) return alert('No hay evidencias cargadas.');
+  if (!window._mentirosoVideosList) return alert('No hay pruebas procesadas por el oráculo.');
   window._mentirosoVideoIdx = (window._mentirosoVideoIdx || 0) + 1;
   if (window._mentirosoVideoIdx >= window._mentirosoVideosList.length) {
     window._mentirosoVideoIdx = window._mentirosoVideosList.length - 1;
-    return alert('No hay más evidencias.');
+    return alert('Se han agotado las pruebas del oraculo.');
   }
   const video = document.getElementById('videoMentirosoPlayer');
   if (!video) return;
@@ -2218,32 +2240,27 @@ window.siguienteEvidenciaMentiroso = function () {
   video.play().catch(() => { });
 };
 
-// Inicializar la carga (intento silencioso al arrancar el script)
 window.loadVideosMentiroso();
 
-// 1. ELEGIR SOSPECHOSOS AL AZAR E INICIALIZAR ESTRUCTURAS SELECTORAS
 window.elegirSospechososAlAzar = async function () {
   try {
     rondaActualMentiroso++;
-    window.ocultarVerdadMentiroso(); // Empezamos con la solución oculta
+    window.ocultarVerdadMentiroso(); 
 
     const contenedor = document.getElementById("tvSospechososContenedor");
 
-    // Obtener los jugadores activos en tiempo real
     const snap = await getDocs(query(collection(window.db, "players"), where("active", "==", true)));
     todosLosActivosMentiroso = [];
     snap.forEach(d => { todosLosActivosMentiroso.push({ id: d.id, ...d.data() }); });
 
     if (todosLosActivosMentiroso.length < 4) {
-      return alert(`Faltan jugadores activos en la sala. Mínimo 4 (Hay: ${todosLosActivosMentiroso.length})`);
+      return alert(`Se requiere la presencia de mas almas en el tribunal. Minimo 4 (Actuales: ${todosLosActivosMentiroso.length})`);
     }
 
-    // Inicializar el marcador local del minijuego si es la primera ronda
     todosLosActivosMentiroso.forEach(j => {
       if (puntosLocalesMentiroso[j.id] === undefined) puntosLocalesMentiroso[j.id] = 0;
     });
 
-    // Seleccionar 4 sospechosos al azar
     let copiaActivos = [...todosLosActivosMentiroso];
     listaSospechososRonda = [];
     for (let i = 0; i < 4; i++) {
@@ -2252,14 +2269,12 @@ window.elegirSospechososAlAzar = async function () {
     }
 
     indiceVerdadero = Math.floor(Math.random() * 4);
-    console.log("Sospechosos escogidos:", listaSospechososRonda, "Verdadero:", indiceVerdadero);
+    console.log("Acusados en el estrado:", listaSospechososRonda, "Portador de la verdad:", indiceVerdadero);
 
-    // Dibujar los 4 paneles de sospechosos con una zona interactiva selectiva para añadir quién los votó
     contenedor.innerHTML = "";
     listaSospechososRonda.forEach((jugador, index) => {
 
-      // Generar las opciones del selector de votos (todos los de la sala menos el propio sospechoso)
-      let opcionesSelectHtml = `<option value="">-- Añadir Voto de... --</option>`;
+      let opcionesSelectHtml = `<option value="">-- Depositar voto de... --</option>`;
       todosLosActivosMentiroso.forEach(activo => {
         if (activo.id !== jugador.id) {
           opcionesSelectHtml += `<option value="${activo.id}">${activo.name}</option>`;
@@ -2268,33 +2283,30 @@ window.elegirSospechososAlAzar = async function () {
 
       const card = document.createElement("div");
       card.id = `cardSospechoso-${index}`;
-      card.style.background = "#1e293b";
+      card.style.background = "#fffdfa";
       card.style.padding = "15px";
-      card.style.borderRadius = "10px";
-      card.style.textAlign = "center";
-      card.style.border = "2px solid #334155";
+      card.style.border = "2px solid #e3dac9";
       card.style.display = "flex";
       card.style.flexDirection = "column";
       card.style.gap = "10px";
 
       card.innerHTML = `
         <div>
-          <div style="font-size: 1.2rem; font-weight: bold; color: #fff;">${jugador.name}</div>
-          <div id="rol-${index}" style="color: #38bdf8; font-weight: bold; font-size: 0.85rem; margin-top: 4px;">🤫 SOSPECHOSO</div>
+          <div style="font-size: 1.2rem; font-weight: bold; color: #2c251e; font-variant: small-caps;">${jugador.name}</div>
+          <div id="rol-${index}" style="color: #8c6d31; font-weight: bold; font-size: 0.85rem; margin-top: 4px; font-variant: small-caps; letter-spacing: 1px;">SOSPECHOSO</div>
         </div>
 
-        <div style="background: #0f172a; padding: 8px; border-radius: 6px; border: 1px dashed #475569;">
-          <select id="selectVotante-${index}" onchange="registrarVotoHaciaSospechoso(${index}, this)" style="background:#1e293b; color:white; border:1px solid #475569; padding:4px; font-size:0.85rem; width:100%; border-radius:4px;">
+        <div style="background: #faf8f2; padding: 8px; border: 1px dashed #b89047;">
+          <select id="selectVotante-${index}" onchange="registrarVotoHaciaSospechoso(${index}, this)" style="background:#fffdfa; color:#2c251e; border:1px solid #b89047; padding:4px; font-family:inherit; font-size:0.85rem; width:100%;">
             ${opcionesSelectHtml}
           </select>
           <div id="listaVotosRecibidos-${index}" style="display:flex; flex-wrap:wrap; gap:4px; margin-top:8px; justify-content:center;">
-            </div>
+          </div>
         </div>
       `;
       contenedor.appendChild(card);
     });
 
-    // Reiniciar la evidencia al comienzo de la ronda
     if (window._mentirosoVideosList && window._mentirosoVideosList.length > 0) {
       window._mentirosoVideoIdx = 0;
       const vid = document.getElementById('videoMentirosoPlayer');
@@ -2307,11 +2319,10 @@ window.elegirSospechososAlAzar = async function () {
     window.actualizarPizarraRankingLocal();
 
   } catch (e) {
-    console.error("Error iniciando ronda de Mentiroso:", e);
+    console.error("Error al abrir el tribunal de Epimeteo:", e);
   }
 };
 
-// 2. REGISTRAR EL VOTO EN EL PANEL VISUAL
 window.registrarVotoHaciaSospechoso = function (indiceSospechoso, selectElement) {
   const jugadorId = selectElement.value;
   if (!jugadorId) return;
@@ -2321,55 +2332,61 @@ window.registrarVotoHaciaSospechoso = function (indiceSospechoso, selectElement)
 
   const contenedorFichas = document.getElementById(`listaVotosRecibidos-${indiceSospechoso}`);
 
-  // Evitar duplicar el voto de un mismo jugador en esta ronda
   if (document.getElementById(`votoFicha-${jugadorId}`)) {
-    alert("Este jugador ya ha emitido su voto en la pizarra.");
+    alert("Esta alma ya ha depositado su voto en la pizarra.");
     selectElement.value = "";
     return;
   }
 
-  // Crear la etiqueta del voto asignado
   const ficha = document.createElement("span");
   ficha.id = `votoFicha-${jugadorId}`;
   ficha.setAttribute("data-votante-id", jugadorId);
-  ficha.style.background = "#38bdf8";
-  ficha.style.color = "#0f172a";
+  ficha.style.background = "#8c6d31";
+  ficha.style.color = "white";
   ficha.style.padding = "2px 6px";
-  ficha.style.borderRadius = "4px";
   ficha.style.fontSize = "0.8rem";
   ficha.style.fontWeight = "bold";
+  ficha.style.fontVariant = "small-caps";
   ficha.style.cursor = "pointer";
-  ficha.title = "Haz clic para retirar el voto";
-  ficha.innerText = `🗳️ ${jugadorObjeto.name}`;
+  ficha.title = "Retirar voto de la urna";
+  ficha.innerText = `Voto: ${jugadorObjeto.name}`;
 
-  // Si se pulsa encima por error, se borra de la lista
   ficha.onclick = () => { ficha.remove(); };
 
   contenedorFichas.appendChild(ficha);
-  selectElement.value = ""; // Reseteamos el desplegable
+  selectElement.value = ""; 
 };
 
-// 3. REVELAR LA VERDAD
 window.revelarVerdadMentiroso = function () {
-  if (listaSospechososRonda.length === 0) return alert("No hay sospechosos en juego.");
+  if (listaSospechososRonda.length === 0) return alert("No hay acusados bajo el dictamen del tribunal.");
 
   const ganador = listaSospechososRonda[indiceVerdadero];
   const cartelSolucion = document.getElementById("tvSolucionMentiroso");
-  cartelSolucion.innerText = `¡${ganador.name} DICE LA VERDAD!`;
-  cartelSolucion.style.color = "#22c55e";
+  cartelSolucion.innerText = `${ganador.name.toUpperCase()} CUSTODIA LA VERDAD`;
+  cartelSolucion.style.color = "#2e4225";
 
   listaSospechososRonda.forEach((j, index) => {
     const card = document.getElementById(`cardSospechoso-${index}`);
     const rolTexto = document.getElementById(`rol-${index}`);
 
     if (index === indiceVerdadero) {
-      if (card) card.style.borderColor = "#22c55e";
-      if (card) card.style.background = "rgba(34, 197, 94, 0.1)";
-      if (rolTexto) { rolTexto.innerText = "😇 DICE LA VERDAD"; rolTexto.style.color = "#22c55e"; }
+      if (card) {
+        card.style.borderColor = "#2e4225";
+        card.style.background = "#f4f7f1";
+      }
+      if (rolTexto) { 
+        rolTexto.innerText = "HONESTO"; 
+        rolTexto.style.color = "#2e4225"; 
+      }
     } else {
-      if (card) card.style.borderColor = "#ef4444";
-      if (card) card.style.opacity = "0.6";
-      if (rolTexto) { rolTexto.innerText = "🤥 MENTIROSO"; rolTexto.style.color = "#ef4444"; }
+      if (card) {
+        card.style.borderColor = "#912b2b";
+        card.style.opacity = "0.6";
+      }
+      if (rolTexto) { 
+        rolTexto.innerText = "MENTIROSO"; 
+        rolTexto.style.color = "#912b2b"; 
+      }
     }
   });
 
@@ -2379,21 +2396,23 @@ window.revelarVerdadMentiroso = function () {
   if (v) v.play().catch(() => { });
 };
 
-// 4. OCULTAR LA VERDAD
 window.ocultarVerdadMentiroso = function () {
   const cartelSolucion = document.getElementById("tvSolucionMentiroso");
-  cartelSolucion.innerText = "OCULTA";
-  cartelSolucion.style.color = "#ffc107";
+  cartelSolucion.innerText = "OCULTO";
+  cartelSolucion.style.color = "#a37a1a";
 
   listaSospechososRonda.forEach((j, index) => {
     const card = document.getElementById(`cardSospechoso-${index}`);
     const rolTexto = document.getElementById(`rol-${index}`);
     if (card) {
-      card.style.borderColor = "#334155";
-      card.style.background = "#1e293b";
+      card.style.borderColor = "#e3dac9";
+      card.style.background = "#fffdfa";
       card.style.opacity = "1";
     }
-    if (rolTexto) { rolTexto.innerText = "🤫 SOSPECHOSO"; rolTexto.style.color = "#38bdf8"; }
+    if (rolTexto) { 
+      rolTexto.innerText = "SOSPECHOSO"; 
+      rolTexto.style.color = "#8c6d31"; 
+    }
   });
 
   document.getElementById("tvMultimediaMentiroso").style.display = "none";
@@ -2402,21 +2421,18 @@ window.ocultarVerdadMentiroso = function () {
   if (v) { try { v.pause(); v.currentTime = 0; } catch (e) { } }
 };
 
-// 5. EVALUAR LA PIZARRA DE VOTOS (REGLAS DE REPARTO COMPLEJAS DE LA RONDA)
 window.validarVotosYAcertantesMentiroso = function () {
-  if (listaSospechososRonda.length === 0 || indiceVerdadero === -1) return alert("No hay ninguna ronda activa.");
+  if (listaSospechososRonda.length === 0 || indiceVerdadero === -1) return alert("No hay causas abiertas en esta ronda.");
 
-  // Forzar que se revele visualmente en la TV
   window.revelarVerdadMentiroso();
 
   const idGanadorVerdadero = listaSospechososRonda[indiceVerdadero].id;
 
-  let recuentoVotosPorSospechoso = {}; // { indiceSospechoso: cantidadDeVotos }
+  let recuentoVotosPorSospechoso = {}; 
   let totalVotosEnMentiras = 0;
   let totalVotosEnVerdad = 0;
-  let desgloseAlert = "📊 Escrutinio de la Ronda:\n\n";
+  let desgloseAlert = "Escrutinio del Tribunal de Epimeteo:\n\n";
 
-  // --- PASO 1: Contar cuántos votos tiene cada una de las 4 tarjetas ---
   listaSospechososRonda.forEach((sospechoso, index) => {
     const contenedorVotos = document.getElementById(`listaVotosRecibidos-${index}`);
     const fichas = contenedorVotos.querySelectorAll("[data-votante-id]");
@@ -2430,51 +2446,41 @@ window.validarVotosYAcertantesMentiroso = function () {
     }
   });
 
-  // --- PASO 2: Repartir los puntos locales basándonos en las reglas ---
   listaSospechososRonda.forEach((sospechoso, index) => {
 
-    // CASO A: Es uno de los Mentirosos
     if (index !== indiceVerdadero) {
       const votosEngañados = recuentoVotosPorSospechoso[index];
       if (votosEngañados > 0) {
         puntosLocalesMentiroso[sospechoso.id] += votosEngañados;
-        desgloseAlert += `🤥 Mentiroso [${sospechoso.name}]: +${votosEngañados} pt(s) por engañar a ${votosEngañados} jugador(es).\n`;
+        desgloseAlert += `Mentiroso [${sospechoso.name}]: +${votosEngañados} punto(s) de favor por confundir a las almas.\n`;
       }
     }
-    // CASO B: Es el que dice la Verdad
     else {
-      // Fórmula: +1 por cada voto a favor - 1 por cada voto que se fue a una mentira
       const puntosCalculadosVerdad = totalVotosEnVerdad - totalVotosEnMentiras;
       puntosLocalesMentiroso[sospechoso.id] += puntosCalculadosVerdad;
-      desgloseAlert += `😇 Verdadero [${sospechoso.name}]: Got ${totalVotosEnVerdad} votos y hubo ${totalVotosEnMentiras} fallos. Neto: ${puntosCalculadosVerdad >= 0 ? '+' : ''}${puntosCalculadosVerdad} pt(s).\n`;
+      desgloseAlert += `Honesto [${sospechoso.name}]: Recibio ${totalVotosEnVerdad} votos frente a ${totalVotosEnMentiras} Herejias. Balance Neto: ${puntosCalculadosVerdad >= 0 ? '+' : ''}${puntosCalculadosVerdad} punto(s).\n`;
     }
 
-    // CASO C: Premiar a los votantes individuales de la caja correcta (+1 pt por acertar)
     if (index === indiceVerdadero) {
       const contenedorCorrecto = document.getElementById(`listaVotosRecibidos-${indiceVerdadero}`);
       const fichasCorrectas = contenedorCorrecto.querySelectorAll("[data-votante-id]");
 
-      if (fichasCorrectas.length > 0) desgloseAlert += `\n🎯 Acertantes (+1 pt):\n`;
+      if (fichasCorrectas.length > 0) desgloseAlert += `\nAlmas Justas que acertaron (+1 Favor):\n`;
       fichasCorrectas.forEach(ficha => {
         const idVotante = ficha.getAttribute("data-votante-id");
         if (puntosLocalesMentiroso[idVotante] !== undefined) {
           puntosLocalesMentiroso[idVotante] += 1;
 
-          // Conseguimos su nombre para el resumen de la alerta
           const pObj = todosLosActivosMentiroso.find(p => p.id === idVotante);
-          desgloseAlert += ` - ${pObj ? pObj.name : 'Jugador'}\n`;
+          desgloseAlert += ` - ${pObj ? pObj.name : 'Alma'} \n`;
         }
       });
     }
   });
 
-  // Actualizar la tabla visual derecha en la TV
   window.actualizarPizarraRankingLocal();
-
-  // Mostrar resumen emergente en el PC/TV del desglose
-  alert(desgloseAlert);
 };
-// 6. PINTAR EL MARCADOR DEL MINIJUEGO EN LA TV
+
 window.actualizarPizarraRankingLocal = function () {
   const listaContenedor = document.getElementById("listaPuntosLocalesMentiroso");
   if (!listaContenedor) return;
@@ -2483,7 +2489,7 @@ window.actualizarPizarraRankingLocal = function () {
     const player = todosLosActivosMentiroso.find(p => p.id === id);
     return {
       id: id,
-      name: player ? player.name : "Desconocido",
+      name: player ? player.name : "Alma Perdida",
       pts: puntosLocalesMentiroso[id]
     };
   });
@@ -2505,22 +2511,20 @@ window.actualizarPizarraRankingLocal = function () {
     prevRank = rank;
 
     listaContenedor.innerHTML += `
-      <div style="display:flex; justify-content:space-between; background:#0f172a; padding:6px 10px; border-radius:4px; border:1px solid #1e293b;">
-        <span>#${rank} ${jugador.name}</span>
-        <strong style="color:#ffc107;">${jugador.pts} pts</strong>
+      <div style="display:flex; justify-content:space-between; background:#faf8f2; padding:6px 10px; border:1px solid #e3dac9;">
+        <span style="font-weight:bold;">Pos ${rank}: ${jugador.name}</span>
+        <strong style="color:#8c6d31;">${jugador.pts} Fv</strong>
       </div>
     `;
   }
 };
 
-// 7. BOTÓN FINALIZAR MINIJUEGO: VOLCAR LA ESCALA CON CONTROL DE EMPATES A FIREBASE GLOBAL
 window.finalizarMinijuegoMentiroso = async function () {
-  if (Object.keys(puntosLocalesMentiroso).length === 0) return alert("No hay datos locales guardados.");
+  if (Object.keys(puntosLocalesMentiroso).length === 0) return alert("Las actas del tribunal estan vacias.");
 
-  const confirmar = confirm("¿Quieres cerrar el minijuego de El Mentiroso y transferir la escala de puntos globales a la Base de Datos?");
+  const confirmar = confirm("¿Deseas concluir el Juicio de Epimeteo y transferir las mercedes de favor al firmamento global?");
   if (!confirmar) return;
 
-  // Ordenar de mayor a menor puntuación obtenida en el minijuego
   let rankingFinal = Object.keys(puntosLocalesMentiroso).map(id => ({
     id: id,
     ptsLocales: puntosLocalesMentiroso[id]
@@ -2531,19 +2535,15 @@ window.finalizarMinijuegoMentiroso = async function () {
   let prevPts = null;
   let puntosAsignadosTorneo = 0;
 
-  // Transferir los puntos correspondientes a Firebase calculando empates
   for (let i = 0; i < rankingFinal.length; i++) {
     const jRank = rankingFinal[i];
 
-    // Si coincide en puntos con el anterior, se lleva exactamente los mismos puntos
     if (i > 0 && jRank.ptsLocales === prevPts) {
-      // Mantiene los puntos asignados en la iteración anterior
+      // Se mantiene por el empate
     } else {
-      // Si no es un empate, toma los puntos que le corresponden por su índice en la tabla
       puntosAsignadosTorneo = tablaEscalaGlobal[i] || 0;
     }
 
-    // Guardamos el puntaje local actual para la comparativa de la siguiente iteración
     prevPts = jRank.ptsLocales;
 
     if (puntosAsignadosTorneo > 0) {
@@ -2558,21 +2558,17 @@ window.finalizarMinijuegoMentiroso = async function () {
           score: scoreGlobalActual + puntosAsignadosTorneo
         });
 
-        console.log(`Sincronizado: ${jRank.id} recibe +${puntosAsignadosTorneo} pts.`);
+        console.log(`Consagrado: ${jRank.id} asciende con +${puntosAsignadosTorneo} de Gracia.`);
       } catch (error) {
-        console.error("Error al transferir puntos finales:", error);
+        console.error("Error al elevar los puntos globales al Olimpo:", error);
       }
     }
   }
 
-  alert("🏆 ¡Torneo cerrado con éxito! Las posiciones calculadas con empates se han guardado en Firebase.");
-
-  // Resetear el estado del minijuego
   puntosLocalesMentiroso = {};
   rondaActualMentiroso = 0;
   window.ocultarVerdadMentiroso();
 };
-
 // ==========================================
 // Juego 9º: El último teorema (TELEVISIÓN)
 // ==========================================

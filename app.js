@@ -807,34 +807,45 @@ let numerosDisponiblesRonda = [];
 let indicesNumerosUsados = [];
 
 function numbersAndLetters() {
+  jugadorIdActual = localStorage.getItem("playerId");
 
-  window.iniciarMovilCifrasYLetras = function () {
-    jugadorIdActual = localStorage.getItem("playerId");
+  if (window._cifrasListenerActive) {
+    return;
+  }
+  window._cifrasListenerActive = true;
 
-    // Al iniciar una ronda nueva, nos aseguramos de resetear los paneles visibles
+  const resetCifrasUI = () => {
     if (document.getElementById("formularioCifrasContenedor")) document.getElementById("formularioCifrasContenedor").style.display = "block";
     if (document.getElementById("esperaCifrasContenedor")) document.getElementById("esperaCifrasContenedor").style.display = "none";
-
+    formulaActualMovil = "";
+    indicesNumerosUsados = [];
     window.borrarTodoCifras();
+  };
 
-    onSnapshot(doc(window.db, "game", "numberState"), (docSnap) => {
-      if (!docSnap.exists()) return;
+  resetCifrasUI();
 
-      const data = docSnap.data();
-      numerosDisponiblesRonda = data.cifrasDisponibles || [];
-      const objetivo = data.cifrasObjetivo || 0;
+  onSnapshot(doc(window.db, "game", "numberState"), (docSnap) => {
+    if (!docSnap.exists()) return;
 
-      const elObjetivo = document.getElementById("movilObjetivoCifras");
-      if (elObjetivo) elObjetivo.innerText = objetivo > 0 ? objetivo : "---";
+    const data = docSnap.data();
+    numerosDisponiblesRonda = data.cifrasDisponibles || [];
+    const objetivo = data.cifrasObjetivo || 0;
 
-      // RENDERIZAR NÚMEROS (Estilo bloques de mármol del templo)
-      const contenedorBotones = document.getElementById("movilBotonesNumeros");
-      if (contenedorBotones) {
-        if (numerosDisponiblesRonda.length === 0) {
-          contenedorBotones.innerHTML = `<span style="color:#888; font-style:italic; text-align:center; width:100%;">Esperando las cifras de la Moira...</span>`;
-          return;
-        }
+    resetCifrasUI();
 
+    const formularioCifrasContenedor = document.getElementById("formularioCifrasContenedor");
+    const esperaCifrasContenedor = document.getElementById("esperaCifrasContenedor");
+    if (formularioCifrasContenedor) formularioCifrasContenedor.style.display = "block";
+    if (esperaCifrasContenedor) esperaCifrasContenedor.style.display = "none";
+
+    const elObjetivo = document.getElementById("movilObjetivoCifras");
+    if (elObjetivo) elObjetivo.innerText = objetivo > 0 ? objetivo : "---";
+
+    const contenedorBotones = document.getElementById("movilBotonesNumeros");
+    if (contenedorBotones) {
+      if (numerosDisponiblesRonda.length === 0) {
+        contenedorBotones.innerHTML = `<span style="color:#888; font-style:italic; text-align:center; width:100%;">Esperando las cifras de la Moira...</span>`;
+      } else {
         contenedorBotones.innerHTML = "";
         numerosDisponiblesRonda.forEach((num, index) => {
           const btn = document.createElement("button");
@@ -842,12 +853,9 @@ function numbersAndLetters() {
           btn.id = `btn-cifra-${index}`;
           btn.style.flex = "1";
           btn.style.margin = "4px";
-
-          // Estilo Mármol/Oro apagado original
           btn.style.background = "#1c2833";
           btn.style.color = "#d4af37";
           btn.style.border = "2px solid #b89047";
-
           btn.style.fontSize = "1.3rem";
           btn.style.fontWeight = "bold";
           btn.style.padding = "12px 5px";
@@ -855,7 +863,6 @@ function numbersAndLetters() {
           btn.style.cursor = "pointer";
           btn.style.transition = "all 0.2s ease";
 
-          // Si el índice ya estaba usado (por snapshot reactivo), lo dejamos apagado
           if (indicesNumerosUsados.includes(index)) {
             btn.style.background = "#0b1014";
             btn.style.color = "rgba(184, 144, 71, 0.2)";
@@ -867,50 +874,46 @@ function numbersAndLetters() {
           contenedorBotones.appendChild(btn);
         });
       }
+    }
 
-      // RENDERIZAR OPERADORES (Estilo bronce antiguo tallado)
-      const contenedorOperadores = document.getElementById("movilBotonesOperadores");
-      if (contenedorOperadores && contenedorOperadores.children.length === 0) {
-        const ops = ['+', '-', '*', '/', '(', ')'];
-        contenedorOperadores.innerHTML = "";
-        contenedorOperadores.style.display = "grid";
-        contenedorOperadores.style.gridTemplateColumns = "repeat(6, 1fr)";
-        contenedorOperadores.style.gap = "5px";
-        contenedorOperadores.style.marginTop = "10px";
+    const contenedorOperadores = document.getElementById("movilBotonesOperadores");
+    if (contenedorOperadores && contenedorOperadores.children.length === 0) {
+      const ops = ['+', '-', '*', '/', '(', ')'];
+      contenedorOperadores.innerHTML = "";
+      contenedorOperadores.style.display = "grid";
+      contenedorOperadores.style.gridTemplateColumns = "repeat(6, 1fr)";
+      contenedorOperadores.style.gap = "5px";
+      contenedorOperadores.style.marginTop = "10px";
 
-        ops.forEach(op => {
-          const btnOp = document.createElement("button");
-          btnOp.innerText = op === '*' ? '×' : op === '/' ? '÷' : op;
-          btnOp.style.padding = "12px 5px";
-          btnOp.style.fontSize = "1.3rem";
+      ops.forEach(op => {
+        const btnOp = document.createElement("button");
+        btnOp.innerText = op === '*' ? '×' : op === '/' ? '÷' : op;
+        btnOp.style.padding = "12px 5px";
+        btnOp.style.fontSize = "1.3rem";
+        btnOp.style.background = "#2b251a";
+        btnOp.style.color = "#f1e983";
+        btnOp.style.border = "1px solid #b89047";
+        btnOp.style.borderRadius = "4px";
+        btnOp.style.fontWeight = "bold";
+        btnOp.style.cursor = "pointer";
 
-          btnOp.style.background = "#2b251a";
-          btnOp.style.color = "#f1e983";
-          btnOp.style.border = "1px solid #b89047";
+        btnOp.onclick = () => {
+          formulaActualMovil += op;
+          window.actualizarPantallaFormulaVisual();
+        };
+        contenedorOperadores.appendChild(btnOp);
+      });
+    }
 
-          btnOp.style.borderRadius = "4px";
-          btnOp.style.fontWeight = "bold";
-          btnOp.style.cursor = "pointer";
+    const instrucciones = document.getElementById("movilInstruccionesCifras");
+    if (instrucciones) instrucciones.innerText = "Mide y teje la ecuación matemática exacta:";
 
-          btnOp.onclick = () => {
-            formulaActualMovil += op;
-            window.actualizarPantallaFormulaVisual();
-          };
-          contenedorOperadores.appendChild(btnOp);
-        });
-      }
-
-      document.getElementById("movilInstruccionesCifras").innerText = "Mide y teje la ecuación matemática exacta:";
-
-      const btnEnviar = document.getElementById("btnEnviarCifras");
-      if (btnEnviar) {
-        btnEnviar.disabled = false;
-        btnEnviar.innerText = "Sellar Ecuación ⚡";
-      }
-    });
-  };
-
-  iniciarMovilCifrasYLetras();
+    const btnEnviar = document.getElementById("btnEnviarCifras");
+    if (btnEnviar) {
+      btnEnviar.disabled = false;
+      btnEnviar.innerText = "Sellar Ecuación ⚡";
+    }
+  });
 }
 
 // 3. EXPOSICIÓN GLOBAL DE FUNCIONES DE CONTROL ACTUALIZADAS CON LOS COLORES DIVINOS
@@ -1287,7 +1290,7 @@ function lastTheorem() {
 }
 
 // =====================
-// Ganador y posición
+// Ganador
 // =====================
 function finalWinnerScreen(nombreGanadorGlobal, rankingJugadores) {
   console.log("🏛️ Renderizando pantalla final del Olimpo en el móvil");
