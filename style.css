@@ -785,21 +785,32 @@ button {
 }
 
 .greek-frame {
-  display: flex;
+  display: inline-flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
 
-  padding: 30px;
+  padding: 20px;
   border-radius: 20px;
 
-  border: 3px solid #d4af37;
-  /* dorado */
-  background: #fffdf7;
+  border: 3px solid rgba(212, 175, 55, 0.7);
+  background: rgba(255, 253, 247, 0.15);
 
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 
   text-align: center;
+
+  width: fit-content;
+  max-width: 90%;
+
+  /* 🔥 CENTRADO + BAJAR */
+  position: absolute;
+  top: 55%;              /* 👈 más abajo que centro */
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .greek-img {
@@ -816,7 +827,7 @@ button {
 .greek-title {
   font-size: 18px;
   letter-spacing: 3px;
-  color: #777;
+  color: #b8860b;
   margin-bottom: 15px;
 }
 
