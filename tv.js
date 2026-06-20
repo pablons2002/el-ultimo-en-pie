@@ -692,6 +692,24 @@ function listenToRankingAndScore() {
 // LLAMADA DIRECTA AL FINAL DEL ARCHIVO:
 listenToRankingAndScore();
 
+document.getElementById("nextGameBtn").onclick = async () => {
+  console.log(currentGame);
+  let currentIndex = games.indexOf(currentGame);
+  let nextGame = null;
+
+  if (currentIndex !== -1 && currentIndex < games.length - 1) {
+    nextGame = games[currentIndex + 1];
+  } else {
+    nextGame = games[0];
+  }
+
+  console.log(`Girando el timon desde ${currentGame} hacia los nuevos rumbos de: ${nextGame}`);
+
+  await setScreen("screenRoulette", nextGame);
+  showScreenTV("screenRoulette");
+};
+
+
 // ========================
 // 2º Juego GuessSong
 // ========================

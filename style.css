@@ -1382,3 +1382,41 @@ body {
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4); /* Sombra un poco más pronunciada para el efecto flotante */
   color: #3b2f1a;
 }
+
+
+.btn-antiguo {
+    /* Fondo color pergamino/piedra suave, idéntico a tus paneles */
+    background: linear-gradient(135deg, #f5f0e6 0%, #e8e4d8 100%);
+    color: #3b2f1a; /* Tu mismo color marrón oscuro místico */
+    
+    font-family: 'Cinzel Decorative', serif !important;
+    font-size: 1rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    padding: 12px 24px;
+    
+    /* Bordes y formas finas, nada de botones gigantes redondos */
+    border: 2px solid #d4af37;
+    border-radius: 4px; /* Esquinas casi rectas, estilo clásico */
+    cursor: pointer;
+    
+    /* Sombra muy sutil, sin brillos raros */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    
+    transition: all 0.25s ease-in-out;
+}
+
+/* Hover: Se oscurece ligeramente hacia el tono de la piedra, sin destellos artificiales */
+.btn-antiguo:hover {
+    background: linear-gradient(135deg, #e8e4d8 0%, #dfd9c8 100%);
+    border-color: #b89047; /* El oro se vuelve más oscuro/antiguo */
+    color: #2c221a;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+}
+
+/* Click: El botón reacciona físicamente hundiéndose un poco */
+.btn-antiguo:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
