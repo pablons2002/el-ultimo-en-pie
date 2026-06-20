@@ -8,8 +8,9 @@
   <link rel="icon" type="image/svg+xml" href="images/iconoWeb.svg">
   <meta name="viewport" content="width=device-width, initial-scale=1, , viewport-fit=cover">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&display=swap"
+    rel="stylesheet">
 </head>
 
 <body>
@@ -181,9 +182,9 @@
           Tiempo restante: <span id="segundos-crono">10</span>s
         </div>
 
-        <button id="btn-play">Empezar Juego 🎮</button>
+        <button id="btn-play">Empezar Juego</button>
 
-        <button id="btn-siguiente" disabled>Revelar Respuesta ➡️</button>
+        <button id="btn-siguiente" disabled>Revelar Respuesta</button>
 
         <div style="margin-top: 15px; display: flex; justify-content: center; align-items: center; gap: 10px;">
           <span id="tiempo-actual">0:00</span>
@@ -591,7 +592,8 @@
 
     <div id="viewInicio" class="game-view">
       <h1>Bienvenido al Juego</h1>
-      <p>Presiona el botón para comenzar de cero.</p>
+      <p>Marca los jugadores que participarán en el juego</p>
+      <div id="listaSeleccionJugadores"></div>
       <button id="btnEmpezar" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">Empezar juego</button>
     </div>
 
@@ -614,6 +616,17 @@
       <div id="listaRespuestas">Cargando respuestas...</div>
 
       <br>
+      <div style="margin:10px 0; color:white;">
+        <label>Penalización:</label>
+
+        <button id="penal1" class="boton-penalizacion boton-penalizacion-activo">
+          -1 Punto
+        </button>
+
+        <button id="penal2" class="boton-penalizacion">
+          -2 Puntos
+        </button>
+      </div>
       <button id="btnSiguienteRonda"
         style="padding: 10px 20px; font-size: 16px; cursor: pointer; display: none;">Siguiente ronda</button>
     </div>
@@ -633,6 +646,9 @@
         <div id="textoRegla" style="font-style: italic; color: #ffbaba; min-height: 40px; padding: 0 10px;">
           Haz clic en una regla para ver los detalles.
         </div>
+        <button id="btnFinalizarJuego" style="display:none;">
+          Finalizar juego
+        </button>
       </div>
 
       <button id="btnMuerteSiguiente"
@@ -641,6 +657,26 @@
     </div>
 
   </div>
+
+  <div id="viewVideo" style="display:none;">
+    <video id="videoFinal" autoplay playsinline>
+      <source src="assets/videos/videoGanador.mp4" type="video/mp4">
+    </video>
+  </div>
+
+
+
+
+  <div id="viewWinner" style="display:none;">
+    <div class="greek-frame">
+      <div class="greek-title"> Y el ganador es...</div>
+
+      <img id="winnerImg" class="greek-img" />
+
+      <div id="textoGanador" class="greek-name"></div>
+    </div>
+  </div>
+
 
 </body>
 

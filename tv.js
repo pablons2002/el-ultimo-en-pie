@@ -1565,7 +1565,7 @@ function symbolZone() {
   console.log("🔺 Iniciando juego SymbolZone en la TV");
 
   // 🔥 SOLUCIÓN: Vaciamos por completo el marcador local para la nueva partida
-  puntuacionJuegoSymbol = {}; 
+  puntuacionJuegoSymbol = {};
 
   rondaActualSymbol = 1;
   reiniciarRondaInterfaceSymbol();
@@ -1591,7 +1591,7 @@ function symbolZone() {
       listaJugadoresSymbol.push({
         id: idJugador,
         name: p.name,
-        equivocado: false 
+        equivocado: false
       });
     });
 
@@ -1632,7 +1632,7 @@ function pintarPanelJugadoresSymbol() {
 
     card.onclick = () => {
       listaJugadoresSymbol[index].equivocado = !listaJugadoresSymbol[index].equivocado;
-      pintarPanelJugadoresSymbol(); 
+      pintarPanelJugadoresSymbol();
     };
 
     contenedorLista.appendChild(card);
@@ -1650,7 +1650,7 @@ window.controlarTiempoSymbol = function (accion) {
       if (tiempoRestanteSymbol <= 0) {
         clearInterval(intervaloCronometroSymbol);
         intervaloCronometroSymbol = null;
-        if (elReloj) elReloj.style.color = "#ff3d00"; 
+        if (elReloj) elReloj.style.color = "#ff3d00";
         alert("⏰ ¡Tiempo agotado! Turno de revisar los símbolos.");
         return;
       }
@@ -1704,7 +1704,7 @@ window.pointsSymbolZone = async function () {
   const contenedorLista = document.getElementById("tvListaJugadoresSymbol");
   if (contenedorLista) {
     contenedorLista.setAttribute("data-bloqueado", "true"); // Bloqueo temporal anti-snapshot
-    
+
     let tablaHtml = `
       <div style="width: 100%; background: #000; padding: 15px; border-radius: 8px; border: 1px solid #ff3d00; box-sizing: border-box; grid-column: 1 / -1;">
         <h3 style="color: #ff3d00; margin-top: 0; text-align: center; font-size: 1.2rem;">🏆 RANKING LOCAL (Ronda ${rondaActualSymbol} / 5)</h3>
@@ -1746,7 +1746,7 @@ window.pointsSymbolZone = async function () {
 
     for (let index = 0; index < rankingJuego.length; index++) {
       const jugadorRanking = rankingJuego[index];
-      
+
       // Si empata en puntos con el jugador anterior, mantiene la misma posicionReal
       if (index > 0 && jugadorRanking.scoreJuego === rankingJuego[index - 1].scoreJuego) {
         // Mantiene la misma posicionReal
@@ -1761,7 +1761,7 @@ window.pointsSymbolZone = async function () {
       if (puntosGlobalesInyeccion > 0) {
         try {
           const playerRef = doc(window.db, "players", jugadorRanking.id);
-          
+
           // Traer la puntuación real acumulada del torneo en Firebase
           const snap = await getDocs(query(collection(window.db, "players")));
           let scoreTorneoActual = 0;
@@ -1782,7 +1782,7 @@ window.pointsSymbolZone = async function () {
     }
     alert("🏆 ¡El Olimpo ha repartido las puntuaciones de forma justa y el torneo global está actualizado!");
   }
-}; 
+};
 
 // BOTÓN: PASAR DE RONDA
 window.siguienteRondaSymbol = function () {
@@ -2591,6 +2591,61 @@ const btnMuerteSiguiente = document.getElementById("btnMuerteSiguiente"); // Nue
 const listaRespuestas = document.getElementById("listaRespuestas");
 const contenedorMedia = document.getElementById("contenedorMedia");
 const mensajeMuerte = document.getElementById("mensajeMuerte"); // Nueva
+const btnFinalizarJuego = document.getElementById("btnFinalizarJuego");
+
+const viewVideo = document.getElementById("viewVideo");
+const viewWinner = document.getElementById("viewWinner");
+const videoFinal = document.getElementById("videoFinal");
+const textoGanador = document.getElementById("textoGanador");
+
+btnFinalizarJuego.addEventListener("click", async () => {
+  viewMuerte.style.display = "none";
+
+  viewVideo.style.display = "block";
+
+  videoFinal.play();
+
+  abrirFullscreen();
+});
+
+const video = document.getElementById("videoFinal");
+
+// Evita pausa con click
+video.addEventListener("pause", () => {
+  video.play();
+});
+
+// Evita interacción con teclado
+document.addEventListener("keydown", (e) => {
+  if (video.style.display !== "none") {
+    e.preventDefault();
+  }
+});
+
+function abrirFullscreen() {
+  const elem = document.getElementById("viewVideo");
+
+  if (elem.requestFullscreen) {
+    elem.requestFullscreen();
+  } else if (elem.webkitRequestFullscreen) {
+    elem.webkitRequestFullscreen();
+  } else if (elem.msRequestFullscreen) {
+    elem.msRequestFullscreen();
+  }
+}
+
+videoFinal.addEventListener("ended", async () => {
+  const ganador = await obtenerGanador();
+
+  viewVideo.style.display = "none";
+  viewWinner.style.display = "flex";
+
+  const img = document.getElementById("winnerImg");
+  const texto = document.getElementById("textoGanador");
+
+  img.src = ganador.img || "default.png";
+  texto.innerHTML = ganador.name;
+});
 
 // Diccionario de reglas traducidas (Asegúrate de tener este elemento 'textoRegla' en tu HTML)
 const textosReglas = {
@@ -2600,6 +2655,7 @@ const textosReglas = {
 };
 
 let jugadoresActivosIds = [];
+let penalizacionSeleccionada = -1;
 
 // --- NAVEGACIÓN Y REINICIO INICIAL ---
 
@@ -2608,17 +2664,28 @@ btnEmpezar.addEventListener("click", async () => {
   btnEmpezar.textContent = "Reiniciando partida...";
 
   try {
-    // Buscamos todos los jugadores de la colección que estén activos
-    const playersRef = collection(window.db, "players");
-    const q = query(playersRef, where("active", "==", true));
-    const querySnapshot = await getDocs(q);
+    const checks = document.querySelectorAll(".chkJugador");
 
-    // Reseteamos sus atributos para empezar limpios de cero
-    for (const documento of querySnapshot.docs) {
-      const jugadorRef = doc(window.db, "players", documento.id);
+    // 1. SOLO definimos vivos/muertos según checkbox
+    for (const check of checks) {
+      const jugadorRef = doc(window.db, "players", check.dataset.id);
+
+      await updateDoc(jugadorRef, {
+        "tenbin.isAlive": check.checked
+      });
+    }
+
+    // 2. TODOS los jugadores activos resetean partida (pero NO resucitamos nadie aquí)
+    const playersRef = collection(window.db, "players");
+    const querySnapshot = await getDocs(
+      query(playersRef, where("active", "==", true))
+    );
+
+    for (const docSnap of querySnapshot.docs) {
+      const jugadorRef = doc(window.db, "players", docSnap.id);
+
       await updateDoc(jugadorRef, {
         "tenbin.score": 0,
-        "tenbin.isAlive": true,
         "tenbin.currentNumber": null
       });
     }
@@ -2634,6 +2701,14 @@ btnEmpezar.addEventListener("click", async () => {
     btnEmpezar.textContent = "Empezar juego";
   }
 });
+
+document.getElementById("penal1").onclick = () => {
+  penalizacionSeleccionada = -1;
+};
+
+document.getElementById("penal2").onclick = () => {
+  penalizacionSeleccionada = -2;
+};
 
 btnMostrarRespuestas.addEventListener("click", () => {
   viewInput.style.display = "none";
@@ -2675,7 +2750,7 @@ btnSiguienteRonda.addEventListener("click", async () => {
       if (checkbox && !checkbox.checked) {
         // Restamos punto si no estaba seleccionado y limpiamos el número para la siguiente ronda
         await updateDoc(jugadorRef, {
-          "tenbin.score": increment(-1),
+          "tenbin.score": increment(penalizacionSeleccionada),
           "tenbin.currentNumber": null
         });
 
@@ -2699,19 +2774,39 @@ btnSiguienteRonda.addEventListener("click", async () => {
       }
     }
 
+    const vivosRestantes = await comprobarVivos();
+
+    // Decidir navegación de pantallas en la TV
     // Decidir navegación de pantallas en la TV
     viewRespuestas.style.display = "none";
 
-    if (jugadoresMuertos.length > 0) {
-      // Si hubo muertes, mostramos la pantalla de eliminación y reseteamos el texto informativo de las reglas
+    btnFinalizarJuego.style.display = "none";
+
+    if (vivosRestantes <= 1) {
+      viewInput.style.display = "none";
+      viewMuerte.style.display = "block";
+
+      mensajeMuerte.innerHTML = `
+      <span style="color:#ff4a4a; font-size: 20px;">
+        🎉 El juego ha terminado
+      </span><br>
+      <span>Queda un único jugador vivo</span>
+    `;
+
+      btnFinalizarJuego.style.display = "inline-block";
+    }
+    else if (jugadoresMuertos.length > 0) {
+
       const textoRegla = document.getElementById("textoRegla");
       if (textoRegla) {
         textoRegla.textContent = "Haz clic en una regla para ver los detalles.";
       }
+
       mensajeMuerte.innerHTML = `Ha muerto el jugador: <br><span style="color: #ff4a4a;">${jugadoresMuertos.join(", ")}</span>`;
       viewMuerte.style.display = "block";
-    } else {
-      // Si nadie murió, volvemos a la pantalla de espera de números
+
+    }
+    else {
       viewInput.style.display = "block";
     }
 
@@ -2737,24 +2832,26 @@ async function cargarRespuestasFirebase() {
     const querySnapshot = await getDocs(q);
 
     let htmlContenido = "<div style='display: flex; flex-direction: column; gap: 10px;'>";
-    let hayJugadoresVivos = false;
+
     let sumaNumeros = 0;
     let totalJugadoresConNumero = 0;
+    let resultadoFinal = 0;
+
+    // ==============================
+    // 1. PRIMER PASO: calcular media
+    // ==============================
+    const jugadoresData = [];
 
     querySnapshot.forEach((documento) => {
       const data = documento.data();
 
-      // FILTRO EXTRA: Si tenbin.isAlive es explícitamente false, lo ignoramos por completo
-      if (data.tenbin && data.tenbin.isAlive === false) {
-        return;
-      }
+      if (data.tenbin && data.tenbin.isAlive === false) return;
 
-      hayJugadoresVivos = true;
       const jugadorId = documento.id;
       const nombreJugador = data.name || `Jugador (${jugadorId.substring(0, 5)})`;
-      const scoreActual = data.tenbin && data.tenbin.score !== undefined ? data.tenbin.score : 0;
+      const scoreActual = data.tenbin?.score ?? 0;
 
-      const numeroActual = data.tenbin && data.tenbin.currentNumber !== undefined
+      const numeroActual = (data.tenbin && data.tenbin.currentNumber !== undefined)
         ? Number(data.tenbin.currentNumber)
         : null;
 
@@ -2763,35 +2860,74 @@ async function cargarRespuestasFirebase() {
         totalJugadoresConNumero++;
       }
 
-      jugadoresActivosIds.push(jugadorId);
+      jugadoresData.push({
+        jugadorId,
+        nombreJugador,
+        scoreActual,
+        numeroActual
+      });
+    });
 
-      // Mostramos Nombre, Número y el Score solicitado
+    // ==============================
+    // 2. calcular resultadoFinal UNA VEZ
+    // ==============================
+    if (totalJugadoresConNumero > 0) {
+      const media = sumaNumeros / totalJugadoresConNumero;
+      resultadoFinal = +(media * 0.8).toFixed(2);
+    }
+
+    // ==============================
+    // 3. SEGUNDO PASO: render UI
+    // ==============================
+    jugadoresData.forEach((j) => {
+      const distanciaMedia =
+        (j.numeroActual !== null && !isNaN(j.numeroActual))
+          ? Math.abs(j.numeroActual - resultadoFinal)
+          : null;
+
+      jugadoresActivosIds.push(j.jugadorId);
+
       htmlContenido += `
         <label style='display: flex; align-items: center; justify-content: space-between; background: #222; padding: 10px; border-radius: 4px; cursor: pointer;'>
           <div style='display: flex; align-items: center; gap: 10px;'>
-            <input type='checkbox' id='chk-${jugadorId}' style='transform: scale(1.2);'>
-            <span><strong>${nombreJugador}:</strong> ${numeroActual !== null ? numeroActual : "Sin número"}</span>
+            <input type='checkbox' id='chk-${j.jugadorId}' style='transform: scale(1.2);'>
+            <span>
+              <strong>${j.nombreJugador}:</strong>
+              ${j.numeroActual !== null ? j.numeroActual : "Sin número"}
+              ${distanciaMedia !== null ? ` · Δ ${distanciaMedia.toFixed(2)}` : ""}
+            </span>
           </div>
-          <span style='background: #444; padding: 2px 8px; border-radius: 12px; font-size: 14px;'>Score: ${scoreActual}</span>
+
+          <span style='background: #444; padding: 2px 8px; border-radius: 12px; font-size: 14px;'>
+            Score: ${j.scoreActual}
+          </span>
         </label>
       `;
     });
 
     htmlContenido += "</div>";
 
-    // Cálculo de la Media * 0.8
+    // ==============================
+    // 4. mostrar media
+    // ==============================
     if (totalJugadoresConNumero > 0) {
-      const media = sumaNumeros / totalJugadoresConNumero;
-      const resultadoFinal = media * 0.8;
       contenedorMedia.innerHTML = `
-        <span style="font-size: 14px; text-transform: uppercase; color: #aaa; letter-spacing: 1px;">Media × 0.8</span>
-        <div style="font-size: 48px; font-weight: bold; color: #ff4a4a; margin-top: 5px;">${resultadoFinal.toFixed(2)}</div>
+        <span style="font-size: 14px; text-transform: uppercase; color: #aaa; letter-spacing: 1px;">
+          Media × 0.8
+        </span>
+        <div style="font-size: 48px; font-weight: bold; color: #ff4a4a; margin-top: 5px;">
+          ${resultadoFinal}
+        </div>
       `;
     } else {
-      contenedorMedia.innerHTML = "<span>No hay números suficientes para calcular la media.</span>";
+      contenedorMedia.innerHTML =
+        "<span>No hay números suficientes para calcular la media.</span>";
     }
 
-    if (!hayJugadoresVivos) {
+    // ==============================
+    // 5. UI final
+    // ==============================
+    if (jugadoresData.length === 0) {
       htmlContenido = "<p>No hay jugadores vivos y activos en este momento.</p>";
       btnSiguienteRonda.style.display = "none";
     } else {
@@ -2802,8 +2938,82 @@ async function cargarRespuestasFirebase() {
 
   } catch (error) {
     console.error("Error al obtener datos de Firebase:", error);
-    listaRespuestas.innerHTML = "<p style='color: red;'>Error al cargar las respuestas.</p>";
+    listaRespuestas.innerHTML =
+      "<p style='color: red;'>Error al cargar las respuestas.</p>";
   }
+}
+
+async function cargarSeleccionJugadores() {
+
+  const playersRef = collection(window.db, "players");
+  const snapshot = await getDocs(playersRef);
+
+  let html = "";
+
+  snapshot.forEach(docSnap => {
+
+    const data = docSnap.data();
+
+    html += `
+      <div>
+        <label>
+          <input
+            type="checkbox"
+            data-id="${docSnap.id}"
+            class="chkJugador"
+            ${data.tenbin?.isAlive ? "checked" : ""}
+          >
+          ${data.name}
+        </label>
+      </div>
+    `;
+  });
+
+  document.getElementById("listaSeleccionJugadores").innerHTML = html;
+}
+
+cargarSeleccionJugadores();
+
+async function comprobarVivos() {
+  const playersRef = collection(window.db, "players");
+  const snapshot = await getDocs(playersRef);
+
+  let vivos = 0;
+
+  snapshot.forEach(docSnap => {
+    const data = docSnap.data();
+    if (data.active && data.tenbin?.isAlive) {
+      vivos++;
+    }
+  });
+
+  return vivos;
+}
+
+async function obtenerGanador() {
+  const playersRef = collection(window.db, "players");
+  const snapshot = await getDocs(playersRef);
+
+  let ganador = null;
+  let mejorScore = -Infinity;
+
+  snapshot.forEach(docSnap => {
+    const data = docSnap.data();
+
+    if (!data.tenbin?.isAlive) return;
+
+    const score = data.tenbin?.score ?? 0;
+
+    if (score > mejorScore) {
+      mejorScore = score;
+      ganador = {
+        name: data.name,
+        img: data.imgCard || ""
+      };
+    }
+  });
+
+  return ganador;
 }
 
 

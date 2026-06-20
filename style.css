@@ -746,3 +746,193 @@ button {
   width: 100%;
   box-sizing: border-box;
 }
+
+
+/*El último teorema*/
+
+.boton-penalizacion {
+  background: #6b4f2a;
+  color: #f4e7c1;
+  border: 2px solid #b89728;
+  padding: 8px 16px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-family: 'Cinzel Decorative', serif;
+  transition: 0.2s;
+}
+
+.boton-penalizacion:hover {
+  background: #8c6d31;
+}
+
+.boton-penalizacion-activo {
+  background: #d4af37;
+  color: #3b2f1a;
+  border-color: #f2d16b;
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.7);
+}
+
+
+
+/*El último teorema*/
+
+/* Contenedor */
+.greek-item {
+  margin: 10px 0;
+  padding: 12px 16px;
+  border: 1px solid #c9b77d;
+  border-radius: 10px;
+  background: rgba(255, 250, 235, 0.7);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Detalle ornamental tipo “marco antiguo” */
+.greek-item::before {
+  content: "⚜";
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  opacity: 0.2;
+  font-size: 22px;
+}
+
+/* Label */
+.greek-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  gap: 10px;
+  color: #3b2f1b;
+  font-size: 16px;
+}
+
+/* Nombre */
+.greek-name {
+  letter-spacing: 0.5px;
+  text-transform: capitalize;
+}
+
+/* Checkbox personalizado */
+.greek-checkbox {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #b89b4a;
+  border-radius: 4px;
+  background: #fff8e6;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: inset 0 0 3px rgba(0,0,0,0.2);
+}
+
+/* Hover */
+.greek-checkbox:hover {
+  border-color: #8c6f2d;
+  transform: scale(1.05);
+}
+
+/* Checked */
+.greek-checkbox:checked {
+  background: linear-gradient(145deg, #d4af37, #a8841f);
+  border-color: #6e5717;
+}
+
+/* Checkmark estilo “runa” */
+.greek-checkbox:checked::after {
+  content: "✶";
+  position: absolute;
+  top: -1px;
+  left: 3px;
+  font-size: 16px;
+  color: #2b1f08;
+}
+
+#viewVideo {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: black;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+#videoFinal {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+#winnerScreen {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at center, #2b1d0e, #000);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  color: #f5e6c8;
+  text-align: center;
+  font-family: "Georgia", serif;
+}
+
+.greek-frame {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  padding: 30px;
+  border-radius: 20px;
+
+  border: 3px solid #d4af37; /* dorado */
+  background: #fffdf7;
+
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+
+  text-align: center;
+}
+
+.greek-img {
+  width: 220px;
+  height: 400px;
+  object-fit: cover;
+
+  border-radius: 12px;
+  border: 3px solid #d4af37;
+
+  margin-bottom: 20px;
+}
+
+.greek-title {
+  font-size: 18px;
+  letter-spacing: 3px;
+  color: #777;
+  margin-bottom: 15px;
+}
+
+.greek-name {
+  font-size: 40px;
+  font-weight: bold;
+  color: #b8860b; /* dorado oscuro */
+}
+
+#viewWinner {
+  position: fixed;
+  inset: 0;
+  background-image: url('assets/wallpaper/olimpoFinal.jpg');
+  background-size: cover;
+  background-position: center;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  font-family: "Georgia", serif;
+  color: #2b2b2b;
+}
