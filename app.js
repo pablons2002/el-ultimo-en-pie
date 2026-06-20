@@ -1116,7 +1116,7 @@ function lastTheorem() {
   const jugadorIdActual = localStorage.getItem("playerId");
 
   if (!jugadorIdActual) {
-    alert("❌ Error: No se encuentra tu ID de jugador. Reinicia la aplicación.");
+    alert(" Error: No se encuentra tu ID de jugador. Reinicia la aplicación.");
     return;
   }
 
@@ -1138,7 +1138,7 @@ function lastTheorem() {
       // SI EL JUGADOR HA MUERTO: Bloqueamos la interfaz por completo
       if (tenbin.score=-10 && tenbin.isAlive === false) {
         if (statusMessage) {
-          statusMessage.innerHTML = `<span style="color: #ff4a4a; font-weight: bold;">💀 ¡HAS MUERTO! 💀</span><br>Has alcanzado los -10 puntos y has sido eliminado.`;
+          statusMessage.innerHTML = `<span style="color: #ff4a4a; font-weight: bold;"> ¡HAS MUERTO! </span><br>Has alcanzado los -10 puntos y has sido eliminado.`;
         }
         if (inputNumber) inputNumber.style.display = "none";
         if (btnEnviarNumero) btnEnviarNumero.style.display = "none";
@@ -1251,7 +1251,7 @@ function finalWinnerScreen(nombreGanadorGlobal, rankingJugadores) {
       // Personalizamos el mensaje según si has ganado o has quedado abajo
       if (txtPosicion) {
         if (miPuestoNum === 1) {
-          txtPosicion.innerHTML = `👑 ¡Has ascendido al Olimpo! Eres el Dios supremo con ${misDatos.puntos} puntos.`;
+          txtPosicion.innerHTML = `¡Has ascendido al Olimpo! Eres el Dios supremo con ${misDatos.puntos} puntos.`;
           txtPosicion.style.color = "#f1e983"; // Dorado resplandeciente
         } else {
           txtPosicion.innerHTML = `Has quedado en la posición <span style="color:#d4af37; font-size:1.4rem;">#${miPuestoNum}</span> con ${misDatos.puntos} puntos.`;
