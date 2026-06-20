@@ -357,6 +357,34 @@ button {
   overflow: hidden;
 }
 
+/* Contenedor de las flechas y el contador */
+.contenedor-navegacion {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+/* El texto del contador (1 / 15) */
+.cromo-contador {
+  font-weight: bold;
+  color: #132640;
+  white-space: nowrap; /* Evita que se rompa en dos líneas */
+  flex-shrink: 0;      /* Evita que los botones lo aplasten */
+}
+
+/* Ajustes específicos para pantallas móviles */
+@media (max-width: 480px) {
+  .contenedor-navegacion {
+    gap: 10px; /* Reducimos el espacio en móvil para que quepa todo */
+  }
+  
+  .btn-navegacion {
+    padding: 8px 12px; /* Opcional: ajusta el tamaño de tus botones si siguen siendo muy grandes */
+    font-size: 14px;
+  }
+}
 
 
 #userHeader {

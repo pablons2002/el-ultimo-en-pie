@@ -653,7 +653,7 @@ function iniciarCronometro() {
         console.error("Error al actualizar state (false):", error);
       }
     }
-  }, 1000);
+  }, 1200);
 }
 
 function pausarCronometro() {
@@ -678,7 +678,7 @@ function formatearTiempo(segundos) {
   if (isNaN(segundos)) return "0:00";
   const min = Math.floor(segundos / 60);
   const seg = Math.floor(segundos % 60);
-  return `${min}:${seg < 10 ? '0' : ''}${seg}`;
+  return `${min}:${seg < 120 ? '0' : ''}${seg}`;
 }
 
 // 6. FASE 1 DE LA RESPUESTA: MOSTRAR TÍTULO, AUTOR LIMPIOS Y EVALUAR "P / I"
