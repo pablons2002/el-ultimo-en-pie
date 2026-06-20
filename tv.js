@@ -23,6 +23,21 @@ onSnapshot(q, (snapshot) => {
   });
 });
 */
+
+//Vídeo inicial
+const introVideo = document.getElementById("introVideo");
+const introContainer = document.getElementById("introVideoContainer");
+
+introVideo.addEventListener("ended", () => {
+  introContainer.style.display = "none";
+});
+
+document.addEventListener("click", () => {
+  const video = document.getElementById("introVideo");
+  video.muted = false;
+}, { once: true });
+
+
 // ==================================
 // El orden en el que se jugarán los juegos del concurso
 // ==================================

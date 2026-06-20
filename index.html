@@ -14,6 +14,13 @@
 </head>
 
 <body>
+
+  <div id="introVideoContainer">
+    <video id="introVideo" autoplay muted playsinline>
+      <source src="assets\videos\inicioPortada.mov" type="video/mp4">
+    </video>
+  </div>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <!-- Conexión a Firebase -->
   <script type="module">
@@ -35,58 +42,58 @@
   </script>
 
   <script type="module" src="tv.js"></script>
-<header id="userHeader"
-  style="display: flex; align-items: center; justify-content: space-between; padding: 10px; background: rgb(44, 34, 26); position: relative;">
-  
-  <div style="display: flex; align-items: center; gap: 15px;">
-    <img src="images/iconoWeb.svg" width="40">
+  <header id="userHeader"
+    style="display: flex; align-items: center; justify-content: space-between; padding: 10px; background: rgb(44, 34, 26); position: relative;">
 
-    <div class="quick-nav">
-      <select id="selectorJuegosRapidos" onchange="navegacionRapidaJuegos(this.value)"
-        style="padding: 5px 10px; font-size: 0.9rem; border-radius: 4px; cursor: pointer; background: #333; color: white; border: 1px solid #555;">
-        <option value="" selected disabled> Saltar a...</option>
-        <option value="WorldGuessr"> El viaje de Ulises</option>
-        <option value="GuessSong"> El canto de Orfeo</option>
-        <option value="GlassTower"> La torre de Dédalo</option>
-        <option value="IrrationalPrice"> El conteo de las moiras</option>
-        <option value="Votes"> El veredicto de los dioses </option>
-        <option value="SymbolZone"> El oráculo de Delfos </option>
-        <option value="NumbersAndLetters"> El cálculo de Láquesis </option>
-        <option value="TheLiar"> El juicio de Epimeteo </option>
-        <option value="LastTheorem"> El último teorema</option>
-      </select>
-    </div>
-  </div>
+    <div style="display: flex; align-items: center; gap: 15px;">
+      <img src="images/iconoWeb.svg" width="40">
 
-  <details class="myth-details" style="position: absolute; left: 50%; transform: translateX(-50%); z-index: 10;">
-
-    <summary onclick="cargarJugadoresAjusteManual()">
-      Puntuación
-    </summary>
-
-    <div class="myth-panel">
-      <div class="myth-row">
-        <span>Selecciona jugador y puntos:</span>
-        <button onclick="cargarJugadoresAjusteManual()" title="Recargar lista">
-          R
-        </button>
-      </div>
-
-      <select id="selectAjusteManualJugador">
-        <option value="">-- Seleccionar Jugador --</option>
-      </select>
-
-      <div class="myth-actions">
-        <input type="number" id="inputAjusteManualPuntos" placeholder="Ej: 5 o -2">
-        <button onclick="aplicarAjusteManualFirebase(this)">
-          Aplicar
-        </button>
+      <div class="quick-nav">
+        <select id="selectorJuegosRapidos" onchange="navegacionRapidaJuegos(this.value)"
+          style="padding: 5px 10px; font-size: 0.9rem; border-radius: 4px; cursor: pointer; background: #333; color: white; border: 1px solid #555;">
+          <option value="" selected disabled> Saltar a...</option>
+          <option value="WorldGuessr"> El viaje de Ulises</option>
+          <option value="GuessSong"> El canto de Orfeo</option>
+          <option value="GlassTower"> La torre de Dédalo</option>
+          <option value="IrrationalPrice"> El conteo de las moiras</option>
+          <option value="Votes"> El veredicto de los dioses </option>
+          <option value="SymbolZone"> El oráculo de Delfos </option>
+          <option value="NumbersAndLetters"> El cálculo de Láquesis </option>
+          <option value="TheLiar"> El juicio de Epimeteo </option>
+          <option value="LastTheorem"> El último teorema</option>
+        </select>
       </div>
     </div>
-  </details>
 
-  <button id="selfDestruct"> Apocatástasis </button>
-</header>
+    <details class="myth-details" style="position: absolute; left: 50%; transform: translateX(-50%); z-index: 10;">
+
+      <summary onclick="cargarJugadoresAjusteManual()">
+        Puntuación
+      </summary>
+
+      <div class="myth-panel">
+        <div class="myth-row">
+          <span>Selecciona jugador y puntos:</span>
+          <button onclick="cargarJugadoresAjusteManual()" title="Recargar lista">
+            R
+          </button>
+        </div>
+
+        <select id="selectAjusteManualJugador">
+          <option value="">-- Seleccionar Jugador --</option>
+        </select>
+
+        <div class="myth-actions">
+          <input type="number" id="inputAjusteManualPuntos" placeholder="Ej: 5 o -2">
+          <button onclick="aplicarAjusteManualFirebase(this)">
+            Aplicar
+          </button>
+        </div>
+      </div>
+    </details>
+
+    <button id="selfDestruct"> Apocatástasis </button>
+  </header>
 
   <div id="screenSelect">
     <!-- Inicio del programa, pantalla inicial, intro (falta)-->
@@ -199,31 +206,32 @@
   </div>
 
   <!--Pantalla Ranking-->
-  <div id="screenRanking" style="display: none; width: 100%; max-width: 600px; margin: 0 auto; padding: 20px; display: flex; flex-direction: column; align-items: center;">
-  
-  <h3 class="titulo-olimpico" style="text-align: center; margin-bottom: 20px;">
-    Pódium
-  </h3>
+  <div id="screenRanking"
+    style="display: none; width: 100%; max-width: 600px; margin: 0 auto; padding: 20px; display: flex; flex-direction: column; align-items: center;">
 
-  <div class="tabla-templo-contenedor" style="max-width: 100%; width: 100%;">
-    <table class="tabla-mitologica">
-      <thead>
-        <tr>
-          <th>Pos</th>
-          <th style="text-align: left; padding-left: 15px;">Dios</th>
-          <th>Puntos</th>
-        </tr>
-      </thead>
-      <tbody id="listaRankingTVActivos"></tbody>
-    </table>
+    <h3 class="titulo-olimpico" style="text-align: center; margin-bottom: 20px;">
+      Pódium
+    </h3>
+
+    <div class="tabla-templo-contenedor" style="max-width: 100%; width: 100%;">
+      <table class="tabla-mitologica">
+        <thead>
+          <tr>
+            <th>Pos</th>
+            <th style="text-align: left; padding-left: 15px;">Dios</th>
+            <th>Puntos</th>
+          </tr>
+        </thead>
+        <tbody id="listaRankingTVActivos"></tbody>
+      </table>
+    </div>
+    <button id="nextGameBtn">Siguiente juego</button> <!-- Aquí va a la ruleta cambiando el game al siguiente-->
   </div>
-  <button id="nextGameBtn">Siguiente juego</button> <!-- Aquí va a la ruleta cambiando el game al siguiente-->
-</div>
 
   <!-- Juego 2º GuessSong-->
 
   <div id="pantalla-juego">
-    <div id="screenGuessSong" style="display:none; background: #fdfbf7";>
+    <div id="screenGuessSong" style="display:none; background: #fdfbf7" ;>
       <div class="espaciador"></div>
 
       <div style="text-align: center; margin-bottom: 25px; border-bottom: 2px double #b89047; padding-bottom: 15px;">
@@ -259,7 +267,9 @@
     </p>
 
     <div id="contenedor-album-cover" style="margin: 15px auto; display: none; text-align: center; max-width: 280px;">
-      <img id="img-album-cover" style="width: 100%; height: auto; border-radius: 12px; margin-top: 10px; display: inline-block; box-shadow: 0 4px 15px rgba(0,0,0,0.12);" alt="Carátula del álbum" />
+      <img id="img-album-cover"
+        style="width: 100%; height: auto; border-radius: 12px; margin-top: 10px; display: inline-block; box-shadow: 0 4px 15px rgba(0,0,0,0.12);"
+        alt="Carátula del álbum" />
     </div>
 
     <p>
@@ -793,11 +803,12 @@
     style="display: none; background: #fbf9f3; color: white; padding: 30px; font-family: sans-serif;">
 
     <div style="text-align: center; margin-bottom: 25px; border-bottom: 2px double #b89047; padding-bottom: 15px;">
-        <h1 style="color: #8c6d31; margin: 0; font-size: 3rem; font-variant: small-caps; letter-spacing: 3px;">El último Teorema</h1>
-        <p style="color: #6e5d4f; font-size: 1.2rem; font-style: italic; margin-top: 5px;">En la última prueba, donde el 
-          destino se decide sin retorno, solo quienes resistan alcanzarán el umbral del Olimpo.</p>
-      </div>
-    
+      <h1 style="color: #8c6d31; margin: 0; font-size: 3rem; font-variant: small-caps; letter-spacing: 3px;">El último
+        Teorema</h1>
+      <p style="color: #6e5d4f; font-size: 1.2rem; font-style: italic; margin-top: 5px;">En la última prueba, donde el
+        destino se decide sin retorno, solo quienes resistan alcanzarán el umbral del Olimpo.</p>
+    </div>
+
     <div id="viewInicio" class="game-view">
       <p>Marca los jugadores que participarán en el juego</p>
       <div id="listaSeleccionJugadores" style="color: black"></div>
