@@ -531,7 +531,6 @@ button {
    FORZAR CENTRADO HORIZONTAL Y ARRIBA EN VERTICAL (REPARADO)
    ========================================== */
 #screenRanking {
-  /* 1. Quitamos el !important para que tu JS pueda ocultarlo con display: none */
   display: flex; 
   flex-direction: column;
   justify-content: flex-start; /* Alinea arriba en vertical */

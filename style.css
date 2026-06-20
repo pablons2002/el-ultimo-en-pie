@@ -1070,9 +1070,6 @@ button {
 
 
 body {
-  /* Indica que el fondo usará una imagen */
-  background-image: url('tu-imagen-de-fondo.jpg'); 
-
   /* Evita que la imagen se repita si es más pequeña que la pantalla */
   background-repeat: no-repeat; 
 
@@ -1121,4 +1118,229 @@ body {
 .boton-mitologico:active {
   transform: scale(0.98);
   box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+
+
+
+/* ==========================================
+   FORZAR CENTRADO HORIZONTAL Y ARRIBA EN VERTICAL (REPARADO)
+   ========================================== */
+#screenRanking {
+  display: flex; 
+  flex-direction: column;
+  justify-content: flex-start; /* Alinea arriba en vertical */
+  align-items: center;         /* Centra perfecto hacia los lados */
+  
+  width: 100%;
+  height: 100%;             
+  padding: 15px;
+  box-sizing: border-box;
+}
+
+/* Alineación e imán al centro para los bloques internos */
+.titulo-olimpico {
+  text-align: center;
+  width: 100%;
+  margin: 5px auto 12px auto;
+}
+
+.oraculo-banner {
+  width: 100%;
+  max-width: 340px;         
+  margin: 0 auto 15px auto;
+  box-sizing: border-box;
+}
+
+.tabla-templo-contenedor {
+  width: 100%;
+  max-width: 340px;         
+  margin: 0 auto;           
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.tabla-mitologica {
+  width: 100%;              
+  border-collapse: collapse;
+}
+
+
+.titulo-olimpico {
+  color: #b89728;
+  margin: 0;
+  font-size: 2rem;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  border-bottom: 2px solid #d4af37;
+  padding-bottom: 8px;
+  width: 100%;
+}
+/* Alineación e imán al centro para los bloques internos */
+.titulo-olimpico {
+  text-align: center;
+  width: 100%;
+  margin: 5px auto 12px auto;
+}
+.pantalla-juego-mitologica .titulo-olimpico {
+  font-size: 1.5rem !important;
+  margin-top: 0 !important;
+  margin-bottom: 4px !important;
+}
+
+/* Mensaje del Oráculo Banner */
+.oraculo-banner {
+  width: 100%;
+  max-width: 450px;
+  background-color: #1c2833;
+  border: 2px solid #b89047;
+  border-radius: 6px;
+  padding: 12px;
+  margin-top: 10px;
+  box-shadow: inset 0 0 10px rgba(212, 175, 55, 0.2);
+}
+
+.oraculo-banner {
+  width: 100%;
+  max-width: 340px;         
+  margin: 0 auto 15px auto;
+  box-sizing: border-box;
+}
+
+.oraculo-texto {
+  color: #f4efe2;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  display: block;
+}
+.oraculo-texto b {
+  color: #f1e983; /* Resalta datos en oro */
+}
+.tabla-templo-contenedor {
+  width: 100%;
+  max-width: 340px;         
+  margin: 0 auto;           
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+.tabla-templo-contenedor {
+  width: 100%;
+  max-width: 450px;
+  background: linear-gradient(135deg, #f4f1ea 0%, #e8e4d9 100%); /* Textura mármol suave */
+  border: 4px double #d4af37; /* Marco doble dorado */
+  border-radius: 6px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  margin-top: 15px;
+  overflow: hidden;
+}
+
+.tabla-mitologica {
+  width: 100%;
+  border-collapse: collapse;
+  color: #1c2833;
+}
+
+.tabla-mitologica thead {
+  background-color: #1c2833; /* Fondo oscuro elegante */
+  color: #d4af37; /* Letras doradas */
+}
+
+.tabla-mitologica th {
+  padding: 12px 10px;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.tabla-mitologica td {
+  padding: 10px 8px;
+  border-bottom: 1px solid rgba(184, 144, 71, 0.2);
+  font-size: 0.95rem;
+  vertical-align: middle;
+}
+
+/* Celda con Avatar e imagen */
+.heroe-celda {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+}
+
+.avatar-ranking {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid #b89047;
+  object-fit: cover;
+  background-color: #3e3220;
+}
+
+/* Celda de posición y tendencias */
+.pos-celda {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+}
+
+.tendencia-sube { color: #27ae60; font-weight: bold; font-size: 1.1em; } /* Verde */
+.tendencia-baja { color: #c0392b; font-weight: bold; font-size: 1.1em; } /* Rojo */
+.tendencia-igual { color: #7f8c8d; font-size: 0.9em; }
+
+/* Insignia de puntuación */
+.puntos-badge {
+  background-color: #3e3220;
+  color: #f1e983;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  border: 1px solid #b89047;
+  white-space: nowrap;
+}
+
+/* Resaltado divino si es mi fila */
+.mi-fila-divina {
+  background-color: rgba(212, 175, 55, 0.25) !important; /* Oro traslúcido */
+  border-left: 5px solid #d4af37;
+  animation: pulsoDivino 2s infinite alternate;
+}
+
+/* Mensaje del Oráculo Banner */
+.oraculo-banner {
+  width: 100%;
+  max-width: 450px;
+  background-color: #1c2833;
+  border: 2px solid #b89047;
+  border-radius: 6px;
+  padding: 12px;
+  margin-top: 10px;
+  box-shadow: inset 0 0 10px rgba(212, 175, 55, 0.2);
+}
+/* El contenedor principal debe ser relativo para que el panel se posicione respecto a él */
+.myth-details {
+  position: relative; 
+  display: block;
+  width: 100%;
+  max-width: 340px; /* O el ancho máximo que estés usando */
+  margin: 15px auto 0 auto;
+  /* Eliminamos paddings excesivos que puedan recalcular el centro */
+}
+
+/* El panel que aparece al abrirse */
+.myth-panel {
+  position: absolute;
+  top: 100%; /* Se posiciona justo debajo del summary */
+  left: 50%;
+  transform: translateX(-50%); /* Lo centra perfectamente respecto al summary */
+  width: 100%;
+  z-index: 100; /* Asegura que flote por encima de cualquier otro elemento inferior */
+  
+  /* Tus estilos visuales actuales se mantienen intactos */
+  margin-top: 5px; 
+  padding: 12px;
+  background: linear-gradient(135deg, #f5f0e6 0%, #e8e4d8 100%);
+  border: 2px solid #d4af37;
+  border-radius: 10px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4); /* Sombra un poco más pronunciada para el efecto flotante */
+  color: #3b2f1a;
 }

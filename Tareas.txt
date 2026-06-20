@@ -10,7 +10,7 @@
 ➖Boton para ver qr.
 ✔️Añadir teclas
 
-❌	Ruleta:
+✔️	Ruleta:
 aparece la anterior tirada.
 Cambiar colores
 
@@ -19,7 +19,7 @@ Cambiar colores
 
 nombres pruebas: 
 ✔️Worldguessr El viaje de Ulises
-❌El canto de Orfeo
+✔️El canto de Orfeo
 ✔️La torre de Dédalo
 ✔️El conteo de las moiras
 ✔️Veredicto de los dioses
@@ -27,7 +27,7 @@ nombres pruebas:
 ✔️El cálculo de Laquesis
 ✔️❌El Juicio de Epimeteo
 
-❌	cANTO DE ORFEO
+✔️	cANTO DE ORFEO
 Quitar barra reproductor. 
 Fondo de pantalla con música
 Nombre del juego
@@ -91,25 +91,30 @@ El fondo se corta
 ✔️Número 1/15 en dos líneas
 Ruleta sale tirada anterior
 ✔️10s Al principio de GuessSong
-En guessSong pponer personas iconos en la ras respuestas y SongScore
+✔️En guessSong pponer personas iconos en la ras respuestas y SongScore
 No se actualiza en móvil el oyente para enviar otra respuesta.
 ✔️Give it up to me no funciona
-Se queda veredicto enviado para la siguiente
+✔️Se queda veredicto enviado para la siguiente
 
 Que se vea todo en una en la de las lentejas y en la anterior
 RANKING
-RUleta
+✔️RUleta
 
-Simbolzone no se cargan los iconos y quitar rayo en traicionado
+✔️Simbolzone no se cargan los iconos y quitar rayo en traicionado
 
-Quitar rayito en móvil cifras. TV error de que pone proximidad al destino conedida +1 siempre
+✔️Quitar rayito en móvil cifras. TV error de que pone proximidad al destino conedida +1 siempre
 Se corta en ese juego en el móvil
-Puntuación centrarlo
-Votos en el móvil que se vean todos es muy pequeño el contenedor de lo svotos
+✔️Puntuación centrarlo
+➖Votos en el móvil que se vean todos es muy pequeño el contenedor de lo svotos
 
-En la de las lentejas lo de la derecha se queda muy largo
+➖En la de las lentejas lo de la derecha se queda muy largo
 Depositar voto se corta en tv
 Quitar alerta en mentiroso
-El ulitmo teorema
+
+
+
+RANKING
+El ultimo teorema
 El video del final
 En el móvil final
+Inicio móvil y ordenador

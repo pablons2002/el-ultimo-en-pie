@@ -164,21 +164,19 @@ window.inicializarRuletaJuegos = function () {
   // Colores llamativos alternos para los sectores de la ruleta
   // Paleta de colores de la Grecia Clásica para el Canvas
   const colores = [
-    "#5A3E2B", // Marrón nogal
-    "#A86A3D", // Terracota suave
-    "#8B6B2E", // Oro oscuro
-    "#6F4E37", // Café tostado
-    "#B08D2F", // Dorado envejecido
-    "#7A5C3A",
-    "#a0692a",
-    "#ba6825", // Arena oscura
-    "#9C5F3C"  // Arcilla cálida
+    "#2c231e", // Negro Ático / Cerámica oscura
+    "#d97d4b", // Terracota clásico
+    "#9b7826", // Mármol / Crema
+    "#6e8944", // Verde Oliva húmedo
+    "#b89728", // Oro Viejo
+    "#624513", // Azul Profundo del Egeo
+    "#bd5332"  // Rojo Cerámico
   ];
 
   constGames.forEach((game, i) => {
     const anguloInicio = i * angularArco;
     const anguloFin = anguloInicio + angularArco;
-    const gameTitle = ["Ulises", "Orfeo", "Dédalo", "Moiras", "Veredicto", "Delfos", "Láquesis", "Epimeteo", "Teorema"];
+    const gameTitle = ["Ulises", "Orfeo", "Dédalo","Moiras","Veredicto","Delfos","Láquesis","Epimeteo","Teorema"];
 
     // Pintar trozo de tarta
     ctx.beginPath();
@@ -193,7 +191,7 @@ window.inicializarRuletaJuegos = function () {
     ctx.translate(centro, centro);
     ctx.rotate(anguloInicio + angularArco / 2);
     ctx.fillStyle = "#ffffff";
-    ctx.font = "bold 12px sans-serif";
+    ctx.font = "bold 8px sans-serif";
     ctx.textAlign = "right";
     ctx.fillText(gameTitle[i], centro - 20, 5); // Desfase hacia fuera
     ctx.restore();
@@ -216,7 +214,7 @@ document.getElementById("spinBtn").onclick = async () => {
 
   // Ocultar botón y limpiar textos de jugadas anteriores
   btnJugar.style.display = "none";
-  txtResultado.style.innerText = "Girando...";
+  txtResultado.style.innerText = "🎰 Girando...";
 
   // 1. Obtener los datos actuales de Firebase (Tu código original)
   const snap = await getDoc(ref);
@@ -256,9 +254,7 @@ document.getElementById("spinBtn").onclick = async () => {
 
   // 4. AL TERMINAR EL GIRO (Esperamos los 4.5 segundos de la animación)
   await new Promise(resolve => setTimeout(resolve, 4500));
-  const gameTitle = ["El viaje de Ulises", "El canto de Orfeo", "La torre de Dédalo", "El conteo de las Moiras", "El veredicto de los dioses", "El oráculo de Delfos", "El cálculo Láquesis", "El juicio de Epimeteo", "El último teorema"];
-  const jj = constGames.indexOf(gameSelected);
-  txtResultado.innerHTML = `Destino dictado: <span style="color:#bd5332; font-weight:900;">${gameTitle[jj]}</span>`;
+  txtResultado.innerHTML = `Destino dictado: <span style="color:#bd5332; font-weight:900;">${gameSelected}</span>`;
   // Hacer aparecer de forma triunfal el botón de Jugar
   btnJugar.style.display = "block";
 
@@ -270,7 +266,6 @@ document.getElementById("spinBtn").onclick = async () => {
 
   // Asignar el comportamiento al botón para que haga el cambio de pantalla final
   btnJugar.onclick = () => {
-    document.getElementById("resultadoRuletaTV").innerHTML = "";
     ejecutarSaltoDePantallaDirecto(juegoDestinoGuardado);
   };
 };
@@ -559,21 +554,65 @@ document.getElementById("confirmRanking").onclick = async () => {
   setScreen("screenRanking");
   showScreenTV("screenRanking");
 };
-// =========================================================================
-// RANKING EN TIEMPO REAL PARA LA PANTALLA DE LA TV
-// =========================================================================
-// =========================================================================
-// RANKING EN TIEMPO REAL PARA LA PANTALLA DE LA TV (ESTILO INTEGRADO)
-// =========================================================================
-function listenToRankingTV() {
-  const tablaTVContenedor = document.getElementById("listaRankingTVActivos");
 
-  if (!tablaTVContenedor || !window.db) {
-    setTimeout(listenToRankingTV, 50);
+// =====================
+// SELECCIONAR JUGADOR
+// =====================
+async function selectPlayer(id, name, img) {
+  // 1. Guardar datos en localStorage y variable global
+  localStorage.setItem("playerId", id);
+  localStorage.setItem("playerName", name);
+  window.miJugadorId = id;
+
+  // Reparar la ruta si es relativa
+  const imgCorregida = repararRutaRelativa(img);
+  localStorage.setItem("playerImg", imgCorregida);
+
+  // 2. Pintar el nombre en el Header/UI de forma directa
+  const userNameHeader = document.getElementById("userNameHeader");
+  if (userNameHeader) userNameHeader.innerText = name;
+
+  // PINTAR LA IMAGEN
+  console.log("Imagen original:", img);
+  console.log("Imagen corregida:", imgCorregida);
+  const userImgHeader = document.getElementById("userImgHeader");
+  if (userImgHeader && imgCorregida) {
+    userImgHeader.src = imgCorregida;          // Asigna la ruta de la imagen
+    userImgHeader.style.display = "inline"; // La hace visible en el header
+  }
+
+  // 3. Actualizar Firebase para poner active en true y asignar la pantalla inicial
+  try {
+    const playerRef = doc(window.db, "players", id);
+    await updateDoc(playerRef, {
+      active: true,
+    });
+  } catch (e) {
+    console.warn('No se pudo marcar jugador activo en Firestore:', e);
+  }
+
+  // 4. Cambiar la UI localmente para pasar a la pantalla de espera
+  showScreen("screenWaiting")
+
+  if (typeof listenToRankingAndScore === "function") {
+    listenToRankingAndScore();
+  }
+}
+window.selectPlayer = selectPlayer;
+
+// =========================================================================
+// RANKING EN TIEMPO REAL CON HISTORIAL Y ORÁCULO PERSONALIZADO
+// =========================================================================
+function listenToRankingAndScore() {
+  const tablaContenedor = document.getElementById("listaRankingActivos");
+  const oraculoContenedor = document.getElementById("oraculoMensaje");
+
+  if (!tablaContenedor || !window.db) {
+    setTimeout(listenToRankingAndScore, 50);
     return;
   }
 
-  console.log("📺 Conectando la TV con el registro de las deidades...");
+  console.log("¡Conectando con el Oráculo de Firebase para el ranking activo!");
 
   const q = query(
     collection(window.db, "players"),
@@ -582,40 +621,110 @@ function listenToRankingTV() {
   );
 
   onSnapshot(q, (snapshot) => {
-    tablaTVContenedor.innerHTML = "";
+    tablaContenedor.innerHTML = "";
+
+    // Recuperar historial de posiciones previas guardadas para calcular subidas/bajadas
+    let historialPosiciones = JSON.parse(localStorage.getItem("historialPosiciones") || "{}");
+    let nuevoHistorial = {};
+
+    const miIdActual = localStorage.getItem("playerId");
+
+    let listaJugadoresProcesados = [];
     let posicion = 1;
 
+    // 1. Mapeamos y procesamos los datos del snapshot
     snapshot.forEach((docSnap) => {
       const jugador = docSnap.data();
+      const id = docSnap.id;
+      listaJugadoresProcesados.push({
+        id: id,
+        name: jugador.name || "Sin nombre",
+        score: jugador.score ?? 0,
+        img: jugador.img || "images/iconoWeb.svg"
+      });
+    });
+
+    // 2. Renderizar filas y calcular estados
+    listaJugadoresProcesados.forEach((jugador, index) => {
+      const id = jugador.id;
+      nuevoHistorial[id] = posicion; // Guardamos su posición actual
+
+      // Calcular tendencia (Subió, Bajó o Igual)
+      let tendenciaIcono = "•";
+      let tendenciaClase = "tendencia-igual";
+
+      if (historialPosiciones[id]) {
+        if (posicion < historialPosiciones[id]) {
+          tendenciaIcono = "▲"; // Subió de puesto (número de posición menor)
+          tendenciaClase = "tendencia-sube";
+        } else if (posicion > historialPosiciones[id]) {
+          tendenciaIcono = "▼"; // Bajó de puesto
+          tendenciaClase = "tendencia-baja";
+        }
+      }
+
+      // Crear fila HTML
       const fila = document.createElement("tr");
-      
-      // Construimos usando tus selectores exactos: pos-celda, heroe-celda, avatar-ranking y puntos-badge
+      // Si soy yo, resaltamos mi fila con diseño divino
+      if (id === miIdActual) {
+        fila.className = "mi-fila-divina";
+      }
+
       fila.innerHTML = `
         <td>
           <div class="pos-celda">
+            <span class="${tendenciaClase}">${tendenciaIcono}</span>
             <strong>#${posicion}</strong>
           </div>
         </td>
         <td>
-          <div class="heroe-celda" style="padding-left: 5px;">
-            <img src="${jugador.img || 'images/iconoWeb.svg'}" class="avatar-ranking" onerror="this.src='images/iconoWeb.svg'">
-            <span style="font-weight: bold;">${jugador.name || "Sin nombre"}</span>
+          <div class="heroe-celda">
+            <img src="${jugador.img}" class="avatar-ranking" onerror="this.src='images/iconoWeb.svg'">
+            <span>${jugador.name}</span>
           </div>
         </td>
-        <td>
-          <span class="puntos-badge">${jugador.score ?? 0} pts</span>
-        </td>
+        <td><span class="puntos-badge">${jugador.score} pts</span></td>
       `;
 
-      tablaTVContenedor.appendChild(fila);
+      tablaContenedor.appendChild(fila);
       posicion++;
     });
+
+    // Guardamos el nuevo orden para la próxima actualización en tiempo real
+    localStorage.setItem("historialPosiciones", JSON.stringify(nuevoHistorial));
+
+    // 3. GENERAR EL MENSAJE PERSONALIZADO DEL ORÁCULO
+    if (oraculoContenedor && miIdActual) {
+      const miIndex = listaJugadoresProcesados.findIndex(p => p.id === miIdActual);
+
+      if (miIndex !== -1) {
+        const miDatos = listaJugadoresProcesados[miIndex];
+        const miPosicion = miIndex + 1;
+
+        if (miPosicion === 1) {
+          // Eres el líder absoluto
+          oraculoContenedor.innerHTML = `
+            <span class="oraculo-texto aleron-oro">
+              ¡Dominas el Olimpo, <b>${miDatos.name}</b>! Estás en la posición <b>#1</b>. ¡Defiende tu trono!
+            </span>`;
+        } else {
+          // Hay alguien por encima
+          const rivalEncima = listaJugadoresProcesados[miIndex - 1];
+          const diferenciaPuntos = rivalEncima.score - miDatos.score;
+
+          oraculoContenedor.innerHTML = `
+            <span class="oraculo-texto">
+              Vas en posición <b>#${miPosicion}</b>. Estás a solo <b>${diferenciaPuntos} pts</b> de alcanzar a <b>${rivalEncima.name}</b>. ¡A por ellos!
+            </span>`;
+        }
+      } else {
+        oraculoContenedor.innerHTML = `<span class="oraculo-texto">Echa un vistazo al templo de puntuaciones.</span>`;
+      }
+    }
   });
 }
-
-// Ejecutamos la escucha de la TV de forma automática
-listenToRankingTV();
-
+// LLAMADA DIRECTA AL FINAL DEL ARCHIVO:
+listenToRankingAndScore();
 document.getElementById("nextGameBtn").onclick = async () => {
   console.log(currentGame);
   let currentIndex = games.indexOf(currentGame);
